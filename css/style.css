@@ -2742,17 +2742,27 @@ div.establishment-staff-role-select {
   gap: 14px;
 }
 
+.file-viewer-pdf-actions {
+  width: 100%;
+  max-width: 980px;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2px;
+}
+
 .file-viewer-pdf-page {
   border-radius: 14px;
   overflow: hidden;
   background: #10131b;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+  padding: 0;
 }
 
-.file-viewer-pdf-page-image {
+.file-viewer-pdf-page-canvas {
   display: block;
   width: 100%;
   height: auto;
+  background: #ffffff;
 }
 
 .file-viewer-pdf-note {

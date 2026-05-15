@@ -3861,7 +3861,15 @@ const setupRequestDetailsView = () => {
       pdfDocument = await loadingTask.promise;
       const totalPages = Math.min(pdfDocument.numPages, 12);
 
-      fileViewerBody.innerHTML = `<div class="file-viewer-pdf-pages"></div>`;
+      fileViewerBody.innerHTML = `
+        <div class="file-viewer-pdf-actions">
+          <button id="file-viewer-download-pdf-inline" class="file-viewer-download" type="button">Скачать PDF</button>
+        </div>
+        <div class="file-viewer-pdf-pages"></div>
+      `;
+      fileViewerBody.querySelector('#file-viewer-download-pdf-inline')?.addEventListener('click', () => {
+        downloadBlobFile(blobUrl, fileName);
+      });
       const pagesContainer = fileViewerBody.querySelector('.file-viewer-pdf-pages');
       if (!pagesContainer) return false;
 
@@ -3869,23 +3877,24 @@ const setupRequestDetailsView = () => {
         const page = await pdfDocument.getPage(pageNumber);
         const baseViewport = page.getViewport({ scale: 1 });
         const containerWidth = Math.min(fileViewerBody.clientWidth || 980, 980);
-        const targetWidth = Math.max(320, containerWidth - 24);
+        const targetWidth = Math.max(320, containerWidth - 8);
         const scale = targetWidth / baseViewport.width;
         const viewport = page.getViewport({ scale });
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
         const canvas = document.createElement('canvas');
+        canvas.className = 'file-viewer-pdf-page-canvas';
         const context = canvas.getContext('2d', { alpha: false });
         if (!context) continue;
-        canvas.width = Math.floor(viewport.width);
-        canvas.height = Math.floor(viewport.height);
+        canvas.width = Math.floor(viewport.width * dpr);
+        canvas.height = Math.floor(viewport.height * dpr);
+        canvas.style.width = `${Math.floor(viewport.width)}px`;
+        canvas.style.height = `${Math.floor(viewport.height)}px`;
+        context.setTransform(dpr, 0, 0, dpr, 0, 0);
         await page.render({ canvasContext: context, viewport }).promise;
 
         const pageCard = document.createElement('div');
         pageCard.className = 'file-viewer-pdf-page';
-        const img = document.createElement('img');
-        img.className = 'file-viewer-pdf-page-image';
-        img.alt = `${fileName} — страница ${pageNumber}`;
-        img.src = canvas.toDataURL('image/jpeg', 0.92);
-        pageCard.appendChild(img);
+        pageCard.appendChild(canvas);
         pagesContainer.appendChild(pageCard);
       }
 

@@ -1509,6 +1509,27 @@ const pendingAuthorizedActionState = {
   timerId: null
 };
 const pendingOutgoingMessagesByTask = new Map();
+const pendingLocalAttachmentsCache = new Map();
+
+const registerPendingLocalAttachment = (cacheKey, file) => {
+  if (!cacheKey || !(file instanceof Blob)) return;
+  pendingLocalAttachmentsCache.set(String(cacheKey), {
+    blob: file,
+    fileName: String(file.name || 'Файл'),
+    createdAt: Date.now()
+  });
+  if (pendingLocalAttachmentsCache.size > 40) {
+    const oldestEntries = Array.from(pendingLocalAttachmentsCache.entries())
+      .sort((a, b) => (a[1]?.createdAt || 0) - (b[1]?.createdAt || 0))
+      .slice(0, pendingLocalAttachmentsCache.size - 40);
+    oldestEntries.forEach(([key]) => pendingLocalAttachmentsCache.delete(key));
+  }
+};
+
+const getPendingLocalAttachment = (cacheKey) => {
+  if (!cacheKey) return null;
+  return pendingLocalAttachmentsCache.get(String(cacheKey)) || null;
+};
 const ESTABLISHMENTS_CACHE_STORAGE_KEY = 'miniapp_establishments_cache_v1';
 const UNREAD_STORAGE_KEY = 'miniapp_unread_counts_v1';
 const REQUESTS_CACHE_STORAGE_KEY = 'miniapp_requests_cache_v1';
@@ -1786,7 +1807,9 @@ const normalizeTaskComment = (comment, fallbackText = '', taskId = '') => {
         url: String(item?.url ?? item?.file_url ?? item?.href ?? ''),
         md5: String(item?.md5 ?? item?.hash ?? ''),
         mimeType: String(item?.mime_type ?? item?.mimeType ?? ''),
-        previewUrl: String(item?.preview_url ?? item?.previewUrl ?? item?.thumb_url ?? item?.thumbnail ?? item?.url ?? '')
+        previewUrl: String(item?.preview_url ?? item?.previewUrl ?? item?.thumb_url ?? item?.thumbnail ?? item?.url ?? ''),
+        isPending: Boolean(item?.isPending),
+        localCacheKey: String(item?.localCacheKey ?? item?.local_cache_key ?? '')
       }))
       .filter((item) => item.name || item.url)
     : legacyAttachmentNames.map((name, index) => ({
@@ -2369,6 +2392,7 @@ const renderFileChipHtml = (attachment) => `
     data-attachment-id="${escapeHtml(attachment?.id || '')}"
     data-attachment-md5="${escapeHtml(attachment?.md5 || '')}"
     data-attachment-name="${escapeHtml(attachment?.name || 'Файл')}"
+    data-attachment-local-key="${escapeHtml(attachment?.localCacheKey || '')}"
   >
     <span class="request-file-chip__icon"><i class="fas fa-paperclip" aria-hidden="true"></i></span>
     <span class="request-file-chip__meta">
@@ -3519,7 +3543,8 @@ const setupRequestDetailsView = () => {
           bodyElement.querySelectorAll('.request-file-chip').forEach((chipElement, index) => {
             const attachment = message.attachments[index];
             if (!attachment) return;
-            if (attachment.isPending || (!attachment.id && !attachment.url)) return;
+            const hasLocalPending = Boolean(attachment.localCacheKey);
+            if (!hasLocalPending && !attachment.id && !attachment.url) return;
             chipElement.dataset.taskId = message.taskId || task.taskId || '';
             chipElement.dataset.commentId = message.commentId || '';
             chipElement.dataset.chatId = task.chatId || '';
@@ -4078,6 +4103,17 @@ const setupRequestDetailsView = () => {
     if (isDialogRequestInFlight) return;
     const attachmentId = String(buttonElement.dataset.attachmentId || '').trim();
     const attachmentName = String(buttonElement.dataset.attachmentName || 'Файл');
+    const localCacheKey = String(buttonElement.dataset.attachmentLocalKey || '').trim();
+    if (localCacheKey) {
+      const localFile = getPendingLocalAttachment(localCacheKey);
+      if (localFile?.blob instanceof Blob && localFile.blob.size > 0) {
+        FileViewerModal.open({
+          blob: localFile.blob,
+          fileName: localFile.fileName || attachmentName
+        });
+        return;
+      }
+    }
     if (!attachmentId) {
       showPlatformPopup('Ошибка файла', `У файла нет ID: ${attachmentName}`);
       return;
@@ -4189,6 +4225,10 @@ const setupRequestDetailsView = () => {
     if ((!text && !file) || isDialogRequestInFlight) return;
     const activeTask = requestsState.tasks.find((item) => item.taskId === requestsState.activeTaskId);
     if (!activeTask || isTaskClosed(activeTask)) return;
+    const pendingLocalCacheKey = file ? `pending-local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}` : '';
+    if (file && pendingLocalCacheKey) {
+      registerPendingLocalAttachment(pendingLocalCacheKey, file);
+    }
 
     const pendingMessage = normalizeTaskComment({
       task_id: activeTask.taskId,
@@ -4203,7 +4243,8 @@ const setupRequestDetailsView = () => {
         id: `pending-${Date.now()}`,
         name: file.name,
         mime_type: file.type || '',
-        isPending: true
+        isPending: true,
+        localCacheKey: pendingLocalCacheKey
       }] : []
     });
     registerPendingOutgoingMessage(activeTask.taskId, pendingMessage);

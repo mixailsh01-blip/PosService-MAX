@@ -3833,25 +3833,101 @@ const setupRequestDetailsView = () => {
     anchor.remove();
   };
 
-  const openBlobInSystem = async (blob, fileName = 'file') => {
-    if (!(blob instanceof Blob) || blob.size <= 0) return false;
-    try {
-      const file = new File([blob], fileName, { type: blob.type || 'application/octet-stream' });
-      if (navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
-        await navigator.share({ files: [file], title: fileName });
-        return true;
-      }
-    } catch (error) {
-      console.warn('⚠️ [FileViewer] share(files) unavailable:', error);
+  const getPdfJsLib = () => {
+    const lib = window.pdfjsLib || null;
+    if (!lib) return null;
+    if (typeof lib.GlobalWorkerOptions?.workerSrc !== 'string' || !lib.GlobalWorkerOptions.workerSrc) {
+      lib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
     }
-    return false;
+    return lib;
   };
 
-  const isIosLikeDevice = () => {
-    const ua = window.navigator.userAgent || '';
-    const isAppleMobile = /iPad|iPhone|iPod/i.test(ua);
-    const isIpadOs = window.navigator.platform === 'MacIntel' && window.navigator.maxTouchPoints > 1;
-    return isAppleMobile || isIpadOs;
+  const renderPdfIntoViewer = async (blob, fileName, blobUrl) => {
+    const pdfjsLib = getPdfJsLib();
+    if (!pdfjsLib || !fileViewerBody) return false;
+
+    fileViewerBody.innerHTML = `
+      <div class="file-viewer-state">
+        <div class="file-viewer-spinner" aria-hidden="true"></div>
+        <div class="file-viewer-state-title">Подготавливаем PDF</div>
+        <div class="file-viewer-state-text">Рендерим страницы для просмотра внутри mini app.</div>
+      </div>
+    `;
+
+    let pdfDocument = null;
+    try {
+      const arrayBuffer = await blob.arrayBuffer();
+      const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+      pdfDocument = await loadingTask.promise;
+      const totalPages = Math.min(pdfDocument.numPages, 12);
+
+      fileViewerBody.innerHTML = `<div class="file-viewer-pdf-pages"></div>`;
+      const pagesContainer = fileViewerBody.querySelector('.file-viewer-pdf-pages');
+      if (!pagesContainer) return false;
+
+      for (let pageNumber = 1; pageNumber <= totalPages; pageNumber += 1) {
+        const page = await pdfDocument.getPage(pageNumber);
+        const baseViewport = page.getViewport({ scale: 1 });
+        const containerWidth = Math.min(fileViewerBody.clientWidth || 980, 980);
+        const targetWidth = Math.max(320, containerWidth - 24);
+        const scale = targetWidth / baseViewport.width;
+        const viewport = page.getViewport({ scale });
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d', { alpha: false });
+        if (!context) continue;
+        canvas.width = Math.floor(viewport.width);
+        canvas.height = Math.floor(viewport.height);
+        await page.render({ canvasContext: context, viewport }).promise;
+
+        const pageCard = document.createElement('div');
+        pageCard.className = 'file-viewer-pdf-page';
+        const img = document.createElement('img');
+        img.className = 'file-viewer-pdf-page-image';
+        img.alt = `${fileName} — страница ${pageNumber}`;
+        img.src = canvas.toDataURL('image/jpeg', 0.92);
+        pageCard.appendChild(img);
+        pagesContainer.appendChild(pageCard);
+      }
+
+      if (pdfDocument.numPages > 12) {
+        const note = document.createElement('div');
+        note.className = 'file-viewer-pdf-note';
+        note.textContent = `Показаны первые 12 страниц из ${pdfDocument.numPages}. Полный файл можно скачать.`;
+        pagesContainer.appendChild(note);
+      }
+
+      return true;
+    } catch (error) {
+      console.warn('⚠️ [FileViewer] PDF render failed:', error);
+      fileViewerBody.innerHTML = `
+        <div class="file-viewer-fallback">
+          <div class="file-viewer-fallback-icon"><i class="fas fa-file-pdf" aria-hidden="true"></i></div>
+          <div class="file-viewer-fallback-name">${escapeHtml(fileName)}</div>
+          <div class="file-viewer-fallback-size">${formatFileSize(blob.size)}</div>
+          <button id="file-viewer-open-pdf" class="file-viewer-download" type="button">Открыть PDF</button>
+          <button id="file-viewer-download" class="file-viewer-download file-viewer-download-secondary" type="button">Скачать файл</button>
+        </div>
+      `;
+      fileViewerBody.querySelector('#file-viewer-open-pdf')?.addEventListener('click', () => {
+        if (typeof tg?.openLink === 'function') {
+          tg.openLink(blobUrl);
+          return;
+        }
+        window.open(blobUrl, '_blank', 'noopener,noreferrer');
+      });
+      fileViewerBody.querySelector('#file-viewer-download')?.addEventListener('click', () => {
+        downloadBlobFile(blobUrl, fileName);
+      });
+      return false;
+    } finally {
+      if (pdfDocument) {
+        try {
+          await pdfDocument.destroy();
+        } catch (destroyError) {
+          console.warn('⚠️ [FileViewer] PDF destroy error:', destroyError);
+        }
+      }
+    }
   };
 
   const FileViewerModal = {
@@ -3879,43 +3955,7 @@ const setupRequestDetailsView = () => {
           </video>
         `;
       } else if (isPdfFile) {
-        if (isIosLikeDevice()) {
-          fileViewerBody.innerHTML = `
-            <div class="file-viewer-fallback">
-              <div class="file-viewer-fallback-icon"><i class="fas fa-file-pdf" aria-hidden="true"></i></div>
-              <div class="file-viewer-fallback-name">${escapeHtml(fileName)}</div>
-              <div class="file-viewer-fallback-size">${formatFileSize(blob.size)}</div>
-              <button id="file-viewer-open-pdf" class="file-viewer-download" type="button">Открыть PDF</button>
-              <button id="file-viewer-download" class="file-viewer-download file-viewer-download-secondary" type="button">Скачать файл</button>
-            </div>
-          `;
-          const openPdfInNewTab = async () => {
-            const openedViaSystem = await openBlobInSystem(blob, fileName);
-            if (openedViaSystem) return;
-            if (typeof tg?.openLink === 'function') {
-              tg.openLink(currentFileViewerUrl);
-              return;
-            }
-            const openedWindow = window.open(currentFileViewerUrl, '_blank', 'noopener,noreferrer');
-            if (!openedWindow) {
-              showPlatformPopup('Открытие PDF', 'Платформа блокирует открытие файла в этом режиме.');
-            }
-          };
-          fileViewerBody.querySelector('#file-viewer-open-pdf')?.addEventListener('click', () => {
-            openPdfInNewTab();
-          });
-          fileViewerBody.querySelector('#file-viewer-download')?.addEventListener('click', async () => {
-            const shared = await openBlobInSystem(blob, fileName);
-            if (shared) return;
-            downloadBlobFile(currentFileViewerUrl, fileName);
-          });
-          // In iOS WebView, inline PDF often fails; try opening directly first.
-          setTimeout(() => {
-            openPdfInNewTab();
-          }, 0);
-        } else {
-          fileViewerBody.innerHTML = `<iframe class="file-viewer-pdf" src="${currentFileViewerUrl}" title="${escapeHtml(fileName)}"></iframe>`;
-        }
+        void renderPdfIntoViewer(blob, fileName, currentFileViewerUrl);
       } else {
         fileViewerBody.innerHTML = `
           <div class="file-viewer-fallback">

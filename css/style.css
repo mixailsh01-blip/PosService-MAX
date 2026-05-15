@@ -2734,6 +2734,34 @@ div.establishment-staff-role-select {
   background: #1a1c22;
 }
 
+.file-viewer-pdf-pages {
+  width: 100%;
+  max-width: 980px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.file-viewer-pdf-page {
+  border-radius: 14px;
+  overflow: hidden;
+  background: #10131b;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+}
+
+.file-viewer-pdf-page-image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.file-viewer-pdf-note {
+  margin-top: 2px;
+  font-size: 13px;
+  color: #98a0b3;
+  text-align: center;
+}
+
 .file-viewer-fallback {
   width: min(100%, 420px);
   padding: 20px 18px;

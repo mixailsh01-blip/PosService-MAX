@@ -2756,14 +2756,6 @@ div.establishment-staff-role-select {
   gap: 14px;
 }
 
-.file-viewer-pdf-actions {
-  width: 100%;
-  max-width: 980px;
-  display: flex;
-  justify-content: center;
-  margin-bottom: 2px;
-}
-
 .file-viewer-pdf-page {
   border-radius: 14px;
   overflow: hidden;

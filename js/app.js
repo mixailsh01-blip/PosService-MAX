@@ -3872,15 +3872,7 @@ const setupRequestDetailsView = () => {
       pdfDocument = await loadingTask.promise;
       const totalPages = Math.min(pdfDocument.numPages, 12);
 
-      fileViewerBody.innerHTML = `
-        <div class="file-viewer-pdf-actions">
-          <button id="file-viewer-download-pdf-inline" class="file-viewer-download" type="button">Скачать PDF</button>
-        </div>
-        <div class="file-viewer-pdf-pages"></div>
-      `;
-      fileViewerBody.querySelector('#file-viewer-download-pdf-inline')?.addEventListener('click', () => {
-        downloadBlobFile(blobUrl, fileName);
-      });
+      fileViewerBody.innerHTML = `<div class="file-viewer-pdf-pages"></div>`;
       const pagesContainer = fileViewerBody.querySelector('.file-viewer-pdf-pages');
       if (!pagesContainer) return false;
 

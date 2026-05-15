@@ -2686,6 +2686,13 @@ div.establishment-staff-role-select {
   align-items: center;
   justify-content: center;
   padding: 18px 16px calc(24px + env(safe-area-inset-bottom));
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.file-viewer-body.is-document {
+  align-items: flex-start;
+  justify-content: flex-start;
 }
 
 .file-viewer-state {

@@ -3790,11 +3790,18 @@ const setupRequestDetailsView = () => {
     fileViewerDownloadHeader.disabled = !isReady;
   };
 
+  const setFileViewerBodyMode = (mode = 'center') => {
+    if (!fileViewerBody) return;
+    fileViewerBody.classList.toggle('is-document', mode === 'document');
+  };
+
   const closeFileViewer = () => {
     if (!fileViewerModal || !fileViewerBody || !fileViewerTitle) return;
     fileViewerModal.classList.add('hidden');
     fileViewerModal.setAttribute('aria-hidden', 'true');
     fileViewerBody.innerHTML = '';
+    setFileViewerBodyMode('center');
+    fileViewerBody.scrollTop = 0;
     fileViewerTitle.textContent = 'Файл';
     currentFileViewerName = '';
     if (currentFileViewerUrl) {
@@ -3809,6 +3816,7 @@ const setupRequestDetailsView = () => {
     fileViewerTitle.textContent = title;
     fileViewerModal.classList.remove('hidden');
     fileViewerModal.setAttribute('aria-hidden', 'false');
+    fileViewerBody.scrollTop = 0;
   };
 
   const setFileViewerLoading = (title = 'Файл') => {
@@ -3856,6 +3864,8 @@ const setupRequestDetailsView = () => {
   const renderPdfIntoViewer = async (blob, fileName, blobUrl) => {
     const pdfjsLib = getPdfJsLib();
     if (!pdfjsLib || !fileViewerBody) return false;
+    setFileViewerBodyMode('document');
+    fileViewerBody.scrollTop = 0;
 
     fileViewerBody.innerHTML = `
       <div class="file-viewer-state">
@@ -3907,6 +3917,12 @@ const setupRequestDetailsView = () => {
         note.textContent = `Показаны первые 12 страниц из ${pdfDocument.numPages}. Полный файл можно скачать.`;
         pagesContainer.appendChild(note);
       }
+      requestAnimationFrame(() => {
+        fileViewerBody.scrollTop = 0;
+      });
+      setTimeout(() => {
+        fileViewerBody.scrollTop = 0;
+      }, 0);
 
       return true;
     } catch (error) {
@@ -3961,8 +3977,10 @@ const setupRequestDetailsView = () => {
       fileViewerTitle.textContent = fileName;
 
       if (isImageFile) {
+        setFileViewerBodyMode('center');
         fileViewerBody.innerHTML = `<img class="file-viewer-image" src="${currentFileViewerUrl}" alt="${escapeHtml(fileName)}" />`;
       } else if (isVideoFile) {
+        setFileViewerBodyMode('center');
         fileViewerBody.innerHTML = `
           <video class="file-viewer-video" src="${currentFileViewerUrl}" controls playsinline preload="metadata">
             Ваше устройство не поддерживает встроенное воспроизведение видео.
@@ -3971,6 +3989,7 @@ const setupRequestDetailsView = () => {
       } else if (isPdfFile) {
         void renderPdfIntoViewer(blob, fileName, currentFileViewerUrl);
       } else {
+        setFileViewerBodyMode('center');
         fileViewerBody.innerHTML = `
           <div class="file-viewer-fallback">
             <div class="file-viewer-fallback-icon"><i class="fas fa-file-alt" aria-hidden="true"></i></div>

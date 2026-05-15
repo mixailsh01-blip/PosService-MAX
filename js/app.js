@@ -3833,6 +3833,20 @@ const setupRequestDetailsView = () => {
     anchor.remove();
   };
 
+  const openBlobInSystem = async (blob, fileName = 'file') => {
+    if (!(blob instanceof Blob) || blob.size <= 0) return false;
+    try {
+      const file = new File([blob], fileName, { type: blob.type || 'application/octet-stream' });
+      if (navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
+        await navigator.share({ files: [file], title: fileName });
+        return true;
+      }
+    } catch (error) {
+      console.warn('⚠️ [FileViewer] share(files) unavailable:', error);
+    }
+    return false;
+  };
+
   const isIosLikeDevice = () => {
     const ua = window.navigator.userAgent || '';
     const isAppleMobile = /iPad|iPhone|iPod/i.test(ua);
@@ -3875,11 +3889,24 @@ const setupRequestDetailsView = () => {
               <button id="file-viewer-download" class="file-viewer-download file-viewer-download-secondary" type="button">Скачать файл</button>
             </div>
           `;
-          const openPdfInNewTab = () => {
-            window.open(currentFileViewerUrl, '_blank', 'noopener,noreferrer');
+          const openPdfInNewTab = async () => {
+            const openedViaSystem = await openBlobInSystem(blob, fileName);
+            if (openedViaSystem) return;
+            if (typeof tg?.openLink === 'function') {
+              tg.openLink(currentFileViewerUrl);
+              return;
+            }
+            const openedWindow = window.open(currentFileViewerUrl, '_blank', 'noopener,noreferrer');
+            if (!openedWindow) {
+              showPlatformPopup('Открытие PDF', 'Платформа блокирует открытие файла в этом режиме.');
+            }
           };
-          fileViewerBody.querySelector('#file-viewer-open-pdf')?.addEventListener('click', openPdfInNewTab);
-          fileViewerBody.querySelector('#file-viewer-download')?.addEventListener('click', () => {
+          fileViewerBody.querySelector('#file-viewer-open-pdf')?.addEventListener('click', () => {
+            openPdfInNewTab();
+          });
+          fileViewerBody.querySelector('#file-viewer-download')?.addEventListener('click', async () => {
+            const shared = await openBlobInSystem(blob, fileName);
+            if (shared) return;
             downloadBlobFile(currentFileViewerUrl, fileName);
           });
           // In iOS WebView, inline PDF often fails; try opening directly first.

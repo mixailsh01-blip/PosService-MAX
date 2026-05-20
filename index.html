@@ -351,6 +351,12 @@
 <!-- ==================== СКРИПТЫ ==================== -->
 <!-- MAX Bridge SDK, jsQR, PDF.js — перенесены сюда чтобы не блокировать рендер -->
 <script src="https://st.max.ru/js/max-web-app.js"></script>
+<script>
+  (function(){var w=window.WebApp||(window.Telegram&&window.Telegram.WebApp);if(!w)return;
+  if(typeof w.setBackgroundColor==='function')w.setBackgroundColor('#1e1e1e');
+  if(typeof w.setHeaderColor==='function')w.setHeaderColor('#121212');
+  if(typeof w.ready==='function')w.ready();}());
+</script>
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
 <script src="js/api.js?v=20260515-8"></script>

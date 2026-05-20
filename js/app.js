@@ -22,12 +22,7 @@ const handleGlobalError = (message, source, lineno) => {
 window.onerror = handleGlobalError;
 
 if (tg) {
-  if (typeof tg.expand === 'function') {
-    tg.expand();
-  }
-  if (typeof tg.ready === 'function') {
-    tg.ready();
-  }
+  if (typeof tg.expand === 'function') tg.expand();
 }
 
 /* ==================== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==================== */
@@ -3442,12 +3437,16 @@ const setupRequestDetailsView = () => {
     if (dialogTopic) dialogTopic.textContent = task.description || 'Без описания';
     if (dialogCompany) dialogCompany.textContent = task.org;
 
-    renderDialogChat(task);
+    dialogChat.innerHTML = '<div class="request-chat-empty">Загрузка...</div>';
     updateDialogComposerState(task);
     dialogModal.classList.remove('hidden');
     bindBackButtonToDialog();
-    requestOpenChat(task);
     stopRequestsListOpenChatPolling();
+    requestOpenChat(task).then((updatedTask) => {
+      if (requestsState.activeTaskId === task.taskId) {
+        renderDialogChat(updatedTask || task);
+      }
+    });
     scheduleOpenChatPolling(task.taskId);
   };
 
@@ -4168,6 +4167,7 @@ const setupRequestDetailsView = () => {
     if (!window.API?.sendOpenChat) return;
     const tasks = requestsState.tasks.filter((t) => t?.taskId && !isTaskClosed(t));
     for (const task of tasks) {
+      if (requestsState.activeTaskId) return;
       await requestOpenChat(task);
     }
   };

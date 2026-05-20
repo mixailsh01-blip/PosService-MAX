@@ -11,17 +11,19 @@
   <script src="https://st.max.ru/js/max-web-app.js"></script>
   <!-- Библиотека для сканирования QR-кодов -->
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+  <!-- PDF.js для рендера PDF внутри mini app -->
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
   
   <!-- Font Awesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css  " />
-  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
   <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com  ">
-  <link rel="preconnect" href="https://fonts.gstatic.com  " crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=PT+Root+UI:wght@500;700&display=swap" rel="stylesheet">
   
   <!-- ==================== СТИЛИ ==================== -->
-  <link rel="stylesheet" href="css/style.css?v=20260401-2" />
+  <link rel="stylesheet" href="css/style.css?v=20260515-8" />
 </head>
 
 <body>
@@ -314,8 +316,8 @@
       <div class="file-viewer-sheet">
         <div class="file-viewer-header">
           <div id="file-viewer-title" class="file-viewer-title">Файл</div>
-          <button id="file-viewer-close" class="file-viewer-close" type="button" aria-label="Закрыть">
-            <i class="fas fa-times" aria-hidden="true"></i>
+          <button id="file-viewer-download-header" class="file-viewer-download-header hidden" type="button" aria-label="Скачать файл">
+            <i class="fas fa-download" aria-hidden="true"></i>
           </button>
         </div>
         <div id="file-viewer-body" class="file-viewer-body"></div>
@@ -352,8 +354,8 @@
   </div>
 
 <!-- ==================== СКРИПТЫ ==================== -->
-<script src="js/api.js?v=20260401-2"></script>
-<script src="js/auth.js?v=20260401-2"></script>
-<script src="js/app.js?v=20260401-2"></script>
+<script src="js/api.js?v=20260515-8"></script>
+<script src="js/auth.js?v=20260515-8"></script>
+<script src="js/app.js?v=20260515-8"></script>
 </body>
 </html>

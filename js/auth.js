@@ -1,17 +1,8 @@
 /* ==================== AUTH MODULE ==================== */
 /* Отвечает за авторизацию, кэширование, обновление UI */
 
-const escapeAuthHtml = (value) => String(value ?? '')
-  .replace(/&/g, '&amp;')
-  .replace(/</g, '&lt;')
-  .replace(/>/g, '&gt;')
-  .replace(/"/g, '&quot;')
-  .replace(/'/g, '&#39;');
-
 const Auth = {
   tg: window.WebApp ?? window.Telegram?.WebApp ?? null,
-  CACHE_KEY: 'user_profile_data',
-  CACHE_TTL: 24 * 60 * 60 * 1000, // 24 часа
 
   /**
    * Показывает индикатор загрузки
@@ -84,29 +75,12 @@ const Auth = {
   },
 
   /**
-   * Сохраняет данные в localStorage
-   * @param {Object} data - Данные для сохранения
-   */
-  saveToCache(data) {
-    return;
-  },
-
-  /**
-   * Загружает данные из localStorage
-   * @returns {Object|null}
-   */
-  loadFromCache() {
-    return null;
-  },
-
-  /**
    * Обновляет профиль и рестораны на основе данных из хука
    * @param {Object} userData - Данные пользователя из ответа хука
    */
   updateProfile(userData) {
-    // Исправлена опечатка: famely -> lastName
     const firstName = userData.first_name || userData.name || '';
-    const lastName = userData.last_name || userData.family || ''; // Добавлена проверка на last_name
+    const lastName = userData.last_name || userData.family || '';
     const fullName = [firstName, lastName].filter(Boolean).join(' ') || 'Без имени';
 
     const userFullname = document.getElementById('user-fullname');
@@ -121,19 +95,11 @@ const Auth = {
     const shareContactBtn = document.getElementById('share-contact-btn');
 
     if (phone && userPhone) {
-      userPhone.textContent = this.formatPhoneNumber(phone);
-      if (shareContactBtn) shareContactBtn.classList.add('hidden'); // Прячем кнопку
+      userPhone.textContent = formatPhoneNumber(phone);
+      if (shareContactBtn) shareContactBtn.classList.add('hidden');
     }
 
-    // Обновляем список ресторанов
     this.updateRestaurants(userData.restaurants);
-
-    // Сохраняем в кэш
-    this.saveToCache({
-      fullName,
-      phone,
-      restaurants: userData.restaurants
-    });
   },
 
   /**
@@ -221,9 +187,9 @@ const Auth = {
           button.dataset.establishmentName = restaurant.name;
           button.type = 'button';
           button.innerHTML = `
-            <span class="establishment-item__label">${escapeAuthHtml(restaurant.name)}</span>
+            <span class="establishment-item__label">${escapeHtml(restaurant.name)}</span>
             <span class="establishment-item__actions">
-              <span class="establishment-item__share" data-establishment-share="true" role="button" tabindex="0" aria-label="Поделиться ${escapeAuthHtml(restaurant.name)}">
+              <span class="establishment-item__share" data-establishment-share="true" role="button" tabindex="0" aria-label="Поделиться ${escapeHtml(restaurant.name)}">
                 <i class="fas fa-share-nodes" aria-hidden="true"></i>
               </span>
             </span>
@@ -237,51 +203,6 @@ const Auth = {
     } catch (error) {
       console.error('❌ [Auth] Ошибка парсинга ресторанов:', error);
     }
-  },
-
-  /**
-   * Форматирование номера телефона
-   * @param {string|number} phone - Номер телефона
-   * @returns {string}
-   */
-  formatPhoneNumber(phone) {
-    if (!phone) return '+7 (XXX)-XXX-XXXX';
-    const cleaned = phone.toString().replace(/\D/g, '');
-    const match = cleaned.match(/^7(\d{3})(\d{3})(\d{2})(\d{2})$/);
-    return match 
-      ? `+7 (${match[1]})-${match[2]}-${match[3]}-${match[4]}`
-      : `+7 (${cleaned.substring(0, 3)})-${cleaned.substring(3, 6)}-${cleaned.substring(6, 8)}-${cleaned.substring(8, 10)}`;
-  },
-
-  /**
-   * Загружает данные из кэша и обновляет UI
-   * @returns {boolean} Успешно ли загружены данные
-   */
-  loadFromCacheAndUpdateUI() {
-    const cachedData = this.loadFromCache();
-    if (!cachedData) return false;
-
-    // Обновляем профиль
-    const userFullname = document.getElementById('user-fullname');
-    const userName = document.getElementById('user-name');
-    const userPhone = document.getElementById('user-phone');
-    const shareContactBtn = document.getElementById('share-contact-btn');
-
-    if (userFullname) userFullname.textContent = cachedData.fullName || 'Без имени';
-    if (userName) userName.textContent = (cachedData.fullName || 'Гость').split(' ')[0];
-    
-    if (cachedData.phone && userPhone) {
-      userPhone.textContent = this.formatPhoneNumber(cachedData.phone);
-      if (shareContactBtn) shareContactBtn.classList.add('hidden');
-    }
-
-    // Обновляем рестораны
-    if (cachedData.restaurants) {
-      this.updateRestaurants(cachedData.restaurants);
-    }
-
-    console.log('✅ [Auth] Данные загружены из кэша');
-    return true;
   },
 
   /**
@@ -301,16 +222,6 @@ const Auth = {
     this.showLoading();
 
     try {
-      // Сначала пробуем загрузить из кэша
-      if (this.loadFromCacheAndUpdateUI()) {
-        console.log('✅ [Auth] Данные загружены из кэша');
-        // Ждём 2 секунды для плавности
-        await new Promise(resolve => setTimeout(resolve, 0));
-        if (onReady) onReady();
-        return;
-      }
-
-      // Если кэш неактуален — запрашиваем с сервера
       if (!window.API) {
         console.error('❌ [Auth] Модуль API не загружен');
         await new Promise(resolve => setTimeout(resolve, 2000)); // Ждём 2 сек для UX

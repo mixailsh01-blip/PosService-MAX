@@ -3,6 +3,8 @@ const tg = window.WebApp ?? window.Telegram?.WebApp ?? null;
 const user = tg?.initDataUnsafe?.user;
 const platformName = window.WebApp ? 'max' : (window.Telegram?.WebApp ? 'telegram' : 'web');
 
+const BOT_DEEP_LINK_BASE = 'https://max.ru/id501305283158_bot?startapp=';
+
 const showPlatformPopup = (title, message) => {
   if (typeof tg?.showAlert === 'function') {
     tg.showAlert(message);
@@ -36,15 +38,6 @@ const getGreetingByTime = () => {
   if (hours >= 12 && hours < 17) return "Добрый день";
   if (hours >= 17 && hours < 23) return "Добрый вечер";
   return "Доброй ночи";
-};
-
-const formatPhoneNumber = (phone) => {
-  if (!phone) return '+7 (XXX)-XXX-XXXX';
-  const cleaned = phone.toString().replace(/\D/g, '');
-  const match = cleaned.match(/^7(\d{3})(\d{3})(\d{2})(\d{2})$/);
-  return match 
-    ? `+7 (${match[1]})-${match[2]}-${match[3]}-${match[4]}`
-    : `+7 (${cleaned.substring(0, 3)})-${cleaned.substring(3, 6)}-${cleaned.substring(6, 8)}-${cleaned.substring(8, 10)}`;
 };
 
 const getAvatarFallbackSrc = (person = null) => {
@@ -457,7 +450,7 @@ const handleRestaurantPhoto = (blob) => {
     console.log('Фото заведения получено, размер:', blob.size, 'байт');
     const imageUrl = URL.createObjectURL(blob);
     alert('Фото заведения успешно загружено! Теперь вы можете добавить информацию о заведении.');
-    
+    URL.revokeObjectURL(imageUrl);
   } catch (error) {
     console.error('Ошибка при обработке фото:', error);
     alert('Не удалось обработать фото заведения');
@@ -1277,177 +1270,6 @@ const setupNavigation = () => {
   });
 };
 
-/* ==================== ФИЛЬТРАЦИЯ И СОРТИРОВКА ТАБЛИЦЫ ==================== */
-
-const setupTableFiltersAndSorting = () => {
-  const table = document.getElementById('requests-table');
-  const tbody = document.getElementById('requests-table-body');
-  if (!table || !tbody) {
-    return;
-  }
-  const originalRows = Array.from(tbody.querySelectorAll('tr'));
-  
-  let currentSort = {
-    column: null,
-    direction: 'asc'
-  };
-
-  const filterInputs = {
-    dateCreated: document.getElementById('filter-date-created'),
-    dateCompleted: document.getElementById('filter-date-completed'),
-    establishment: document.getElementById('filter-establishment')
-  };
-
-  const clearFiltersBtn = document.getElementById('clear-filters');
-  if (!filterInputs.dateCreated || !filterInputs.dateCompleted || !filterInputs.establishment || !clearFiltersBtn) {
-    return;
-  }
-
-  const applyFilters = () => {
-    const filters = {
-      dateCreated: filterInputs.dateCreated.value,
-      dateCompleted: filterInputs.dateCompleted.value,
-      establishment: filterInputs.establishment.value
-    };
-
-    const filteredRows = originalRows.filter(row => {
-      const cells = row.querySelectorAll('td');
-      
-      if (filters.dateCreated) {
-        const rowDate = cells[1].getAttribute('data-sort');
-        if (rowDate && rowDate !== filters.dateCreated) {
-          return false;
-        }
-      }
-
-      if (filters.dateCompleted) {
-        const rowDate = cells[2].getAttribute('data-sort');
-        if (rowDate && rowDate !== filters.dateCompleted) {
-          return false;
-        }
-      }
-
-      if (filters.establishment && cells[3].textContent !== filters.establishment) {
-        return false;
-      }
-
-      return true;
-    });
-
-    const sortedRows = sortRows(filteredRows, currentSort.column, currentSort.direction);
-    updateTable(sortedRows);
-  };
-
-  const sortRows = (rows, column, direction) => {
-    if (!column) return rows;
-
-    const columnIndex = getColumnIndex(column);
-    if (columnIndex === -1) return rows;
-
-    return [...rows].sort((a, b) => {
-      let aValue, bValue;
-
-      switch (column) {
-        case 'number':
-          aValue = parseInt(a.cells[columnIndex].textContent);
-          bValue = parseInt(b.cells[columnIndex].textContent);
-          break;
-        case 'date-created':
-        case 'date-completed':
-          aValue = a.cells[columnIndex].getAttribute('data-sort') || '';
-          bValue = b.cells[columnIndex].getAttribute('data-sort') || '';
-          break;
-        case 'establishment':
-          aValue = a.cells[columnIndex].textContent;
-          bValue = b.cells[columnIndex].textContent;
-          break;
-        default:
-          aValue = a.cells[columnIndex].textContent;
-          bValue = b.cells[columnIndex].textContent;
-      }
-
-      if (aValue === '' && bValue !== '') return 1;
-      if (aValue !== '' && bValue === '') return -1;
-      if (aValue === '' && bValue === '') return 0;
-
-      let comparison = 0;
-      if (typeof aValue === 'number' && typeof bValue === 'number') {
-        comparison = aValue - bValue;
-      } else {
-        comparison = aValue.toString().localeCompare(bValue.toString());
-      }
-
-      return direction === 'asc' ? comparison : -comparison;
-    });
-  };
-
-  const getColumnIndex = (columnName) => {
-    const columns = {
-      'number': 0,
-      'date-created': 1,
-      'date-completed': 2,
-      'establishment': 3
-    };
-    return columns[columnName] !== undefined ? columns[columnName] : -1;
-  };
-
-  const updateTable = (rows) => {
-    tbody.innerHTML = '';
-    rows.forEach(row => tbody.appendChild(row));
-  };
-
-  Object.values(filterInputs).forEach(input => {
-    input.addEventListener('input', applyFilters);
-  });
-
-  clearFiltersBtn.addEventListener('click', () => {
-    Object.values(filterInputs).forEach(input => {
-      input.value = '';
-    });
-    applyFilters();
-  });
-
-  const sortableHeaders = table.querySelectorAll('.sortable');
-  sortableHeaders.forEach(header => {
-    header.addEventListener('click', () => {
-      const column = header.getAttribute('data-column');
-      
-      sortableHeaders.forEach(h => {
-        h.querySelector('.sort-arrow').className = 'sort-arrow';
-      });
-
-      if (currentSort.column === column) {
-        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
-      } else {
-        currentSort.column = column;
-        currentSort.direction = 'asc';
-      }
-
-      const arrow = header.querySelector('.sort-arrow');
-      arrow.className = 'sort-arrow ' + currentSort.direction;
-
-      applyFilters();
-    });
-  });
-
-  const requestsPage = document.getElementById('requests');
-  const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      if (mutation.attributeName === 'class') {
-        if (requestsPage.classList.contains('active')) {
-          const filters = requestsPage.querySelector('.table-filters');
-          if (filters) {
-            setTimeout(() => {
-              filters.classList.add('slide-in');
-            }, 100);
-          }
-        }
-      }
-    });
-  });
-
-  observer.observe(requestsPage, { attributes: true });
-};
 
 /* ==================== УЛУЧШЕНИЕ UX ==================== */
 
@@ -1509,6 +1331,24 @@ const pendingAuthorizedActionState = {
   timerId: null
 };
 const pendingOutgoingMessagesByTask = new Map();
+const pendingLocalAttachmentsCache = new Map();
+
+const registerPendingLocalAttachment = (cacheKey, file) => {
+  if (!cacheKey || !(file instanceof Blob)) return;
+  pendingLocalAttachmentsCache.set(String(cacheKey), {
+    blob: file,
+    fileName: String(file.name || 'Файл'),
+    createdAt: Date.now()
+  });
+  if (pendingLocalAttachmentsCache.size > 40) {
+    pendingLocalAttachmentsCache.delete(pendingLocalAttachmentsCache.keys().next().value);
+  }
+};
+
+const getPendingLocalAttachment = (cacheKey) => {
+  if (!cacheKey) return null;
+  return pendingLocalAttachmentsCache.get(String(cacheKey)) || null;
+};
 const ESTABLISHMENTS_CACHE_STORAGE_KEY = 'miniapp_establishments_cache_v1';
 const UNREAD_STORAGE_KEY = 'miniapp_unread_counts_v1';
 const REQUESTS_CACHE_STORAGE_KEY = 'miniapp_requests_cache_v1';
@@ -1633,12 +1473,6 @@ const LOCAL_PREVIEW_TASKS = [
   };
 })
 ];
-const escapeHtml = (value) => String(value ?? '')
-  .replace(/&/g, '&amp;')
-  .replace(/</g, '&lt;')
-  .replace(/>/g, '&gt;')
-  .replace(/"/g, '&quot;')
-  .replace(/'/g, '&#39;');
 
 const formatRequestDate = (value) => {
   if (!value) return '';
@@ -1786,7 +1620,9 @@ const normalizeTaskComment = (comment, fallbackText = '', taskId = '') => {
         url: String(item?.url ?? item?.file_url ?? item?.href ?? ''),
         md5: String(item?.md5 ?? item?.hash ?? ''),
         mimeType: String(item?.mime_type ?? item?.mimeType ?? ''),
-        previewUrl: String(item?.preview_url ?? item?.previewUrl ?? item?.thumb_url ?? item?.thumbnail ?? item?.url ?? '')
+        previewUrl: String(item?.preview_url ?? item?.previewUrl ?? item?.thumb_url ?? item?.thumbnail ?? item?.url ?? ''),
+        isPending: Boolean(item?.isPending),
+        localCacheKey: String(item?.localCacheKey ?? item?.local_cache_key ?? '')
       }))
       .filter((item) => item.name || item.url)
     : legacyAttachmentNames.map((name, index) => ({
@@ -2303,7 +2139,7 @@ const upsertRequestTask = (task, options = {}) => {
     const initialTask = applyStoredUnreadCountToTask({
       ...task,
       isClosed: Boolean(task.isClosed),
-      unreadCount: shouldMarkRead ? 0 : 0
+      unreadCount: 0
     });
     const initialSignature = getTaskChatSignature(initialTask.chat || []);
     const hasUnreadChanges = Boolean(initialSignature) && initialSignature !== getStoredReadChatSignature(initialTask);
@@ -2369,11 +2205,12 @@ const renderFileChipHtml = (attachment) => `
     data-attachment-id="${escapeHtml(attachment?.id || '')}"
     data-attachment-md5="${escapeHtml(attachment?.md5 || '')}"
     data-attachment-name="${escapeHtml(attachment?.name || 'Файл')}"
+    data-attachment-local-key="${escapeHtml(attachment?.localCacheKey || '')}"
   >
     <span class="request-file-chip__icon"><i class="fas fa-paperclip" aria-hidden="true"></i></span>
     <span class="request-file-chip__meta">
       <span class="request-file-chip__name">${escapeHtml(attachment?.name || 'Файл')}</span>
-      <span class="request-file-chip__action">${classifyAttachmentKind(attachment) === 'video' ? 'Открыть видео' : (classifyAttachmentKind(attachment) === 'photo' ? 'Открыть фото' : 'Открыть файл')}</span>
+      <span class="request-file-chip__action">${((k) => k === 'video' ? 'Открыть видео' : k === 'photo' ? 'Открыть фото' : 'Открыть файл')(classifyAttachmentKind(attachment))}</span>
     </span>
   </button>
 `;
@@ -2682,7 +2519,7 @@ const setupEstablishmentSelection = () => {
   };
 
   const shareEstablishmentInvite = async (establishmentId, establishmentName) => {
-    const shareLink = `https://max.ru/id501305283158_bot?startapp=add_restaurant_${encodeURIComponent(establishmentId)}`;
+    const shareLink = `${BOT_DEEP_LINK_BASE}add_restaurant_${encodeURIComponent(establishmentId)}`;
     const shareText = establishmentName
       ? `Откройте заведение ${establishmentName}`
       : 'Откройте заведение';
@@ -3125,7 +2962,6 @@ const setupTaskCreation = () => {
     renderSelectedFiles();
     updateSendButtonState();
     await new Promise((resolve) => requestAnimationFrame(() => resolve()));
-    await new Promise((resolve) => setTimeout(resolve, 0));
     try {
       const taskData = {
         title: 'Новая заявка',
@@ -3519,7 +3355,8 @@ const setupRequestDetailsView = () => {
           bodyElement.querySelectorAll('.request-file-chip').forEach((chipElement, index) => {
             const attachment = message.attachments[index];
             if (!attachment) return;
-            if (attachment.isPending || (!attachment.id && !attachment.url)) return;
+            const hasLocalPending = Boolean(attachment.localCacheKey);
+            if (!hasLocalPending && !attachment.id && !attachment.url) return;
             chipElement.dataset.taskId = message.taskId || task.taskId || '';
             chipElement.dataset.commentId = message.commentId || '';
             chipElement.dataset.chatId = task.chatId || '';
@@ -3530,9 +3367,6 @@ const setupRequestDetailsView = () => {
               handleAttachmentOpen(chipElement);
             };
             chipElement.onclick = openAttachment;
-            chipElement.onpointerdown = openAttachment;
-            chipElement.ontouchstart = openAttachment;
-            chipElement.onmousedown = openAttachment;
           });
         } else {
           bodyElement.innerHTML = `<div class="request-msg-text">${escapeHtml(message.text)}</div>`;
@@ -3610,17 +3444,7 @@ const setupRequestDetailsView = () => {
     renderDialogChat(task);
     updateDialogComposerState(task);
     dialogModal.classList.remove('hidden');
-    if (tg?.BackButton) {
-      if (typeof tg.BackButton.offClick === 'function') {
-        tg.BackButton.offClick(closeDialog);
-      }
-      if (typeof tg.BackButton.onClick === 'function') {
-        tg.BackButton.onClick(closeDialog);
-      }
-      if (typeof tg.BackButton.show === 'function') {
-        tg.BackButton.show();
-      }
-    }
+    bindBackButtonToDialog();
     requestOpenChat(task);
     stopRequestsListOpenChatPolling();
     scheduleOpenChatPolling(task.taskId);
@@ -3672,7 +3496,7 @@ const setupRequestDetailsView = () => {
     const executeRestaurantDeepLink = async () => {
       requestDeepLinkState.inFlight = true;
       try {
-        const qrPayload = `https://max.ru/id501305283158_bot?startapp=add_restaurant_${restaurantId}`;
+        const qrPayload = `${BOT_DEEP_LINK_BASE}add_restaurant_${restaurantId}`;
         const result = await window.API.sendQrData(qrPayload, user);
         const qrRestaurants = normalizeRestaurantsFromQrResponse(result);
         if (qrRestaurants.length > 0) {
@@ -3777,19 +3601,58 @@ const setupRequestDetailsView = () => {
   const fileViewerModal = document.getElementById('file-viewer-modal');
   const fileViewerBody = document.getElementById('file-viewer-body');
   const fileViewerTitle = document.getElementById('file-viewer-title');
-  const fileViewerClose = document.getElementById('file-viewer-close');
+  const fileViewerDownloadHeader = document.getElementById('file-viewer-download-header');
   let currentFileViewerUrl = '';
+  let currentFileViewerName = '';
+  let currentFileViewerBlob = null;
   let lastAttachmentOpenAt = 0;
+
+  const updateFileViewerHeaderDownload = () => {
+    if (!fileViewerDownloadHeader) return;
+    const isReady = Boolean(currentFileViewerUrl && currentFileViewerName);
+    fileViewerDownloadHeader.classList.toggle('hidden', !isReady);
+    fileViewerDownloadHeader.disabled = !isReady;
+  };
+
+  const setFileViewerBodyMode = (mode = 'center') => {
+    if (!fileViewerBody) return;
+    fileViewerBody.classList.toggle('is-document', mode === 'document');
+  };
+
+  const bindBackButtonTo = (handler) => {
+    if (!tg?.BackButton) return;
+    if (typeof tg.BackButton.offClick === 'function') {
+      tg.BackButton.offClick(closeDialog);
+      tg.BackButton.offClick(closeFileViewer);
+    }
+    if (typeof tg.BackButton.onClick === 'function') {
+      tg.BackButton.onClick(handler);
+    }
+    if (typeof tg.BackButton.show === 'function') {
+      tg.BackButton.show();
+    }
+  };
+
+  const bindBackButtonToDialog = () => bindBackButtonTo(closeDialog);
+  const bindBackButtonToFileViewer = () => bindBackButtonTo(closeFileViewer);
 
   const closeFileViewer = () => {
     if (!fileViewerModal || !fileViewerBody || !fileViewerTitle) return;
     fileViewerModal.classList.add('hidden');
     fileViewerModal.setAttribute('aria-hidden', 'true');
     fileViewerBody.innerHTML = '';
+    setFileViewerBodyMode('center');
+    fileViewerBody.scrollTop = 0;
     fileViewerTitle.textContent = 'Файл';
+    currentFileViewerName = '';
+    currentFileViewerBlob = null;
     if (currentFileViewerUrl) {
       URL.revokeObjectURL(currentFileViewerUrl);
       currentFileViewerUrl = '';
+    }
+    updateFileViewerHeaderDownload();
+    if (dialogModal && !dialogModal.classList.contains('hidden')) {
+      bindBackButtonToDialog();
     }
   };
 
@@ -3798,6 +3661,7 @@ const setupRequestDetailsView = () => {
     fileViewerTitle.textContent = title;
     fileViewerModal.classList.remove('hidden');
     fileViewerModal.setAttribute('aria-hidden', 'false');
+    fileViewerBody.scrollTop = 0;
   };
 
   const setFileViewerLoading = (title = 'Файл') => {
@@ -3833,6 +3697,128 @@ const setupRequestDetailsView = () => {
     anchor.remove();
   };
 
+  const saveFileFromViewer = async (blob, blobUrl, fileName) => {
+    if (blob instanceof Blob && navigator.share && navigator.canShare) {
+      try {
+        const shareFile = new File([blob], fileName, { type: blob.type || 'application/octet-stream' });
+        if (navigator.canShare({ files: [shareFile] })) {
+          await navigator.share({ files: [shareFile], title: fileName });
+          return;
+        }
+      } catch (error) {
+        console.warn('⚠️ [FileViewer] Share save failed, fallback to download:', error);
+      }
+    }
+    downloadBlobFile(blobUrl, fileName);
+  };
+
+  const getPdfJsLib = () => {
+    const lib = window.pdfjsLib || null;
+    if (!lib) return null;
+    if (typeof lib.GlobalWorkerOptions?.workerSrc !== 'string' || !lib.GlobalWorkerOptions.workerSrc) {
+      lib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+    }
+    return lib;
+  };
+
+  const renderPdfIntoViewer = async (blob, fileName, blobUrl) => {
+    const pdfjsLib = getPdfJsLib();
+    if (!pdfjsLib || !fileViewerBody) return false;
+    setFileViewerBodyMode('document');
+    fileViewerBody.scrollTop = 0;
+
+    fileViewerBody.innerHTML = `
+      <div class="file-viewer-state">
+        <div class="file-viewer-spinner" aria-hidden="true"></div>
+        <div class="file-viewer-state-title">Подготавливаем PDF</div>
+        <div class="file-viewer-state-text">Рендерим страницы для просмотра внутри mini app.</div>
+      </div>
+    `;
+
+    let pdfDocument = null;
+    try {
+      const arrayBuffer = await blob.arrayBuffer();
+      const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+      pdfDocument = await loadingTask.promise;
+      const totalPages = Math.min(pdfDocument.numPages, 12);
+
+      fileViewerBody.innerHTML = `<div class="file-viewer-pdf-pages"></div>`;
+      const pagesContainer = fileViewerBody.querySelector('.file-viewer-pdf-pages');
+      if (!pagesContainer) return false;
+
+      const containerWidth = Math.min(fileViewerBody.clientWidth || 980, 980);
+      const targetWidth = Math.max(320, containerWidth - 8);
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+      const pages = await Promise.all(
+        Array.from({ length: totalPages }, (_, i) => pdfDocument.getPage(i + 1))
+      );
+
+      for (const page of pages) {
+        const baseViewport = page.getViewport({ scale: 1 });
+        const scale = targetWidth / baseViewport.width;
+        const viewport = page.getViewport({ scale });
+        const canvas = document.createElement('canvas');
+        canvas.className = 'file-viewer-pdf-page-canvas';
+        const context = canvas.getContext('2d', { alpha: false });
+        if (!context) continue;
+        canvas.width = Math.floor(viewport.width * dpr);
+        canvas.height = Math.floor(viewport.height * dpr);
+        canvas.style.width = `${Math.floor(viewport.width)}px`;
+        canvas.style.height = `${Math.floor(viewport.height)}px`;
+        context.setTransform(dpr, 0, 0, dpr, 0, 0);
+        await page.render({ canvasContext: context, viewport }).promise;
+
+        const pageCard = document.createElement('div');
+        pageCard.className = 'file-viewer-pdf-page';
+        pageCard.appendChild(canvas);
+        pagesContainer.appendChild(pageCard);
+      }
+
+      if (pdfDocument.numPages > 12) {
+        const note = document.createElement('div');
+        note.className = 'file-viewer-pdf-note';
+        note.textContent = `Показаны первые 12 страниц из ${pdfDocument.numPages}. Полный файл можно скачать.`;
+        pagesContainer.appendChild(note);
+      }
+      requestAnimationFrame(() => {
+        fileViewerBody.scrollTop = 0;
+      });
+
+      return true;
+    } catch (error) {
+      console.warn('⚠️ [FileViewer] PDF render failed:', error);
+      fileViewerBody.innerHTML = `
+        <div class="file-viewer-fallback">
+          <div class="file-viewer-fallback-icon"><i class="fas fa-file-pdf" aria-hidden="true"></i></div>
+          <div class="file-viewer-fallback-name">${escapeHtml(fileName)}</div>
+          <div class="file-viewer-fallback-size">${formatFileSize(blob.size)}</div>
+          <button id="file-viewer-open-pdf" class="file-viewer-download" type="button">Открыть PDF</button>
+          <button id="file-viewer-download" class="file-viewer-download file-viewer-download-secondary" type="button">Скачать файл</button>
+        </div>
+      `;
+      fileViewerBody.querySelector('#file-viewer-open-pdf')?.addEventListener('click', () => {
+        if (typeof tg?.openLink === 'function') {
+          tg.openLink(blobUrl);
+          return;
+        }
+        window.open(blobUrl, '_blank', 'noopener,noreferrer');
+      });
+      fileViewerBody.querySelector('#file-viewer-download')?.addEventListener('click', () => {
+        downloadBlobFile(blobUrl, fileName);
+      });
+      return false;
+    } finally {
+      if (pdfDocument) {
+        try {
+          await pdfDocument.destroy();
+        } catch (destroyError) {
+          console.warn('⚠️ [FileViewer] PDF destroy error:', destroyError);
+        }
+      }
+    }
+  };
+
   const FileViewerModal = {
     open({ blob, fileName = 'file' }) {
       if (!fileViewerModal || !fileViewerBody || !fileViewerTitle) return;
@@ -3841,7 +3827,11 @@ const setupRequestDetailsView = () => {
       }
 
       closeFileViewer();
+      currentFileViewerBlob = blob;
       currentFileViewerUrl = URL.createObjectURL(blob);
+      currentFileViewerName = fileName;
+      updateFileViewerHeaderDownload();
+      bindBackButtonToFileViewer();
       const blobType = String(blob.type || '').toLowerCase();
       const attachmentKind = classifyAttachmentKind({ name: fileName });
       const isImageFile = blobType.startsWith('image/') || attachmentKind === 'photo';
@@ -3850,16 +3840,19 @@ const setupRequestDetailsView = () => {
       fileViewerTitle.textContent = fileName;
 
       if (isImageFile) {
+        setFileViewerBodyMode('center');
         fileViewerBody.innerHTML = `<img class="file-viewer-image" src="${currentFileViewerUrl}" alt="${escapeHtml(fileName)}" />`;
       } else if (isVideoFile) {
+        setFileViewerBodyMode('center');
         fileViewerBody.innerHTML = `
           <video class="file-viewer-video" src="${currentFileViewerUrl}" controls playsinline preload="metadata">
             Ваше устройство не поддерживает встроенное воспроизведение видео.
           </video>
         `;
       } else if (isPdfFile) {
-        fileViewerBody.innerHTML = `<iframe class="file-viewer-pdf" src="${currentFileViewerUrl}" title="${escapeHtml(fileName)}"></iframe>`;
+        void renderPdfIntoViewer(blob, fileName, currentFileViewerUrl);
       } else {
+        setFileViewerBodyMode('center');
         fileViewerBody.innerHTML = `
           <div class="file-viewer-fallback">
             <div class="file-viewer-fallback-icon"><i class="fas fa-file-alt" aria-hidden="true"></i></div>
@@ -3868,14 +3861,19 @@ const setupRequestDetailsView = () => {
             <button id="file-viewer-download" class="file-viewer-download" type="button">Скачать файл</button>
           </div>
         `;
-        fileViewerBody.querySelector('#file-viewer-download')?.addEventListener('click', () => {
-          downloadBlobFile(currentFileViewerUrl, fileName);
+        fileViewerBody.querySelector('#file-viewer-download')?.addEventListener('click', async () => {
+          await saveFileFromViewer(currentFileViewerBlob, currentFileViewerUrl, fileName);
         });
       }
 
       openFileViewerShell(fileName);
     }
   };
+
+  fileViewerDownloadHeader?.addEventListener('click', async () => {
+    if (!currentFileViewerUrl || !currentFileViewerName) return;
+    await saveFileFromViewer(currentFileViewerBlob, currentFileViewerUrl, currentFileViewerName);
+  });
 
   const fetchFile = async (filePayload = {}, fallbackName = 'file') => {
     if (!window.API?.fetchFile) {
@@ -3904,6 +3902,17 @@ const setupRequestDetailsView = () => {
     if (isDialogRequestInFlight) return;
     const attachmentId = String(buttonElement.dataset.attachmentId || '').trim();
     const attachmentName = String(buttonElement.dataset.attachmentName || 'Файл');
+    const localCacheKey = String(buttonElement.dataset.attachmentLocalKey || '').trim();
+    if (localCacheKey) {
+      const localFile = getPendingLocalAttachment(localCacheKey);
+      if (localFile?.blob instanceof Blob && localFile.blob.size > 0) {
+        FileViewerModal.open({
+          blob: localFile.blob,
+          fileName: localFile.fileName || attachmentName
+        });
+        return;
+      }
+    }
     if (!attachmentId) {
       showPlatformPopup('Ошибка файла', `У файла нет ID: ${attachmentName}`);
       return;
@@ -4015,6 +4024,10 @@ const setupRequestDetailsView = () => {
     if ((!text && !file) || isDialogRequestInFlight) return;
     const activeTask = requestsState.tasks.find((item) => item.taskId === requestsState.activeTaskId);
     if (!activeTask || isTaskClosed(activeTask)) return;
+    const pendingLocalCacheKey = file ? `pending-local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}` : '';
+    if (file && pendingLocalCacheKey) {
+      registerPendingLocalAttachment(pendingLocalCacheKey, file);
+    }
 
     const pendingMessage = normalizeTaskComment({
       task_id: activeTask.taskId,
@@ -4029,7 +4042,8 @@ const setupRequestDetailsView = () => {
         id: `pending-${Date.now()}`,
         name: file.name,
         mime_type: file.type || '',
-        isPending: true
+        isPending: true,
+        localCacheKey: pendingLocalCacheKey
       }] : []
     });
     registerPendingOutgoingMessage(activeTask.taskId, pendingMessage);
@@ -4080,7 +4094,6 @@ const setupRequestDetailsView = () => {
     if (!card?.dataset?.taskId) return;
     openDialog(card.dataset.taskId);
   });
-  fileViewerClose?.addEventListener('click', closeFileViewer);
   fileViewerModal?.addEventListener('click', (event) => {
     if (event.target === fileViewerModal) {
       closeFileViewer();
@@ -4185,7 +4198,6 @@ const initializeApp = () => {
     setupAddRestaurantButton();
     setupMarketButton();
     enhanceMobileUX();
-    setupTableFiltersAndSorting();
     setupEstablishmentSelection();
     setupTaskCreation();
     setupRequestsFiltersModal();

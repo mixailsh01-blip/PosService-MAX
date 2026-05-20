@@ -696,3 +696,21 @@ const API = {
 
 // Экспортируем модуль
 window.API = API;
+
+/* ==================== ОБЩИЕ УТИЛИТЫ ==================== */
+
+const escapeHtml = (value) => String(value ?? '')
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#39;');
+
+const formatPhoneNumber = (phone) => {
+  if (!phone) return '+7 (XXX)-XXX-XXXX';
+  const cleaned = phone.toString().replace(/\D/g, '');
+  const match = cleaned.match(/^7(\d{3})(\d{3})(\d{2})(\d{2})$/);
+  return match
+    ? `+7 (${match[1]})-${match[2]}-${match[3]}-${match[4]}`
+    : `+7 (${cleaned.substring(0, 3)})-${cleaned.substring(3, 6)}-${cleaned.substring(6, 8)}-${cleaned.substring(8, 10)}`;
+};

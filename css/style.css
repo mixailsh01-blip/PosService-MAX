@@ -2247,6 +2247,10 @@ div.establishment-staff-role-select {
   margin-top: 8px;
   font-size: clamp(16px, 3.8vw, 20px);
   font-weight: 700;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .request-meta {
@@ -2284,6 +2288,10 @@ div.establishment-staff-role-select {
   margin-top: 6px;
   color: #7e8291;
   font-size: clamp(12px, 2.4vw, 14px);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .requests-pagination {

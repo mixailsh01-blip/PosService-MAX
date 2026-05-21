@@ -1973,6 +1973,14 @@ const hasResolvedOrganizationName = (value = '') => {
 
 const normalizeTaskFromWebhook = (item) => {
   if (!item || (!item.task_id && !item.taskId)) return null;
+  console.log('[DATE DEBUG]', {
+    taskId: item.task_id ?? item.taskId,
+    'item.created_at': item.created_at,
+    'item.createdAt': item.createdAt,
+    'item.date': item.date,
+    'item.updated_at': item.updated_at,
+    'chat[0]?.date': Array.isArray(item.chat) ? item.chat[0]?.date : undefined
+  });
   const taskId = String(item.task_id ?? item.taskId);
   const chatItems = Array.isArray(item.chat) ? item.chat : [];
   const fallbackPreviewComment = !chatItems.length

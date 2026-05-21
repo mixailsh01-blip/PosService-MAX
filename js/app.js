@@ -2016,7 +2016,7 @@ const normalizeTaskFromWebhook = (item) => {
     chatId: String(item.chat_id ?? item.chatId ?? ''),
     isClosed: hasClosedFlag ? Boolean(item.is_closed ?? item.isClosed ?? false) : undefined,
     chat: sortedChat,
-    createdAt: lastMessage?.date || new Date().toISOString(),
+    createdAt: item.created_at ?? item.createdAt ?? sortedChat[0]?.date ?? new Date().toISOString(),
     unreadCount: 0
   };
 };
@@ -2126,7 +2126,7 @@ const upsertRequestTask = (task, options = {}) => {
       chatId: task.chatId || existingTask.chatId,
       isClosed: typeof task.isClosed === 'boolean' ? task.isClosed : existingTask.isClosed,
       chat: nextChat,
-      createdAt: existingTask.createdAt || task.createdAt,
+      createdAt: task.createdAt || existingTask.createdAt,
       unreadCount: shouldMarkRead ? 0 : (hasUnreadChanges ? 1 : 0)
     };
     if (shouldMarkRead) {

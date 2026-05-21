@@ -2403,12 +2403,20 @@ div.establishment-staff-role-select {
   margin-top: 8px;
   font-size: 18px;
   font-weight: 700;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .request-dialog-company {
   margin-top: 5px;
   color: #8e93a4;
   font-size: 12px;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .request-dialog-chat {

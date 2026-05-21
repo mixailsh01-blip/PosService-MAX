@@ -365,9 +365,11 @@ const saveCachedEstablishments = (restaurants) => {
   }
 };
 
-const applyRestaurants = (restaurants) => {
+const applyRestaurants = (restaurants, { replace = false } = {}) => {
   try {
-    const mergedRestaurants = mergeRestaurants(getKnownEstablishments(), restaurants);
+    const mergedRestaurants = replace
+      ? mergeRestaurants(restaurants)
+      : mergeRestaurants(getKnownEstablishments(), restaurants);
     saveCachedEstablishments(mergedRestaurants);
 
     // Обновляем dropdown на главной (через существующую логику Auth)
@@ -781,7 +783,7 @@ const normalizeRestaurantsFromClientSupportResponse = (result) => {
 const applyClientSupportResponse = (result) => {
   const restaurants = normalizeRestaurantsFromClientSupportResponse(result);
   if (restaurants.length > 0) {
-    applyRestaurants(restaurants);
+    applyRestaurants(restaurants, { replace: true });
   }
 };
 

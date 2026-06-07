@@ -3366,7 +3366,7 @@ const setupRequestDetailsView = () => {
             .map((attachment) => renderFileChipHtml(attachment))
             .join('');
           bodyElement.innerHTML = `
-            ${message.text ? `<div class="request-msg-text">${escapeHtml(message.text)}</div>` : ''}
+            ${message.text ? `<div class="request-msg-text">${escapeHtml(message.text).replace(/\n/g, '<br>')}</div>` : ''}
             <div class="request-file-list">${attachmentsHtml}</div>
           `;
           bodyElement.querySelectorAll('.request-file-chip').forEach((chipElement, index) => {
@@ -3386,7 +3386,7 @@ const setupRequestDetailsView = () => {
             chipElement.onclick = openAttachment;
           });
         } else {
-          bodyElement.innerHTML = `<div class="request-msg-text">${escapeHtml(message.text)}</div>`;
+          bodyElement.innerHTML = `<div class="request-msg-text">${escapeHtml(message.text).replace(/\n/g, '<br>')}</div>`;
         }
       }
       msg.querySelector('.request-msg-time').textContent = formatRequestDate(message.date) || getCurrentTimeLabel();

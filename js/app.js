@@ -3334,7 +3334,8 @@ const setupRequestDetailsView = () => {
     scheduleOpenChatPolling(activeTask.taskId);
   };
 
-  const renderDialogChat = (task) => {
+  const renderDialogChat = (task, { forceScroll = false } = {}) => {
+    const wasNearBottom = dialogChat.scrollHeight - dialogChat.scrollTop - dialogChat.clientHeight < 80;
     dialogChat.innerHTML = '';
     const visibleMessages = Array.isArray(task?.chat)
       ? task.chat.filter((message) => !isHiddenSystemTaskComment(message))
@@ -3393,7 +3394,9 @@ const setupRequestDetailsView = () => {
       dialogChat.appendChild(msg);
     });
 
-    dialogChat.scrollTop = dialogChat.scrollHeight;
+    if (forceScroll || wasNearBottom) {
+      dialogChat.scrollTop = dialogChat.scrollHeight;
+    }
   };
 
   const updateDialogComposerState = (task) => {
@@ -3468,7 +3471,7 @@ const setupRequestDetailsView = () => {
     stopRequestsListOpenChatPolling();
     requestOpenChat(task).then((updatedTask) => {
       if (requestsState.activeTaskId === task.taskId) {
-        renderDialogChat(updatedTask || task);
+        renderDialogChat(updatedTask || task, { forceScroll: true });
       }
     });
     scheduleOpenChatPolling(task.taskId);
@@ -4019,12 +4022,10 @@ const setupRequestDetailsView = () => {
     event?.stopPropagation?.();
     if (attachBtn.disabled || fileInput.disabled) return;
     isOpeningFilePicker = true;
-    input.blur();
-    syncKeyboardOffset();
     fileInput.removeAttribute('accept');
     fileInput.removeAttribute('capture');
 
-    window.setTimeout(() => {
+    const triggerPicker = () => {
       try {
         if (typeof fileInput.showPicker === 'function') {
           fileInput.showPicker();
@@ -4034,7 +4035,17 @@ const setupRequestDetailsView = () => {
       } catch (error) {
         fileInput.click();
       }
-    }, 180);
+    };
+
+    if (isMobileDevice) {
+      // На мобильном — даём время закрыться клавиатуре
+      input.blur();
+      syncKeyboardOffset();
+      window.setTimeout(triggerPicker, 180);
+    } else {
+      // На десктопе — вызываем сразу, иначе теряется контекст жеста
+      triggerPicker();
+    }
   };
 
   const sendCurrentMessage = async () => {
@@ -4074,7 +4085,7 @@ const setupRequestDetailsView = () => {
     activeTask.chat.push(pendingMessage);
 
     renderRequestsList();
-    renderDialogChat(activeTask);
+    renderDialogChat(activeTask, { forceScroll: true });
     input.value = '';
     clearSelectedDialogFile();
     setDialogRequestInFlight(true);
@@ -4150,12 +4161,22 @@ const setupRequestDetailsView = () => {
   input.addEventListener('keydown', (event) => {
     if (event.key !== 'Enter') return;
     if (isMobileDevice) return; // на телефоне Enter = перенос, отправка только кнопкой
-    if (!event.shiftKey && !event.metaKey) {
+    if (event.metaKey) {
+      // Cmd+Enter (Mac) — вставляем перенос строки вручную
+      event.preventDefault();
+      const start = input.selectionStart;
+      const end = input.selectionEnd;
+      input.value = input.value.substring(0, start) + '\n' + input.value.substring(end);
+      input.selectionStart = input.selectionEnd = start + 1;
+      autoResizeInput();
+      return;
+    }
+    if (!event.shiftKey) {
       event.preventDefault();
       sendCurrentMessage();
       input.style.height = 'auto';
     }
-    // Shift+Enter / Cmd+Enter — перенос строки, не перехватываем
+    // Shift+Enter — перенос строки, не перехватываем
   });
   attachBtn.addEventListener('click', openFilePicker);
   window.visualViewport?.addEventListener('resize', syncKeyboardOffset);

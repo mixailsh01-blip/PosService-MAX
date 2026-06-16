@@ -3372,7 +3372,9 @@ const setupRequestDetailsView = () => {
   };
 
   const renderDialogChat = (task, { forceScroll = false } = {}) => {
-    const wasNearBottom = dialogChat.scrollHeight - dialogChat.scrollTop - dialogChat.clientHeight < 80;
+    const prevScrollTop = dialogChat.scrollTop;
+    const prevScrollHeight = dialogChat.scrollHeight;
+    const wasNearBottom = prevScrollHeight - prevScrollTop - dialogChat.clientHeight < 80;
     dialogChat.innerHTML = '';
     const visibleMessages = Array.isArray(task?.chat)
       ? task.chat.filter((message) => !isHiddenSystemTaskComment(message))
@@ -3433,6 +3435,10 @@ const setupRequestDetailsView = () => {
 
     if (forceScroll || wasNearBottom) {
       dialogChat.scrollTop = dialogChat.scrollHeight;
+    } else {
+      // Восстанавливаем позицию скролла: новый контент мог добавиться сверху
+      const newScrollHeight = dialogChat.scrollHeight;
+      dialogChat.scrollTop = prevScrollTop + (newScrollHeight - prevScrollHeight);
     }
   };
 

@@ -3085,6 +3085,14 @@ const setupTaskCreation = () => {
     updateSendButtonState();
   });
   descriptionInput.addEventListener('input', updateSendButtonState);
+  descriptionInput.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' || !event.metaKey) return;
+    event.preventDefault();
+    const start = descriptionInput.selectionStart;
+    const end = descriptionInput.selectionEnd;
+    descriptionInput.value = descriptionInput.value.substring(0, start) + '\n' + descriptionInput.value.substring(end);
+    descriptionInput.selectionStart = descriptionInput.selectionEnd = start + 1;
+  });
   sendBtn.addEventListener('click', sendTaskHandler);
   modal.addEventListener('click', (event) => {
     if (event.target === modal) closeModal();

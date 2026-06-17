@@ -2957,8 +2957,6 @@ div.establishment-staff-role-select {
   padding: 18px 14px calc(18px + env(safe-area-inset-bottom));
   font-size: 16px;
   font-weight: 700;
-  transform: translateY(calc(-1 * var(--dialog-keyboard-offset, 0px)));
-  transition: transform 0.2s ease;
 }
 
 .request-composer-attach,

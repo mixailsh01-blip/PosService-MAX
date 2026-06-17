@@ -3462,6 +3462,8 @@ const setupRequestDetailsView = () => {
       fileInput.value = '';
       selectedDialogFile = null;
       renderSelectedDialogFile();
+      dialogModal.style.setProperty('--dialog-keyboard-offset', '0px');
+      dialogChat.style.paddingBottom = '10px';
     }
   };
 

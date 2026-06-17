@@ -3371,14 +3371,21 @@ const setupRequestDetailsView = () => {
     scheduleOpenChatPolling(activeTask.taskId);
   };
 
+  let renderDialogChatLastKey = '';
   const renderDialogChat = (task, { forceScroll = false } = {}) => {
+    const visibleMessages = Array.isArray(task?.chat)
+      ? task.chat.filter((message) => !isHiddenSystemTaskComment(message))
+      : [];
+
+    // Пропускаем ре-рендер если сообщения не изменились и forceScroll не нужен
+    const newKey = visibleMessages.map((m) => `${m.commentId}:${m.text}:${(m.attachments || []).length}`).join('|');
+    if (!forceScroll && newKey === renderDialogChatLastKey) return;
+    renderDialogChatLastKey = newKey;
+
     const prevScrollTop = dialogChat.scrollTop;
     const prevScrollHeight = dialogChat.scrollHeight;
     const wasNearBottom = prevScrollHeight - prevScrollTop - dialogChat.clientHeight < 80;
     dialogChat.innerHTML = '';
-    const visibleMessages = Array.isArray(task?.chat)
-      ? task.chat.filter((message) => !isHiddenSystemTaskComment(message))
-      : [];
     if (!task || visibleMessages.length === 0) {
       dialogChat.innerHTML = '<div class="request-chat-empty">Сообщений пока нет</div>';
       return;
@@ -3436,9 +3443,10 @@ const setupRequestDetailsView = () => {
     if (forceScroll || wasNearBottom) {
       dialogChat.scrollTop = dialogChat.scrollHeight;
     } else {
-      // Восстанавливаем позицию скролла: новый контент мог добавиться сверху
-      const newScrollHeight = dialogChat.scrollHeight;
-      dialogChat.scrollTop = prevScrollTop + (newScrollHeight - prevScrollHeight);
+      requestAnimationFrame(() => {
+        const newScrollHeight = dialogChat.scrollHeight;
+        dialogChat.scrollTop = prevScrollTop + (newScrollHeight - prevScrollHeight);
+      });
     }
   };
 

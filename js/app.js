@@ -740,7 +740,7 @@ const notifyRegistrClient = async (contact, meta = null) => {
 const clientSupportResponseHasId = (result) => {
   if (!result) return false;
   const items = Array.isArray(result) ? result : [result];
-  return items.some((item) => item && (item.ID || item.id || item.IDClient || item.id_client || item.user_id));
+  return items.some((item) => item && (item.ID || item.IDClient || item.id_client));
 };
 
 const extractRestaurantsFromClientSupportItem = (item) => {

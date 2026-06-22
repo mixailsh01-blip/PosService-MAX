@@ -571,34 +571,6 @@ const setupMarketButton = () => {
   marketBtn.addEventListener('click', openMarketLink);
   marketBtn.addEventListener('touchend', openMarketLink, { passive: false });
 
-  const maxChannelBtn = document.querySelector('.home-max-channel-link');
-  if (maxChannelBtn) {
-    const maxChannelUrl = 'https://max.ru/join/qDa1TjlgK8XqcXiZuM0joz9-gMa8mXP4qYBR4qpvJ1s';
-    let isNavigatingChannel = false;
-
-    const openMaxChannelLink = (event) => {
-      event?.preventDefault?.();
-      event?.stopPropagation?.();
-      if (isNavigatingChannel) return;
-      isNavigatingChannel = true;
-
-      if (typeof tg?.openLink === 'function') {
-        try {
-          tg.openLink(maxChannelUrl);
-          return;
-        } catch (error) {
-          console.warn('Не удалось открыть ссылку через Bridge, используем fallback:', error);
-        }
-      }
-
-      const openedWindow = window.open(maxChannelUrl, '_blank', 'noopener,noreferrer');
-      if (openedWindow) return;
-      window.location.href = maxChannelUrl;
-    };
-
-    maxChannelBtn.addEventListener('click', openMaxChannelLink);
-    maxChannelBtn.addEventListener('touchend', openMaxChannelLink, { passive: false });
-  }
 };
 
 /* ==================== РАБОТА С МОДАЛЬНЫМИ ОКНАМИ ==================== */

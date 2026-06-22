@@ -1,7 +1,7 @@
 /* ==================== API MODULE ==================== */
 /* Отвечает за все HTTP-запросы к внешним системам */
 
-const API_BASE_URL = 'https://edbudepir.beget.app';
+const API_BASE_URL = 'https://quumahienot.beget.app';
 
 const getBridgeUserWithoutPhoto = (userData) => Object.fromEntries(
   Object.entries(userData || {}).filter(

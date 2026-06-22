@@ -2342,7 +2342,7 @@ div.establishment-staff-role-select {
   font-weight: 700;
   font-size: clamp(15px, 3.2vw, 19px);
   color: white;
-  background: linear-gradient(180deg, #0c86ff 0%, #0560dc 100%);
+  background: linear-gradient(135deg, #00d4ff 0%, #0099e0 75%, #7700aa 100%);
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.24);
   display: flex;
   align-items: center;

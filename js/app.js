@@ -740,7 +740,7 @@ const notifyRegistrClient = async (contact, meta = null) => {
 const clientSupportResponseHasId = (result) => {
   if (!result) return false;
   const items = Array.isArray(result) ? result : [result];
-  return items.some((item) => item && (item.ID || item.IDClient || item.id_client));
+  return items.some((item) => item && (item.ID || item.id || item.IDClient || item.id_client || item.user_id));
 };
 
 const extractRestaurantsFromClientSupportItem = (item) => {
@@ -1007,11 +1007,8 @@ const setupContactSharing = () => {
           if (attemptsLeft <= 0) {
             console.warn('⚠️ Контакт запрошен, но phone_number не появился в initDataUnsafe');
             setContactShareLoading(false);
-            hideContactShareModal();
-            // Платформа уже зарегистрировала пользователя — запускаем отложенное действие
-            if (requestDeepLinkState.awaitingAuthorization) {
-              requestDeepLinkState.awaitingAuthorization = false;
-              runPendingAuthorizedActionNow();
+            if (requestDeepLinkState.awaitingAuthorization && requestDeepLinkState.type === 'add_restaurant') {
+              showContactError('Не удалось получить номер телефона для регистрации. Нажмите еще раз.');
             } else {
               showContactInfo('Контакт отправлен в MAX. Если номер не обновился, попробуйте еще раз.');
             }
@@ -1036,7 +1033,7 @@ const setupContactSharing = () => {
         updateContactInfo(normalized);
         const registrResult = await notifyRegistrClient(normalized, { stage: 'requestContact_object' });
         hideContactShareModal();
-        if (requestDeepLinkState.awaitingAuthorization) {
+        if (registrResult) {
           requestDeepLinkState.awaitingAuthorization = false;
           await runPendingAuthorizedActionNow();
         }
@@ -1055,9 +1052,9 @@ const setupContactSharing = () => {
               return;
             }
             updateContactInfo(normalized);
-            await notifyRegistrClient(normalized, { stage: 'requestContact_string' });
+            const registrResult = await notifyRegistrClient(normalized, { stage: 'requestContact_string' });
             hideContactShareModal();
-            if (requestDeepLinkState.awaitingAuthorization) {
+            if (registrResult) {
               requestDeepLinkState.awaitingAuthorization = false;
               await runPendingAuthorizedActionNow();
             }
@@ -3616,9 +3613,7 @@ const setupRequestDetailsView = () => {
     const isAuthorized = await hasAuthorizedClientAccess();
     if (!isAuthorized) {
       requestDeepLinkState.awaitingAuthorization = true;
-      // Сохраняем колбэк без таймера — запустится только после того, как пользователь поделится номером
-      clearPendingAuthorizedAction();
-      pendingAuthorizedActionState.callback = executeRestaurantDeepLink;
+      schedulePendingAuthorizedAction(executeRestaurantDeepLink, 0);
       setContactShareLoading(false);
       showContactShareModal();
       return false;

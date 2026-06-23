@@ -30,7 +30,7 @@ body {
   z-index: 10;
   width: 100%;
   top: 16px;
-  height: 80px;
+  height: 120px;
 }
 
 #main-logo {
@@ -38,7 +38,7 @@ body {
   width: 90vw;
   height: auto;
   object-fit: contain;
-  max-height: 200px;
+  max-height: 280px;
 }
 
 body.hide-main-logo .main-logo-container {

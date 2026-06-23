@@ -109,8 +109,8 @@ body.hide-main-logo .main-logo-container {
 
 .home-centered-logo {
   position: absolute;
-  left: -100px;
-  top: -100px;
+  left: 20px;
+  top: 30px;
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
@@ -1924,8 +1924,8 @@ div.establishment-staff-role-select {
   }
 
   .home-centered-logo {
-    left: -100px;
-    top: -100px;
+    left: 20px;
+    top: 30px;
   }
 
   .home-secondary-card {

@@ -542,7 +542,7 @@ const setupAddRestaurantButton = () => {
 const setupMarketButton = () => {
   const marketBtn = document.querySelector('.home-market-link');
   if (!marketBtn) return;
-  const marketUrl = 'https://posbazar.ru/item/pos-terminaly/';
+  const marketUrl = 'https://www.avito.ru/brands/poservice/all?sellerId=7390c3e8777b7d312de0d96e6484cdec';
   let isNavigating = false;
 
   const openMarketLink = (event) => {

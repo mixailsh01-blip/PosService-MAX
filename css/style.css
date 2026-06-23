@@ -1188,12 +1188,12 @@ body.hide-main-logo #requests.page {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  background: linear-gradient(180deg, #0c86ff 0%, #0560dc 100%);
+  background: #333;
   color: #ffffff;
 }
 
 .task-create-file-row .btn-CancelModal:hover {
-  background: linear-gradient(180deg, #1b92ff 0%, #0a69e7 100%);
+  background: #444;
 }
 
 .task-create-file-row .btn-CancelModal.is-compact {

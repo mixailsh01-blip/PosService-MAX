@@ -1559,13 +1559,26 @@ div.establishment-staff-role-select {
   transform: scale(0.99);
 }
 
-/* Стиль для выбранного заведения на странице счетов */
-#selected-establishment {
-  font-size: clamp(16px, 3vw, 20px);
-  min-height: 60px;
+/* Страница счетов */
+#accounts.page {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+  padding: 24px 20px;
+}
+
+#selected-establishment {
+  font-size: clamp(15px, 3vw, 18px);
+  color: #aaa;
+  text-align: center;
+  background: #1e1e1e;
+  border-radius: 16px;
+  padding: 24px 20px;
+  width: 100%;
+  max-width: 380px;
+  line-height: 1.6;
 }
 
 /* ==================== ВЫПАДАЮЩИЕ СПИСКИ ==================== */

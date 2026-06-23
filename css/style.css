@@ -30,7 +30,7 @@ body {
   z-index: 10;
   width: 100%;
   top: 16px;
-  height: 135px;
+  height: 80px;
 }
 
 #main-logo {
@@ -38,7 +38,7 @@ body {
   width: 90vw;
   height: auto;
   object-fit: contain;
-  max-height: 310px;
+  max-height: 200px;
 }
 
 body.hide-main-logo .main-logo-container {
@@ -109,8 +109,8 @@ body.hide-main-logo .main-logo-container {
 
 .home-centered-logo {
   position: absolute;
-  left: 8px;
-  top: 96px;
+  left: -15px;
+  top: 60px;
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;

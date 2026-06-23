@@ -786,6 +786,20 @@ const applyClientSupportResponse = (result) => {
   if (restaurants.length > 0) {
     applyRestaurants(restaurants, { replace: true });
   }
+
+  const items = Array.isArray(result) ? result : (result ? [result] : []);
+  const phone = items.reduce((found, item) => {
+    return found ?? item?.Number ?? item?.Nubmer ?? item?.phone_number ?? item?.phone ?? null;
+  }, null);
+
+  if (phone) {
+    const userPhoneEl = document.getElementById('user-phone');
+    if (userPhoneEl && userPhoneEl.textContent.includes('XXX')) {
+      userPhoneEl.textContent = formatPhoneNumber(phone);
+    }
+    const shareBtn = document.getElementById('share-contact-btn');
+    shareBtn?.classList.add('hidden');
+  }
 };
 
 const clientSupportState = {

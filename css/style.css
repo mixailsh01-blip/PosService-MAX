@@ -969,8 +969,8 @@ body.hide-main-logo #requests.page {
   font-size: 16px;
   cursor: pointer;
   color: #ffffff;
-  background: linear-gradient(180deg, #0c86ff 0%, #0560dc 100%);
-  box-shadow: 0 10px 22px rgba(12, 134, 255, 0.18);
+  background: linear-gradient(135deg, #00d4ff 0%, #00aaee 35%, #9900cc 100%);
+  box-shadow: 0 10px 22px rgba(0, 180, 255, 0.18);
 }
 
 .contact-share-btn:hover {
@@ -2644,7 +2644,7 @@ div.establishment-staff-role-select {
   margin-top: 18px;
   border: 0;
   border-radius: 14px;
-  background: linear-gradient(180deg, #1791ff 0%, #0063ff 100%);
+  background: linear-gradient(135deg, #00d4ff 0%, #00aaee 35%, #9900cc 100%);
   color: #fff;
   font-size: 15px;
   font-weight: 700;

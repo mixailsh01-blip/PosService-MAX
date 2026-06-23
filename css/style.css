@@ -30,7 +30,7 @@ body {
   z-index: 10;
   width: 100%;
   top: 16px;
-  height: 110px;
+  height: 135px;
 }
 
 #main-logo {
@@ -38,7 +38,7 @@ body {
   width: 90vw;
   height: auto;
   object-fit: contain;
-  max-height: 260px;
+  max-height: 310px;
 }
 
 body.hide-main-logo .main-logo-container {
@@ -109,7 +109,7 @@ body.hide-main-logo .main-logo-container {
 
 .home-centered-logo {
   position: absolute;
-  left: 40px;
+  left: 8px;
   top: 96px;
   display: flex;
   align-items: flex-start;
@@ -119,7 +119,7 @@ body.hide-main-logo .main-logo-container {
 }
 
 .home-centered-logo img {
-  width: min(20vw, 100px);
+  width: min(26vw, 125px);
   height: auto;
   object-fit: contain;
   opacity: 0.98;

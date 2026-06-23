@@ -109,8 +109,8 @@ body.hide-main-logo .main-logo-container {
 
 .home-centered-logo {
   position: absolute;
-  left: -30px;
-  top: 30px;
+  left: -50px;
+  top: 0px;
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;

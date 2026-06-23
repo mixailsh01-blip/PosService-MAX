@@ -109,7 +109,7 @@ body.hide-main-logo .main-logo-container {
 
 .home-centered-logo {
   position: absolute;
-  left: 140px;
+  left: 40px;
   top: 130px;
   display: flex;
   align-items: flex-start;
@@ -1924,7 +1924,7 @@ div.establishment-staff-role-select {
   }
 
   .home-centered-logo {
-    left: 140px;
+    left: 40px;
     top: 130px;
   }
 

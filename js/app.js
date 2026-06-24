@@ -1238,7 +1238,8 @@ const startAnimation = () => {
 const moveNavPill = (btn) => {
   const pill = document.querySelector('.nav-pill');
   if (!pill || !btn) return;
-  const pillWidth = 72;
+  const pillWidth = Math.min(btn.offsetWidth - 16, 120);
+  pill.style.width = pillWidth + 'px';
   const left = btn.offsetLeft + (btn.offsetWidth - pillWidth) / 2;
   pill.style.left = left + 'px';
 };

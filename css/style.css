@@ -556,10 +556,10 @@ body.hide-main-logo #requests.page {
 
 .nav-pill {
   position: absolute;
-  top: 6px;
-  height: 36px;
-  width: 64px;
-  border-radius: 18px;
+  top: 4px;
+  height: 58px;
+  width: 72px;
+  border-radius: 20px;
   background: rgba(255, 255, 255, 0.11);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);

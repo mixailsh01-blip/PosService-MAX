@@ -1241,7 +1241,7 @@ const moveNavPill = (btn) => {
   const navBar = btn.closest('.nav-bar');
   const navRect = navBar.getBoundingClientRect();
   const btnRect = btn.getBoundingClientRect();
-  const pillWidth = 64;
+  const pillWidth = 72;
   const left = btnRect.left - navRect.left + (btnRect.width - pillWidth) / 2;
   pill.style.left = left + 'px';
 };

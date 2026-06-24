@@ -487,7 +487,8 @@ body.hide-main-logo .main-logo-container {
 }
 
 body.hide-main-logo #requests.page,
-body.hide-main-logo #profile.page {
+body.hide-main-logo #profile.page,
+body.hide-main-logo #accounts.page {
   margin-top: 0;
   padding-top: 12px;
 }

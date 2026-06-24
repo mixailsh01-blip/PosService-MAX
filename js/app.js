@@ -1276,7 +1276,7 @@ const setupNavigation = () => {
       newPage?.classList.add('active');
       btn.classList.add('active');
       moveNavPill(btn);
-      document.body.classList.toggle('hide-main-logo', pageId === 'requests' || pageId === 'profile');
+      document.body.classList.toggle('hide-main-logo', pageId === 'requests' || pageId === 'profile' || pageId === 'accounts');
 
       if (pageId === 'requests') {
         syncOpenTasksForKnownEstablishments({ force: true }).then(() => {

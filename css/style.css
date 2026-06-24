@@ -486,9 +486,10 @@ body.hide-main-logo .main-logo-container {
   overflow: hidden;
 }
 
-body.hide-main-logo #requests.page {
+body.hide-main-logo #requests.page,
+body.hide-main-logo #profile.page {
   margin-top: 0;
-  padding-top: 0;
+  padding-top: 12px;
 }
 
 .page {
@@ -761,7 +762,7 @@ body.hide-main-logo #requests.page {
   background-color: #1a2540;
   border-radius: 24px;
   margin-bottom: 14px;
-  margin-top: 16px;
+  margin-top: 0;
   width: 100%;
 }
 

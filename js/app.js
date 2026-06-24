@@ -1216,7 +1216,18 @@ const startAnimation = () => {
           document.body.classList.toggle('hide-main-logo', activePage.id === 'requests');
           animateButtons(activePage);
         }
-        document.querySelector('.nav-bar')?.classList.add('slide-in');
+        const navBar = document.querySelector('.nav-bar');
+        navBar?.classList.add('slide-in');
+        // Позиционируем таблетку после появления навбара
+        setTimeout(() => {
+          const activeBtn = document.querySelector('.nav-btn.active');
+          const pill = document.querySelector('.nav-pill');
+          if (pill) pill.style.transition = 'none';
+          moveNavPill(activeBtn);
+          requestAnimationFrame(() => {
+            if (pill) pill.style.transition = '';
+          });
+        }, 100);
       }, 100);
     }, 3000);
   }, 500);
@@ -1236,16 +1247,6 @@ const moveNavPill = (btn) => {
 };
 
 const setupNavigation = () => {
-  // Начальное положение таблетки — без анимации
-  const initialActive = document.querySelector('.nav-btn.active');
-  if (initialActive) {
-    const pill = document.querySelector('.nav-pill');
-    if (pill) pill.style.transition = 'none';
-    setTimeout(() => {
-      moveNavPill(initialActive);
-      if (pill) pill.style.transition = '';
-    }, 300);
-  }
 
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {

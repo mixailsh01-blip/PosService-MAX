@@ -8,7 +8,7 @@
 body {
   font-family: 'PT Root UI', sans-serif;
   font-weight: 500;
-  background-color: #121212;
+  background-color: #131929;
   color: white;
   height: 100vh;
   overflow: hidden;
@@ -26,7 +26,7 @@ body {
   display: flex;
   justify-content: center;
   padding: 0;
-  background: linear-gradient(to bottom, #121212 55%, transparent 100%);
+  background: linear-gradient(to bottom, #131929 55%, transparent 100%);
   z-index: 10;
   width: 100%;
   top: 16px;
@@ -497,7 +497,7 @@ body.hide-main-logo #requests.page {
   height: calc(100% - clamp(60px, 12vw, 100px));
   padding: clamp(12px, 2.5vw, 24px);
   overflow-y: auto;
-  background-color: #121212;
+  background-color: #131929;
   margin-top: 90px;
 }
 
@@ -734,10 +734,6 @@ body.hide-main-logo #requests.page {
 }
 
 /* ==================== СТРАНИЦА ПРОФИЛЯ ==================== */
-#profile.page {
-  background-color: #1f2128;
-}
-
 .profile-header {
   display: flex;
   align-items: center;

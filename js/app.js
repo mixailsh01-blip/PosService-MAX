@@ -23,6 +23,8 @@ window.onerror = handleGlobalError;
 
 if (tg) {
   if (typeof tg.expand === 'function') tg.expand();
+  if (typeof tg.setHeaderColor === 'function') tg.setHeaderColor('#131929');
+  if (typeof tg.setBackgroundColor === 'function') tg.setBackgroundColor('#131929');
 }
 
 /* ==================== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==================== */

@@ -1238,11 +1238,8 @@ const startAnimation = () => {
 const moveNavPill = (btn) => {
   const pill = document.querySelector('.nav-pill');
   if (!pill || !btn) return;
-  const navBar = btn.closest('.nav-bar');
-  const navRect = navBar.getBoundingClientRect();
-  const btnRect = btn.getBoundingClientRect();
   const pillWidth = 72;
-  const left = btnRect.left - navRect.left + (btnRect.width - pillWidth) / 2;
+  const left = btn.offsetLeft + (btn.offsetWidth - pillWidth) / 2;
   pill.style.left = left + 'px';
 };
 

@@ -734,6 +734,10 @@ body.hide-main-logo #requests.page {
 }
 
 /* ==================== СТРАНИЦА ПРОФИЛЯ ==================== */
+#profile.page {
+  background-color: #1f2128;
+}
+
 .profile-header {
   display: flex;
   align-items: center;

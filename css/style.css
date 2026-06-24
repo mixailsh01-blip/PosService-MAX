@@ -1560,7 +1560,7 @@ div.establishment-staff-role-select {
 }
 
 /* Страница счетов */
-#accounts.page {
+#accounts.page.active {
   display: flex;
   flex-direction: column;
   justify-content: center;

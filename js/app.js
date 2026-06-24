@@ -1242,10 +1242,14 @@ const moveNavPill = (btn) => {
   const btnCount = navBar.querySelectorAll('.nav-btn').length;
   const slotWidth = navBar.offsetWidth / btnCount;
   const pillWidth = Math.min(slotWidth - 20, 110);
+  const pillHeight = Math.min(btn.offsetHeight - 8, 68);
   pill.style.width = pillWidth + 'px';
+  pill.style.height = pillHeight + 'px';
+  pill.style.borderRadius = Math.min(pillHeight / 2, 22) + 'px';
   const btnIndex = Array.from(navBar.querySelectorAll('.nav-btn')).indexOf(btn);
   const left = slotWidth * btnIndex + (slotWidth - pillWidth) / 2;
   pill.style.left = left + 'px';
+  pill.style.top = ((navBar.offsetHeight - pillHeight) / 2 - 8) + 'px';
 };
 
 let resizeTimer;

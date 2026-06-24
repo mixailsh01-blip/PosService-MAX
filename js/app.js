@@ -1236,9 +1236,16 @@ const moveNavPill = (btn) => {
 };
 
 const setupNavigation = () => {
-  // Начальное положение таблетки
+  // Начальное положение таблетки — без анимации
   const initialActive = document.querySelector('.nav-btn.active');
-  if (initialActive) requestAnimationFrame(() => moveNavPill(initialActive));
+  if (initialActive) {
+    const pill = document.querySelector('.nav-pill');
+    if (pill) pill.style.transition = 'none';
+    setTimeout(() => {
+      moveNavPill(initialActive);
+      if (pill) pill.style.transition = '';
+    }, 300);
+  }
 
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {

@@ -1243,6 +1243,11 @@ const moveNavPill = (btn) => {
   pill.style.left = left + 'px';
 };
 
+window.addEventListener('resize', () => {
+  const activeBtn = document.querySelector('.nav-btn.active');
+  if (activeBtn) moveNavPill(activeBtn);
+});
+
 const setupNavigation = () => {
 
   document.querySelectorAll('.nav-btn').forEach(btn => {

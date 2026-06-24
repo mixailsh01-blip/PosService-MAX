@@ -1243,9 +1243,16 @@ const moveNavPill = (btn) => {
   pill.style.left = left + 'px';
 };
 
+let resizeTimer;
 window.addEventListener('resize', () => {
+  const pill = document.querySelector('.nav-pill');
+  if (pill) pill.style.transition = 'none';
   const activeBtn = document.querySelector('.nav-btn.active');
   if (activeBtn) moveNavPill(activeBtn);
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (pill) pill.style.transition = '';
+  }, 150);
 });
 
 const setupNavigation = () => {

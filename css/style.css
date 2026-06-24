@@ -1591,9 +1591,9 @@ div.establishment-staff-role-select {
 
 #selected-establishment {
   position: absolute;
-  top: 30%;
+  top: 24px;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
   font-size: clamp(15px, 3vw, 18px);
   color: #aaa;
   text-align: center;

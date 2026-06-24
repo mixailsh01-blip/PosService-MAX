@@ -1224,7 +1224,22 @@ const startAnimation = () => {
 
 /* ==================== НАВИГАЦИЯ ==================== */
 
+const moveNavPill = (btn) => {
+  const pill = document.querySelector('.nav-pill');
+  if (!pill || !btn) return;
+  const navBar = btn.closest('.nav-bar');
+  const navRect = navBar.getBoundingClientRect();
+  const btnRect = btn.getBoundingClientRect();
+  const pillWidth = 64;
+  const left = btnRect.left - navRect.left + (btnRect.width - pillWidth) / 2;
+  pill.style.left = left + 'px';
+};
+
 const setupNavigation = () => {
+  // Начальное положение таблетки
+  const initialActive = document.querySelector('.nav-btn.active');
+  if (initialActive) requestAnimationFrame(() => moveNavPill(initialActive));
+
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
@@ -1236,6 +1251,7 @@ const setupNavigation = () => {
       const newPage = document.getElementById(pageId);
       newPage?.classList.add('active');
       btn.classList.add('active');
+      moveNavPill(btn);
       document.body.classList.toggle('hide-main-logo', pageId === 'requests' || pageId === 'profile');
 
       if (pageId === 'requests') {

@@ -1588,7 +1588,7 @@ div.establishment-staff-role-select {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: 60vh;
+  height: 100%;
   padding: 24px 20px;
 }
 

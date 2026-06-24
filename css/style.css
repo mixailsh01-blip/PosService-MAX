@@ -517,11 +517,13 @@ body.hide-main-logo #requests.page {
   display: flex;
   justify-content: space-around;
   align-items: flex-end;
-  background-color: #1a2540;
+  background: rgba(19, 25, 41, 0.72);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   padding: 14px 0 0;
   position: fixed;
   z-index: 3;
-  border-top: 1px solid #243060;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   opacity: 0;
   transform: translateY(30px);
   transition: opacity 0.6s ease, transform 0.6s ease;

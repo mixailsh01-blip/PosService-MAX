@@ -551,11 +551,35 @@ body.hide-main-logo #requests.page {
   cursor: pointer;
   font-weight: 500;
   pointer-events: auto;
+  position: relative;
+}
+
+.nav-btn::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  width: 64px;
+  height: 34px;
+  border-radius: 17px;
+  background: rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+  opacity: 0;
+}
+
+.nav-btn.active::before {
+  transform: translateX(-50%) scaleX(1);
+  opacity: 1;
 }
 
 .nav-btn i {
   font-size: clamp(22px, 4.4vw, 34px);
   margin-bottom: clamp(3px, 0.7vw, 7px);
+  position: relative;
+  z-index: 1;
 }
 
 .nav-btn.active {

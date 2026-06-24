@@ -2756,9 +2756,7 @@ const setupEstablishmentSelection = () => {
     }
 
     // Обновляем отображение
-    selectedDisplay.textContent = establishmentName;
-    selectedDisplay.classList.remove('text-gray-400');
-    selectedDisplay.classList.add('text-white');
+    // selectedDisplay на странице счетов — не трогаем (раздел в разработке)
 
     if (establishmentsMode === 'employees') {
       if (!staffModal || !staffList) return;

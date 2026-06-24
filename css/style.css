@@ -1584,22 +1584,23 @@ div.establishment-staff-role-select {
 
 /* Страница счетов */
 #accounts.page.active {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
+  display: block;
+  position: relative;
   padding: 24px 20px;
 }
 
 #selected-establishment {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%);
   font-size: clamp(15px, 3vw, 18px);
   color: #aaa;
   text-align: center;
   background: #1a2540;
-  border-radius: 16px;
+  border-radius: 20px;
   padding: 24px 20px;
-  width: 100%;
+  width: calc(100% - 40px);
   max-width: 380px;
   line-height: 1.6;
 }

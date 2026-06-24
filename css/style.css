@@ -290,7 +290,7 @@ body.hide-main-logo .main-logo-container {
   color: #ffffff;
   text-align: left;
   overflow: hidden;
-  background: #2f3037;
+  background: #1a2540;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
@@ -2121,8 +2121,8 @@ div.establishment-staff-role-select {
   padding: 18px 20px calc(24px + env(safe-area-inset-bottom));
   border-radius: 28px 28px 0 0;
   background:
-    radial-gradient(120% 120% at 50% 0%, rgba(12, 134, 255, 0.09) 0%, rgba(12, 134, 255, 0) 45%),
-    #24252c;
+    radial-gradient(120% 120% at 50% 0%, rgba(0, 170, 238, 0.10) 0%, rgba(0, 170, 238, 0) 45%),
+    #1a2540;
   box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.32);
   transform: translateY(100%);
   transition: transform 0.22s ease;
@@ -2190,7 +2190,7 @@ div.establishment-staff-role-select {
   padding: 0 54px 0 18px;
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 20px;
-  background: #2d2e36;
+  background: #131929;
   color: #ffffff;
   font-family: 'PT Root UI', sans-serif;
   font-size: 16px;
@@ -2221,7 +2221,7 @@ div.establishment-staff-role-select {
   border: none;
   border-radius: 999px;
   padding: 16px 20px;
-  background: linear-gradient(180deg, #0c86ff 0%, #0560dc 100%);
+  background: linear-gradient(135deg, #00d4ff 0%, #00aaee 35%, #9900cc 100%);
   color: #ffffff;
   font-family: 'PT Root UI', sans-serif;
   font-size: 18px;
@@ -2230,7 +2230,7 @@ div.establishment-staff-role-select {
 }
 
 .request-card {
-  background: #2f3037;
+  background: #1a2540;
   border-radius: 14px;
   padding: 12px 12px;
   color: #f2f3f7;
@@ -2342,7 +2342,7 @@ div.establishment-staff-role-select {
   align-items: center;
   justify-content: center;
   gap: 14px;
-  background: #2f3037;
+  background: #1a2540;
   border-radius: 14px;
   padding: 8px 6px;
   color: #9ca0af;
@@ -2411,7 +2411,7 @@ div.establishment-staff-role-select {
   width: calc(100% + 3px);
   padding: 12px;
   border-radius: 12px;
-  background: #2f3037;
+  background: #1a2540;
   flex: 0 0 auto;
 }
 
@@ -2909,7 +2909,7 @@ div.establishment-staff-role-select {
   padding: 12px 12px calc(26px + env(safe-area-inset-bottom));
   margin: 8px 0 0;
   border-radius: 12px 12px 0 0;
-  background: #2f3037;
+  background: #1a2540;
   flex: 0 0 auto;
   transform: translateY(calc(-1 * var(--dialog-keyboard-offset, 0px)));
   transition: transform 0.2s ease;
@@ -2983,7 +2983,7 @@ div.establishment-staff-role-select {
 .request-dialog-closed {
   margin: 8px 0 0;
   border-radius: 12px 12px 0 0;
-  background: #2f3037;
+  background: #1a2540;
   color: #ffffff;
   text-align: center;
   padding: 18px 14px calc(18px + env(safe-area-inset-bottom));

@@ -2514,17 +2514,17 @@ div.establishment-staff-role-select {
 }
 
 .request-msg-outgoing {
-  background: linear-gradient(180deg, #00d4ff 0%, #0099cc 100%);
+  background: linear-gradient(180deg, #0090bb 0%, #006699 100%);
   color: #ffffff;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.55), 0 1px 4px rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .request-msg-staff {
-  background: linear-gradient(180deg, #00d4ff 0%, #0099cc 100%);
+  background: linear-gradient(180deg, #0090bb 0%, #006699 100%);
   color: #ffffff;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.55), 0 1px 4px rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .request-msg-outgoing .request-msg-time {

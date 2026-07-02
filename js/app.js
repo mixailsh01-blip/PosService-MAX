@@ -1545,6 +1545,13 @@ const normalizeCommentAuthor = (comment) => String(
   'Pyrus'
 );
 
+const AUTHOR_COLORS = ['#ff6b6b','#ffa94d','#a9e34b','#4dabf7','#da77f2','#f783ac','#63e6be','#ffec99','#74c0fc','#ff8787'];
+const getAuthorColor = (name) => {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
+  return AUTHOR_COLORS[hash % AUTHOR_COLORS.length];
+};
+
 const normalizePendingMessageText = (value) => String(value ?? '').trim();
 
 const isHiddenSystemTaskComment = (comment) => {
@@ -3429,6 +3436,7 @@ const setupRequestDetailsView = () => {
       const authorElement = msg.querySelector('.request-msg-author');
       if (authorElement) {
         authorElement.textContent = message.author;
+        authorElement.style.color = getAuthorColor(message.author);
       }
       const bodyElement = msg.querySelector('.request-msg-body');
       if (bodyElement) {

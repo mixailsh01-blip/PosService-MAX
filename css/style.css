@@ -2497,7 +2497,7 @@ div.establishment-staff-role-select {
 
 .request-msg {
   max-width: 82%;
-  background: linear-gradient(180deg, #cc00cc 0%, #9900bb 100%);
+  background: linear-gradient(180deg, #00d4ff 0%, #0099cc 100%);
   color: #ffffff;
   border-radius: 16px;
   padding: 10px 12px 8px;
@@ -2546,6 +2546,7 @@ div.establishment-staff-role-select {
 .request-msg-author {
   font-size: 13px;
   font-weight: 700;
+  margin-bottom: 3px;
 }
 
 .request-msg-text {

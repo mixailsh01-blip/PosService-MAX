@@ -3438,7 +3438,7 @@ const setupRequestDetailsView = () => {
       const msg = document.createElement('div');
       msg.className = `request-msg ${isOutgoing ? 'request-msg-right request-msg-outgoing' : 'request-msg-left'}${isVenueStaffIncoming ? ' request-msg-staff' : ''}${isPhotoOnly ? ' request-msg--photo-only' : ''}`;
       msg.innerHTML = `
-        ${isOutgoing ? '' : '<div class="request-msg-author"></div>'}
+        ${isOutgoing || isPhotoOnly ? '' : '<div class="request-msg-author"></div>'}
         <div class="request-msg-body"></div>
         <div class="request-msg-time"></div>
       `;
@@ -3468,6 +3468,16 @@ const setupRequestDetailsView = () => {
             parts.push(`<div class="request-file-list">${fileAtts.map(renderFileChipHtml).join('')}</div>`);
           }
           bodyElement.innerHTML = parts.join('');
+
+          if (isPhotoOnly && !isOutgoing) {
+            const firstWrap = bodyElement.querySelector('.request-photo-wrap');
+            if (firstWrap) {
+              const authorHeader = document.createElement('div');
+              authorHeader.className = 'request-photo-author';
+              authorHeader.textContent = message.author;
+              firstWrap.insertBefore(authorHeader, firstWrap.firstChild);
+            }
+          }
 
           bodyElement.querySelectorAll('.request-photo-wrap').forEach((wrap) => {
             const imgEl = wrap.querySelector('.request-photo-img');

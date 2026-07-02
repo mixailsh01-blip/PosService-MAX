@@ -2615,6 +2615,21 @@ div.establishment-staff-role-select {
   font-size: 26px;
 }
 
+.request-photo-author {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  padding: 8px 12px 18px;
+  border-radius: 16px 16px 0 0;
+  background: linear-gradient(180deg, rgba(0, 170, 210, 0.88) 0%, transparent 100%);
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+  pointer-events: none;
+}
+
 /* Telegram-style: photo-only message has no bubble */
 .request-msg--photo-only {
   background: none !important;

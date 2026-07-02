@@ -3475,6 +3475,7 @@ const setupRequestDetailsView = () => {
               const authorHeader = document.createElement('div');
               authorHeader.className = 'request-photo-author';
               authorHeader.textContent = message.author;
+              authorHeader.style.background = getAuthorColor(message.author);
               firstWrap.insertBefore(authorHeader, firstWrap.firstChild);
             }
           }

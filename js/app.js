@@ -3421,9 +3421,12 @@ const setupRequestDetailsView = () => {
     chatBlobUrls = [];
     dialogChat.innerHTML = '';
     if (!task || visibleMessages.length === 0) {
-      dialogChat.innerHTML = '<div class="request-chat-empty">Сообщений пока нет</div>';
+      dialogChat.innerHTML = '<div style="flex:1"></div><div class="request-chat-empty">Сообщений пока нет</div>';
       return;
     }
+    const spacer = document.createElement('div');
+    spacer.style.flex = '1';
+    dialogChat.appendChild(spacer);
 
     visibleMessages.forEach((message) => {
       const isOutgoing = Boolean(message.isOutgoing);

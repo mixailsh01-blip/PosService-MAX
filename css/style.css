@@ -2480,7 +2480,6 @@ div.establishment-staff-role-select {
   padding: 10px 10px 10px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
   gap: 10px;
   background: transparent;
 }

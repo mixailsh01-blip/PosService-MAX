@@ -2196,7 +2196,17 @@ const upsertRequestTask = (task, options = {}) => {
       chatId: task.chatId || existingTask.chatId,
       isClosed: typeof task.isClosed === 'boolean' ? task.isClosed : existingTask.isClosed,
       chat: nextChat,
-      createdAt: task.createdAt || existingTask.createdAt,
+      createdAt: (() => {
+        const existing = existingTask.createdAt;
+        const incoming = task.createdAt;
+        if (!incoming) return existing || incoming;
+        if (!existing) return incoming;
+        // Если входящая дата "только что" (< 2 мин), а существующая старше — оставляем старую
+        const incomingAge = Date.now() - new Date(incoming).getTime();
+        const existingAge = Date.now() - new Date(existing).getTime();
+        if (incomingAge < 120000 && existingAge >= 120000) return existing;
+        return incoming;
+      })(),
       unreadCount: shouldMarkRead ? 0 : (hasUnreadChanges ? 1 : 0)
     };
     if (shouldMarkRead) {

@@ -2621,6 +2621,12 @@ div.establishment-staff-role-select {
   padding: 7px 10px;
   background: linear-gradient(90deg, #00aadd 0%, #0088bb 100%);
   pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+
+.request-photo-author .request-msg-author {
+  margin-bottom: 0;
 }
 
 /* Telegram-style: photo-only message has no bubble */

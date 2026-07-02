@@ -3461,7 +3461,7 @@ const setupRequestDetailsView = () => {
                 data-attachment-md5="${escapeHtml(a.md5||'')}"
                 data-attachment-name="${escapeHtml(a.name||'Фото')}"
                 data-attachment-local-key="${escapeHtml(a.localCacheKey||'')}"
-              ><img class="request-photo-img" alt="${escapeHtml(a.name||'Фото')}" loading="lazy" /><div class="request-photo-fallback"><i class="fas fa-image"></i></div></div>
+              ><img class="request-photo-img" alt="" style="display:none" /><div class="request-photo-loading"><i class="fas fa-spinner fa-spin"></i></div><div class="request-photo-fallback"><i class="fas fa-image"></i><span>${escapeHtml(a.name||'Фото')}</span></div></div>
             `).join('')}</div>`);
           }
           if (fileAtts.length) {
@@ -3485,6 +3485,7 @@ const setupRequestDetailsView = () => {
 
           bodyElement.querySelectorAll('.request-photo-wrap').forEach((wrap) => {
             const imgEl = wrap.querySelector('.request-photo-img');
+            const loadingEl = wrap.querySelector('.request-photo-loading');
             const fallback = wrap.querySelector('.request-photo-fallback');
             const localKey = wrap.dataset.attachmentLocalKey;
             wrap.dataset.taskId = message.taskId || task.taskId || '';
@@ -3492,15 +3493,25 @@ const setupRequestDetailsView = () => {
             wrap.dataset.chatId = task.chatId || '';
             wrap.dataset.org = task.org || '';
             wrap.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); handleAttachmentOpen(wrap); });
+
+            const showImg = (src) => {
+              imgEl.src = src;
+              imgEl.style.display = '';
+              if (loadingEl) loadingEl.style.display = 'none';
+            };
+            const showFallback = () => {
+              if (loadingEl) loadingEl.style.display = 'none';
+              fallback.style.display = 'flex';
+            };
+
             if (localKey) {
               const localFile = getPendingLocalAttachment(localKey);
               if (localFile?.blob instanceof Blob) {
                 const blobUrl = URL.createObjectURL(localFile.blob);
                 chatBlobUrls.push(blobUrl);
-                imgEl.src = blobUrl;
-              } else { imgEl.style.display = 'none'; fallback.style.display = 'flex'; }
+                showImg(blobUrl);
+              } else { showFallback(); }
             } else {
-              wrap.classList.add('is-loading');
               (async () => {
                 try {
                   const file = await fetchFile({
@@ -3514,13 +3525,8 @@ const setupRequestDetailsView = () => {
                   }, wrap.dataset.attachmentName || 'Фото');
                   const blobUrl = URL.createObjectURL(file.blob);
                   chatBlobUrls.push(blobUrl);
-                  imgEl.src = blobUrl;
-                  wrap.classList.remove('is-loading');
-                } catch (_) {
-                  wrap.classList.remove('is-loading');
-                  imgEl.style.display = 'none';
-                  fallback.style.display = 'flex';
-                }
+                  showImg(blobUrl);
+                } catch (_) { showFallback(); }
               })();
             }
           });

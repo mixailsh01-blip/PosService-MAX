@@ -3017,7 +3017,7 @@ div.establishment-staff-role-select {
   gap: 8px;
   min-height: 86px;
   padding: 12px 12px calc(26px + env(safe-area-inset-bottom));
-  margin: 8px 0 0;
+  margin: 0;
   border-radius: 12px 12px 0 0;
   background: #1a2540;
   flex: 0 0 auto;

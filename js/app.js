@@ -3561,13 +3561,13 @@ const setupRequestDetailsView = () => {
     input.disabled = isClosed;
     sendBtn.disabled = isClosed || isDialogRequestInFlight;
     attachBtn.disabled = isClosed || isDialogRequestInFlight;
+    dialogModal.style.setProperty('--dialog-keyboard-offset', '0px');
+    dialogChat.style.paddingBottom = '0px';
     if (isClosed) {
       input.value = '';
       fileInput.value = '';
       selectedDialogFile = null;
       renderSelectedDialogFile();
-      dialogModal.style.setProperty('--dialog-keyboard-offset', '0px');
-      dialogChat.style.paddingBottom = '10px';
     }
   };
 
@@ -4152,13 +4152,13 @@ const setupRequestDetailsView = () => {
     const viewport = window.visualViewport;
     if (!viewport || dialogModal.classList.contains('hidden')) {
       dialogModal.style.setProperty('--dialog-keyboard-offset', '0px');
-      dialogChat.style.paddingBottom = '10px';
+      dialogChat.style.paddingBottom = '0px';
       return;
     }
 
     const keyboardOffset = Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop);
     dialogModal.style.setProperty('--dialog-keyboard-offset', `${keyboardOffset}px`);
-    dialogChat.style.paddingBottom = `${10 + keyboardOffset}px`;
+    dialogChat.style.paddingBottom = keyboardOffset > 0 ? `${keyboardOffset}px` : '0px';
   };
 
   const keepComposerVisible = () => {

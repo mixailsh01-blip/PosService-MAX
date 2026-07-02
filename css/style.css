@@ -2435,8 +2435,8 @@ div.establishment-staff-role-select {
 }
 
 .request-dialog-number {
-  background: #3b3d47;
-  color: #a9adba;
+  background: linear-gradient(90deg, #00aadd 0%, #007aaa 100%);
+  color: #ffffff;
   border-radius: 8px;
   padding: 3px 8px;
   font-size: 12px;

@@ -913,7 +913,7 @@ body.hide-main-logo #accounts.page {
 }
 
 .modal-close:hover {
-  color: #0c86ff;
+  color: #00aadd;
 }
 
 /* ==================== МОДАЛКА "ПОДЕЛИТЬСЯ НОМЕРОМ" ==================== */
@@ -946,7 +946,7 @@ body.hide-main-logo #accounts.page {
 
 .contact-share-close:hover {
   border-color: rgba(0, 200, 255, 0.35);
-  color: #0c86ff;
+  color: #00aadd;
 }
 
 .contact-share-icon {
@@ -1173,7 +1173,7 @@ body.hide-main-logo #accounts.page {
 
 .task-create-input:focus,
 .task-create-textarea:focus {
-  border-color: #0c86ff;
+  border-color: #00aadd;
 }
 
 .task-create-textarea {
@@ -1395,7 +1395,7 @@ body.hide-main-logo #accounts.page {
   width: 18px;
   height: 18px;
   border: 2px solid rgba(255, 255, 255, 0.25);
-  border-top-color: #0c86ff;
+  border-top-color: #00aadd;
   border-radius: 50%;
   animation: contact-share-spin 0.9s linear infinite;
   flex: 0 0 auto;
@@ -1507,7 +1507,7 @@ div.establishment-staff-role-select {
 }
 
 .establishment-list::-webkit-scrollbar-thumb {
-  background-color: #0c86ff;
+  background-color: #00aadd;
   border-radius: 3px;
 }
 
@@ -1563,7 +1563,7 @@ div.establishment-staff-role-select {
   align-items: center;
   justify-content: center;
   border-radius: 999px;
-  background: rgba(12, 134, 255, 0.16);
+  background: rgba(0, 170, 221, 0.16);
   border: 1px solid rgba(12, 134, 255, 0.30);
   color: #79beff;
   transition: background-color 0.2s ease, transform 0.2s ease, color 0.2s ease;
@@ -1578,7 +1578,7 @@ div.establishment-staff-role-select {
 }
 
 .establishment-item:active {
-  background-color: #0560dc !important;
+  background-color: #007aaa !important;
   transform: scale(0.99);
 }
 
@@ -1638,7 +1638,7 @@ div.establishment-staff-role-select {
 }
 
 .main-dropdown:focus {
-  border-color: #0c86ff;
+  border-color: #00aadd;
 }
 
 .main-dropdown option {
@@ -1698,12 +1698,12 @@ div.establishment-staff-role-select {
 }
 
 .home-action-card--create {
-  background: linear-gradient(180deg, #0c86ff 0%, #0560dc 100%);
+  background: linear-gradient(180deg, #00aadd 0%, #007aaa 100%);
   grid-column: 1 / -1;
 }
 
 .home-action-card--restaurant {
-  background: linear-gradient(180deg, #0c86ff 0%, #0560dc 100%);
+  background: linear-gradient(180deg, #00aadd 0%, #007aaa 100%);
 }
 
 .home-action-card--market {
@@ -1860,7 +1860,7 @@ div.establishment-staff-role-select {
 }
 
 .filter-input:focus {
-  border-color: #0c86ff;
+  border-color: #00aadd;
 }
 
 .btn-ClearFilters {
@@ -1894,12 +1894,12 @@ div.establishment-staff-role-select {
 
 .sort-arrow.asc::after {
   content: "▲";
-  color: #0c86ff;
+  color: #00aadd;
 }
 
 .sort-arrow.desc::after {
   content: "▼";
-  color: #0c86ff;
+  color: #00aadd;
 }
 
 /* ==================== АДАПТИВНЫЕ СТИЛИ ==================== */
@@ -2170,7 +2170,7 @@ div.establishment-staff-role-select {
 }
 
 .requests-filters-reset-btn {
-  color: #0c86ff;
+  color: #00aadd;
   font-size: 16px;
   font-weight: 700;
   justify-self: end;
@@ -2207,7 +2207,7 @@ div.establishment-staff-role-select {
 
 .requests-filters-select:focus {
   border-color: rgba(12, 134, 255, 0.55);
-  box-shadow: 0 0 0 3px rgba(12, 134, 255, 0.12);
+  box-shadow: 0 0 0 3px rgba(0, 170, 221, 0.12);
 }
 
 .requests-filters-select-icon {
@@ -2327,9 +2327,9 @@ div.establishment-staff-role-select {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(180deg, #0c86ff 0%, #0560dc 100%);
+  background: linear-gradient(180deg, #00aadd 0%, #007aaa 100%);
   flex: 0 0 auto;
-  box-shadow: 0 0 0 4px rgba(12, 134, 255, 0.12);
+  box-shadow: 0 0 0 4px rgba(0, 170, 221, 0.12);
 }
 
 .request-text {
@@ -2844,7 +2844,7 @@ div.establishment-staff-role-select {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(180deg, #0c86ff 0%, #0560dc 100%);
+  background: linear-gradient(180deg, #00aadd 0%, #007aaa 100%);
   color: #ffffff;
   font-size: 17px;
   flex: 0 0 auto;
@@ -2885,7 +2885,7 @@ div.establishment-staff-role-select {
   height: 42px;
   border-radius: 50%;
   border: 3px solid rgba(255, 255, 255, 0.12);
-  border-top-color: #0c86ff;
+  border-top-color: #00aadd;
   animation: file-viewer-spin 0.9s linear infinite;
 }
 
@@ -2975,8 +2975,8 @@ div.establishment-staff-role-select {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(12, 134, 255, 0.16);
-  color: #0c86ff;
+  background: rgba(0, 170, 221, 0.16);
+  color: #00aadd;
   font-size: 24px;
 }
 
@@ -3161,7 +3161,7 @@ div.establishment-staff-role-select {
 }
 
 .request-composer-input:focus {
-  border-color: #0c86ff;
+  border-color: #00aadd;
   box-shadow: 0 0 0 3px rgba(12, 134, 255, 0.18);
 }
 

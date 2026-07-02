@@ -2196,7 +2196,7 @@ const upsertRequestTask = (task, options = {}) => {
       chatId: task.chatId || existingTask.chatId,
       isClosed: typeof task.isClosed === 'boolean' ? task.isClosed : existingTask.isClosed,
       chat: nextChat,
-      createdAt: task.createdAt || existingTask.createdAt,
+      createdAt: existingTask.createdAt || task.createdAt,
       unreadCount: shouldMarkRead ? 0 : (hasUnreadChanges ? 1 : 0)
     };
     if (shouldMarkRead) {

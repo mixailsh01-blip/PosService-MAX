@@ -2497,10 +2497,12 @@ div.establishment-staff-role-select {
 
 .request-msg {
   max-width: 82%;
-  background: linear-gradient(180deg, #00d4ff 0%, #0099cc 100%);
+  background: linear-gradient(180deg, #00aadd 0%, #007aaa 100%);
   color: #ffffff;
   border-radius: 16px;
   padding: 10px 12px 8px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.55), 0 1px 4px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .request-msg-left {
@@ -2514,11 +2516,15 @@ div.establishment-staff-role-select {
 .request-msg-outgoing {
   background: linear-gradient(180deg, #00d4ff 0%, #0099cc 100%);
   color: #ffffff;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.55), 0 1px 4px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.22);
 }
 
 .request-msg-staff {
   background: linear-gradient(180deg, #00d4ff 0%, #0099cc 100%);
   color: #ffffff;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.55), 0 1px 4px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.22);
 }
 
 .request-msg-outgoing .request-msg-time {
@@ -2577,9 +2583,9 @@ div.establishment-staff-role-select {
   text-align: left;
   font-family: 'PT Root UI', sans-serif;
   cursor: pointer;
-  background: rgba(21, 28, 44, 0.10);
+  background: rgba(0, 0, 0, 0.22);
   color: inherit;
-  box-shadow: inset 0 0 0 1px rgba(31, 35, 48, 0.10);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.20);
   pointer-events: auto;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
@@ -2607,8 +2613,8 @@ div.establishment-staff-role-select {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(12, 134, 255, 0.16);
-  color: #0c86ff;
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
   flex: 0 0 auto;
 }
 
@@ -2633,7 +2639,7 @@ div.establishment-staff-role-select {
 
 .request-file-chip__action {
   font-size: 12px;
-  color: #5d6d8d;
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .request-msg-outgoing .request-file-chip__action {

@@ -2476,7 +2476,7 @@ div.establishment-staff-role-select {
   min-height: 0;
   max-height: none;
   overflow-y: auto;
-  margin: 6px 0 0;
+  margin: 0;
   padding: 10px 10px 10px;
   display: flex;
   flex-direction: column;

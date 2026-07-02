@@ -2618,11 +2618,8 @@ div.establishment-staff-role-select {
 
 .request-photo-author {
   flex: 0 0 auto;
-  padding: 8px 12px;
+  padding: 7px 10px;
   background: linear-gradient(90deg, #00aadd 0%, #0088bb 100%);
-  font-size: 13px;
-  font-weight: 700;
-  color: #ffffff;
   pointer-events: none;
 }
 

@@ -3474,8 +3474,11 @@ const setupRequestDetailsView = () => {
             if (firstWrap) {
               const authorHeader = document.createElement('div');
               authorHeader.className = 'request-photo-author';
-              authorHeader.textContent = message.author;
-              authorHeader.style.background = getAuthorColor(message.author);
+              const authorBadge = document.createElement('span');
+              authorBadge.className = 'request-msg-author';
+              authorBadge.textContent = message.author;
+              authorBadge.style.backgroundColor = getAuthorColor(message.author);
+              authorHeader.appendChild(authorBadge);
               firstWrap.insertBefore(authorHeader, firstWrap.firstChild);
             }
           }

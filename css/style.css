@@ -2550,9 +2550,13 @@ div.establishment-staff-role-select {
 }
 
 .request-msg-author {
-  font-size: 13px;
+  display: inline-block;
+  font-size: 12px;
   font-weight: 700;
-  margin-bottom: 3px;
+  color: #ffffff;
+  padding: 3px 10px;
+  border-radius: 999px;
+  margin-bottom: 6px;
 }
 
 .request-msg-text {

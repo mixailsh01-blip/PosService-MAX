@@ -3436,7 +3436,7 @@ const setupRequestDetailsView = () => {
       const authorElement = msg.querySelector('.request-msg-author');
       if (authorElement) {
         authorElement.textContent = message.author;
-        authorElement.style.color = getAuthorColor(message.author);
+        authorElement.style.backgroundColor = getAuthorColor(message.author);
       }
       const bodyElement = msg.querySelector('.request-msg-body');
       if (bodyElement) {

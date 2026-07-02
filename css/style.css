@@ -2998,7 +2998,7 @@ div.establishment-staff-role-select {
   border: none;
   border-radius: 999px;
   padding: 14px 18px;
-  background: linear-gradient(180deg, #0c86ff 0%, #0560dc 100%);
+  background: linear-gradient(180deg, #00aadd 0%, #007aaa 100%);
   color: #ffffff;
   font-family: 'PT Root UI', sans-serif;
   font-size: 16px;
@@ -3138,7 +3138,7 @@ div.establishment-staff-role-select {
 }
 
 .request-composer-send {
-  background: linear-gradient(180deg, #0c86ff 0%, #0560dc 100%);
+  background: linear-gradient(180deg, #00aadd 0%, #007aaa 100%);
   color: #ffffff;
 }
 

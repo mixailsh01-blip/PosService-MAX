@@ -2564,6 +2564,41 @@ div.establishment-staff-role-select {
   line-height: 1.35;
 }
 
+.request-photo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.request-photo-wrap {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  max-width: 220px;
+  background: rgba(0, 0, 0, 0.25);
+  min-height: 60px;
+}
+
+.request-photo-img {
+  display: block;
+  width: 100%;
+  max-width: 220px;
+  max-height: 280px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.request-photo-fallback {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
+  padding: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 22px;
+}
+
 .request-msg-body {
   display: flex;
   flex-direction: column;

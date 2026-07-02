@@ -3402,6 +3402,7 @@ const setupRequestDetailsView = () => {
     scheduleOpenChatPolling(activeTask.taskId);
   };
 
+  let chatBlobUrls = [];
   let renderDialogChatLastKey = '';
   const renderDialogChat = (task, { forceScroll = false } = {}) => {
     const visibleMessages = Array.isArray(task?.chat)
@@ -3416,6 +3417,8 @@ const setupRequestDetailsView = () => {
     const prevScrollTop = dialogChat.scrollTop;
     const prevScrollHeight = dialogChat.scrollHeight;
     const wasNearBottom = prevScrollHeight - prevScrollTop - dialogChat.clientHeight < 80;
+    chatBlobUrls.forEach((u) => URL.revokeObjectURL(u));
+    chatBlobUrls = [];
     dialogChat.innerHTML = '';
     if (!task || visibleMessages.length === 0) {
       dialogChat.innerHTML = '<div class="request-chat-empty">Сообщений пока нет</div>';
@@ -3441,28 +3444,58 @@ const setupRequestDetailsView = () => {
       const bodyElement = msg.querySelector('.request-msg-body');
       if (bodyElement) {
         if (hasAttachments) {
-          const attachmentsHtml = message.attachments
-            .map((attachment) => renderFileChipHtml(attachment))
-            .join('');
-          bodyElement.innerHTML = `
-            ${message.text ? `<div class="request-msg-text">${escapeHtml(message.text).replace(/\n/g, '<br>')}</div>` : ''}
-            <div class="request-file-list">${attachmentsHtml}</div>
-          `;
-          bodyElement.querySelectorAll('.request-file-chip').forEach((chipElement, index) => {
-            const attachment = message.attachments[index];
+          const photoAtts = message.attachments.filter((a) => classifyAttachmentKind(a) === 'photo');
+          const fileAtts  = message.attachments.filter((a) => classifyAttachmentKind(a) !== 'photo');
+          const parts = [];
+          if (message.text) parts.push(`<div class="request-msg-text">${escapeHtml(message.text).replace(/\n/g, '<br>')}</div>`);
+          if (photoAtts.length) {
+            parts.push(`<div class="request-photo-list">${photoAtts.map((a) => `
+              <div class="request-photo-wrap"
+                data-attachment-id="${escapeHtml(a.id||'')}"
+                data-attachment-md5="${escapeHtml(a.md5||'')}"
+                data-attachment-name="${escapeHtml(a.name||'Фото')}"
+                data-attachment-local-key="${escapeHtml(a.localCacheKey||'')}"
+              ><img class="request-photo-img" alt="${escapeHtml(a.name||'Фото')}" loading="lazy" /><div class="request-photo-fallback"><i class="fas fa-image"></i></div></div>
+            `).join('')}</div>`);
+          }
+          if (fileAtts.length) {
+            parts.push(`<div class="request-file-list">${fileAtts.map(renderFileChipHtml).join('')}</div>`);
+          }
+          bodyElement.innerHTML = parts.join('');
+
+          bodyElement.querySelectorAll('.request-photo-wrap').forEach((wrap) => {
+            const imgEl = wrap.querySelector('.request-photo-img');
+            const fallback = wrap.querySelector('.request-photo-fallback');
+            const localKey = wrap.dataset.attachmentLocalKey;
+            const att = message.attachments.find((a) => a.id === wrap.dataset.attachmentId || (localKey && a.localCacheKey === localKey));
+            if (localKey) {
+              const localFile = getPendingLocalAttachment(localKey);
+              if (localFile?.blob instanceof Blob) {
+                const blobUrl = URL.createObjectURL(localFile.blob);
+                chatBlobUrls.push(blobUrl);
+                imgEl.src = blobUrl;
+              } else { imgEl.style.display = 'none'; fallback.style.display = 'flex'; }
+            } else if (att?.previewUrl || att?.url) {
+              imgEl.src = att.previewUrl || att.url;
+              imgEl.onerror = () => { imgEl.style.display = 'none'; fallback.style.display = 'flex'; };
+            } else { imgEl.style.display = 'none'; fallback.style.display = 'flex'; }
+            wrap.dataset.taskId = message.taskId || task.taskId || '';
+            wrap.dataset.commentId = message.commentId || '';
+            wrap.dataset.chatId = task.chatId || '';
+            wrap.dataset.org = task.org || '';
+            wrap.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); handleAttachmentOpen(wrap); });
+          });
+
+          bodyElement.querySelectorAll('.request-file-chip').forEach((chipElement) => {
+            const attId = chipElement.dataset.attachmentId;
+            const attachment = message.attachments.find((a) => a.id === attId) || fileAtts[0];
             if (!attachment) return;
-            const hasLocalPending = Boolean(attachment.localCacheKey);
-            if (!hasLocalPending && !attachment.id && !attachment.url) return;
+            if (!attachment.localCacheKey && !attachment.id && !attachment.url) return;
             chipElement.dataset.taskId = message.taskId || task.taskId || '';
             chipElement.dataset.commentId = message.commentId || '';
             chipElement.dataset.chatId = task.chatId || '';
             chipElement.dataset.org = task.org || '';
-            const openAttachment = (event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              handleAttachmentOpen(chipElement);
-            };
-            chipElement.onclick = openAttachment;
+            chipElement.onclick = (e) => { e.preventDefault(); e.stopPropagation(); handleAttachmentOpen(chipElement); };
           });
         } else {
           bodyElement.innerHTML = `<div class="request-msg-text">${escapeHtml(message.text).replace(/\n/g, '<br>')}</div>`;

@@ -2240,6 +2240,12 @@ div.establishment-staff-role-select {
   padding: 12px 12px;
   color: #f2f3f7;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.request-card:active {
+  background: #1a2540;
 }
 
 #requests-list {

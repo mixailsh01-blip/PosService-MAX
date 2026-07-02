@@ -2405,7 +2405,7 @@ div.establishment-staff-role-select {
   margin: 0 auto;
   background:
     linear-gradient(180deg, rgba(18, 18, 18, 0.16) 0%, rgba(18, 18, 18, 0.28) 100%),
-    url('../assets/icons/wallpaper.jpg?v=20260521-1') center / cover no-repeat,
+    url('../assets/icons/wallpaper.webp?v=20260702-1') center / cover no-repeat,
     linear-gradient(180deg, #24252d 0%, #1f2028 100%);
   display: flex;
   flex-direction: column;
@@ -2497,8 +2497,8 @@ div.establishment-staff-role-select {
 
 .request-msg {
   max-width: 82%;
-  background: #f5f6f8;
-  color: #1f2330;
+  background: linear-gradient(180deg, #cc00cc 0%, #9900bb 100%);
+  color: #ffffff;
   border-radius: 16px;
   padding: 10px 12px 8px;
 }
@@ -2512,12 +2512,12 @@ div.establishment-staff-role-select {
 }
 
 .request-msg-outgoing {
-  background: linear-gradient(180deg, #0c86ff 0%, #0560dc 100%);
+  background: linear-gradient(180deg, #00d4ff 0%, #0099cc 100%);
   color: #ffffff;
 }
 
 .request-msg-staff {
-  background: linear-gradient(180deg, #0c86ff 0%, #0560dc 100%);
+  background: linear-gradient(180deg, #00d4ff 0%, #0099cc 100%);
   color: #ffffff;
 }
 
@@ -2902,7 +2902,7 @@ div.establishment-staff-role-select {
   margin-top: 5px;
   text-align: right;
   font-size: 12px;
-  color: #5e6372;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .request-dialog-composer {

@@ -3428,9 +3428,12 @@ const setupRequestDetailsView = () => {
     visibleMessages.forEach((message) => {
       const isOutgoing = Boolean(message.isOutgoing);
       const isVenueStaffIncoming = !isOutgoing && message.senderType === 'сотрудник заведения';
-      const msg = document.createElement('div');
-      msg.className = `request-msg ${isOutgoing ? 'request-msg-right request-msg-outgoing' : 'request-msg-left'}${isVenueStaffIncoming ? ' request-msg-staff' : ''}`;
       const hasAttachments = Array.isArray(message.attachments) && message.attachments.length > 0;
+      const photoAttsEarly = hasAttachments ? message.attachments.filter((a) => classifyAttachmentKind(a) === 'photo') : [];
+      const fileAttsEarly  = hasAttachments ? message.attachments.filter((a) => classifyAttachmentKind(a) !== 'photo') : [];
+      const isPhotoOnly = hasAttachments && photoAttsEarly.length > 0 && fileAttsEarly.length === 0 && !message.text;
+      const msg = document.createElement('div');
+      msg.className = `request-msg ${isOutgoing ? 'request-msg-right request-msg-outgoing' : 'request-msg-left'}${isVenueStaffIncoming ? ' request-msg-staff' : ''}${isPhotoOnly ? ' request-msg--photo-only' : ''}`;
       msg.innerHTML = `
         ${isOutgoing ? '' : '<div class="request-msg-author"></div>'}
         <div class="request-msg-body"></div>
@@ -3444,8 +3447,8 @@ const setupRequestDetailsView = () => {
       const bodyElement = msg.querySelector('.request-msg-body');
       if (bodyElement) {
         if (hasAttachments) {
-          const photoAtts = message.attachments.filter((a) => classifyAttachmentKind(a) === 'photo');
-          const fileAtts  = message.attachments.filter((a) => classifyAttachmentKind(a) !== 'photo');
+          const photoAtts = photoAttsEarly;
+          const fileAtts  = fileAttsEarly;
           const parts = [];
           if (message.text) parts.push(`<div class="request-msg-text">${escapeHtml(message.text).replace(/\n/g, '<br>')}</div>`);
           if (photoAtts.length) {
@@ -3467,7 +3470,11 @@ const setupRequestDetailsView = () => {
             const imgEl = wrap.querySelector('.request-photo-img');
             const fallback = wrap.querySelector('.request-photo-fallback');
             const localKey = wrap.dataset.attachmentLocalKey;
-            const att = message.attachments.find((a) => a.id === wrap.dataset.attachmentId || (localKey && a.localCacheKey === localKey));
+            wrap.dataset.taskId = message.taskId || task.taskId || '';
+            wrap.dataset.commentId = message.commentId || '';
+            wrap.dataset.chatId = task.chatId || '';
+            wrap.dataset.org = task.org || '';
+            wrap.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); handleAttachmentOpen(wrap); });
             if (localKey) {
               const localFile = getPendingLocalAttachment(localKey);
               if (localFile?.blob instanceof Blob) {
@@ -3475,15 +3482,30 @@ const setupRequestDetailsView = () => {
                 chatBlobUrls.push(blobUrl);
                 imgEl.src = blobUrl;
               } else { imgEl.style.display = 'none'; fallback.style.display = 'flex'; }
-            } else if (att?.previewUrl || att?.url) {
-              imgEl.src = att.previewUrl || att.url;
-              imgEl.onerror = () => { imgEl.style.display = 'none'; fallback.style.display = 'flex'; };
-            } else { imgEl.style.display = 'none'; fallback.style.display = 'flex'; }
-            wrap.dataset.taskId = message.taskId || task.taskId || '';
-            wrap.dataset.commentId = message.commentId || '';
-            wrap.dataset.chatId = task.chatId || '';
-            wrap.dataset.org = task.org || '';
-            wrap.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); handleAttachmentOpen(wrap); });
+            } else {
+              wrap.classList.add('is-loading');
+              (async () => {
+                try {
+                  const file = await fetchFile({
+                    task_id: wrap.dataset.taskId || null,
+                    chat_id: wrap.dataset.chatId || null,
+                    comment_id: wrap.dataset.commentId || null,
+                    org: wrap.dataset.org || null,
+                    attachment_id: wrap.dataset.attachmentId,
+                    attachment_md5: wrap.dataset.attachmentMd5 || null,
+                    attachment_name: wrap.dataset.attachmentName || 'Фото'
+                  }, wrap.dataset.attachmentName || 'Фото');
+                  const blobUrl = URL.createObjectURL(file.blob);
+                  chatBlobUrls.push(blobUrl);
+                  imgEl.src = blobUrl;
+                  wrap.classList.remove('is-loading');
+                } catch (_) {
+                  wrap.classList.remove('is-loading');
+                  imgEl.style.display = 'none';
+                  fallback.style.display = 'flex';
+                }
+              })();
+            }
           });
 
           bodyElement.querySelectorAll('.request-file-chip').forEach((chipElement) => {

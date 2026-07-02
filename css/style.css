@@ -2572,31 +2572,82 @@ div.establishment-staff-role-select {
 
 .request-photo-wrap {
   position: relative;
-  border-radius: 12px;
+  border-radius: 14px;
   overflow: hidden;
   cursor: pointer;
-  max-width: 220px;
-  background: rgba(0, 0, 0, 0.25);
-  min-height: 60px;
+  max-width: 240px;
+  background: rgba(0, 0, 0, 0.18);
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.request-photo-wrap.is-loading::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.1) 50%, transparent 75%);
+  background-size: 200% 100%;
+  animation: photo-shimmer 1.4s infinite;
+}
+
+@keyframes photo-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 .request-photo-img {
   display: block;
   width: 100%;
-  max-width: 220px;
-  max-height: 280px;
+  max-width: 240px;
+  max-height: 300px;
   object-fit: cover;
-  border-radius: 12px;
 }
 
 .request-photo-fallback {
   display: none;
   align-items: center;
   justify-content: center;
-  min-height: 60px;
-  padding: 12px;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 22px;
+  min-height: 64px;
+  padding: 14px;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 26px;
+}
+
+/* Telegram-style: photo-only message has no bubble */
+.request-msg--photo-only {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  position: relative;
+}
+
+.request-msg--photo-only .request-photo-wrap {
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.55);
+}
+
+.request-msg--photo-only .request-photo-img {
+  border-radius: 16px;
+}
+
+.request-msg--photo-only .request-msg-body {
+  margin: 0;
+}
+
+.request-msg--photo-only .request-msg-time {
+  position: absolute;
+  bottom: 8px;
+  right: 10px;
+  margin: 0;
+  background: rgba(0, 0, 0, 0.48);
+  border-radius: 8px;
+  padding: 2px 7px;
+  font-size: 11px;
+  color: #fff;
+  pointer-events: none;
 }
 
 .request-msg-body {

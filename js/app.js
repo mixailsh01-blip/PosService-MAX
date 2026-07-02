@@ -1545,7 +1545,7 @@ const normalizeCommentAuthor = (comment) => String(
   'Pyrus'
 );
 
-const AUTHOR_COLORS = ['#ff6b6b','#ffa94d','#a9e34b','#4dabf7','#da77f2','#f783ac','#63e6be','#ffec99','#74c0fc','#ff8787'];
+const AUTHOR_COLORS = ['#c0392b','#d35400','#27ae60','#1a6e9f','#7d3c98','#b03a6e','#148f77','#b7950b','#1f618d','#884ea0'];
 const getAuthorColor = (name) => {
   let hash = 0;
   for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;

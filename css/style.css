@@ -2268,12 +2268,11 @@ div.establishment-staff-role-select {
 }
 
 .request-number {
-  background: transparent;
+  background: linear-gradient(90deg, #00aadd 0%, #007aaa 100%);
   color: #ffffff;
   padding: 3px 8px;
   border-radius: 7px;
   font-size: clamp(13px, 3vw, 16px);
-  border: 1px solid rgba(0, 170, 221, 0.7);
 }
 
 .request-status {

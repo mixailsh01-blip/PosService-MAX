@@ -2086,7 +2086,7 @@ const normalizeTaskFromWebhook = (item) => {
     chatId: String(item.chat_id ?? item.chatId ?? ''),
     isClosed: hasClosedFlag ? Boolean(item.is_closed ?? item.isClosed ?? false) : undefined,
     chat: sortedChat,
-    createdAt: item.created_at ?? item.createdAt ?? sortedChat[0]?.date ?? new Date().toISOString(),
+    createdAt: item.created_at ?? item.createdAt ?? sortedChat[0]?.date ?? '',
     unreadCount: 0
   };
 };
@@ -2351,7 +2351,7 @@ const renderRequestsList = () => {
       return `
         <div class="request-card" data-task-id="${escapeHtml(task.taskId)}">
           <div class="request-card-top">
-            <span class="request-number">№${escapeHtml(task.taskId)} от ${escapeHtml(formatRequestDate(task.createdAt))}</span>
+            <span class="request-number">№${escapeHtml(task.taskId)}${task.createdAt ? ' от ' + escapeHtml(formatRequestDate(task.createdAt)) : ''}</span>
             <span class="request-status ${getStatusClass(task.status)}">${escapeHtml(task.status)}</span>
           </div>
           <div class="request-topic">${escapeHtml(task.description || 'Новая заявка')}</div>
@@ -3639,7 +3639,7 @@ const setupRequestDetailsView = () => {
     const dialogTopic = document.getElementById('request-dialog-topic');
     const dialogCompany = document.getElementById('request-dialog-company');
 
-    if (dialogNumber) dialogNumber.textContent = `№${task.taskId} от ${formatRequestDate(task.createdAt)}`;
+    if (dialogNumber) dialogNumber.textContent = `№${task.taskId}${task.createdAt ? ' от ' + formatRequestDate(task.createdAt) : ''}`;
     if (dialogStatus) {
       dialogStatus.textContent = task.status;
       dialogStatus.className = `request-status ${getStatusClass(task.status)}`;

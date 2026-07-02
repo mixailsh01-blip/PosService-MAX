@@ -3492,9 +3492,17 @@ const setupRequestDetailsView = () => {
             wrap.dataset.commentId = message.commentId || '';
             wrap.dataset.chatId = task.chatId || '';
             wrap.dataset.org = task.org || '';
-            wrap.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); handleAttachmentOpen(wrap); });
+            wrap.addEventListener('click', (e) => {
+              e.preventDefault(); e.stopPropagation();
+              if (wrap._cachedBlob instanceof Blob) {
+                FileViewerModal.open({ blob: wrap._cachedBlob, fileName: wrap.dataset.attachmentName || 'Фото' });
+              } else if (!wrap._isLoading) {
+                handleAttachmentOpen(wrap);
+              }
+            });
 
-            const showImg = (src) => {
+            const showImg = (blob, src) => {
+              wrap._cachedBlob = blob;
               imgEl.src = src;
               imgEl.style.display = '';
               if (loadingEl) loadingEl.style.display = 'none';
@@ -3509,9 +3517,10 @@ const setupRequestDetailsView = () => {
               if (localFile?.blob instanceof Blob) {
                 const blobUrl = URL.createObjectURL(localFile.blob);
                 chatBlobUrls.push(blobUrl);
-                showImg(blobUrl);
+                showImg(localFile.blob, blobUrl);
               } else { showFallback(); }
             } else {
+              wrap._isLoading = true;
               (async () => {
                 try {
                   const file = await fetchFile({
@@ -3523,10 +3532,11 @@ const setupRequestDetailsView = () => {
                     attachment_md5: wrap.dataset.attachmentMd5 || null,
                     attachment_name: wrap.dataset.attachmentName || 'Фото'
                   }, wrap.dataset.attachmentName || 'Фото');
+                  wrap._isLoading = false;
                   const blobUrl = URL.createObjectURL(file.blob);
                   chatBlobUrls.push(blobUrl);
-                  showImg(blobUrl);
-                } catch (_) { showFallback(); }
+                  showImg(file.blob, blobUrl);
+                } catch (_) { wrap._isLoading = false; showFallback(); }
               })();
             }
           });

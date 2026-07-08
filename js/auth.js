@@ -104,7 +104,7 @@ const Auth = {
         <span class="accounts-title">Счета</span>
       </div>
       <div class="accounts-establishment-list">${items}</div>
-      <div class="accounts-coming-soon">Раздел счетов в разработке. Выберите заведение.</div>`;
+      <div class="accounts-coming-soon">Раздел счетов в разработке.</div>`;
   },
 
   /**

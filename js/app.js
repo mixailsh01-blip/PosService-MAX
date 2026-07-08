@@ -3,7 +3,7 @@ const tg = window.WebApp ?? window.Telegram?.WebApp ?? null;
 const user = tg?.initDataUnsafe?.user;
 const platformName = window.WebApp ? 'max' : (window.Telegram?.WebApp ? 'telegram' : 'web');
 
-const BOT_DEEP_LINK_BASE = 'https://max.ru/id501305283158_bot?startapp=';
+const BOT_DEEP_LINK_BASE = 'https://max.ru/id280504290898_bot?startapp=';
 
 const showPlatformPopup = (title, message) => {
   if (typeof tg?.showAlert === 'function') {

@@ -1241,11 +1241,12 @@ const moveNavPill = (btn) => {
   const pill = document.querySelector('.nav-pill');
   if (!pill || !btn) return;
   const navBar = btn.closest('.nav-bar');
-  const btnCount = navBar.querySelectorAll('.nav-btn').length;
+  const visibleBtns = Array.from(navBar.querySelectorAll('.nav-btn')).filter(b => b.style.display !== 'none');
+  const btnCount = visibleBtns.length;
   const slotWidth = navBar.offsetWidth / btnCount;
   const pillWidth = Math.min(slotWidth - 16, 108);
   pill.style.width = pillWidth + 'px';
-  const btnIndex = Array.from(navBar.querySelectorAll('.nav-btn')).indexOf(btn);
+  const btnIndex = visibleBtns.indexOf(btn);
   const left = slotWidth * btnIndex + (slotWidth - pillWidth) / 2;
   pill.style.left = left + 'px';
 };

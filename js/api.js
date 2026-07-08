@@ -337,9 +337,18 @@ const API = {
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const result = await response.json();
-      console.log('✅ [API] Права пользователя:', result);
+      console.log('✅ [API] Данные пользователя:', result);
       const person = Array.isArray(result) ? result[0] : result;
-      return person?.ПРАВА ?? null;
+      const заведения = person?.Заведения ?? [];
+      // Права — объединение по «есть ли хоть одно заведение с доступом»
+      const счетаЗаведения = заведения.filter(з => з.ПРАВА?.['Счета'] === 'Да');
+      return {
+        счета:              счетаЗаведения.length > 0,
+        анонимныеЗаявки:   заведения.some(з => з.ПРАВА?.['Анонимные заявки']            === 'Да'),
+        редактированиеПрав:заведения.some(з => з.ПРАВА?.['Редактирование прав доступа'] === 'Да'),
+        // Заведения, где разрешены счета (для фильтрации на странице Счета)
+        счетаЗаведения: счетаЗаведения.map(з => ({ id: з.IDREST, name: з.КК })),
+      };
     } catch (error) {
       console.error('❌ [API] Ошибка getPersonRights:', error);
       return null;

@@ -1605,6 +1605,57 @@ div.establishment-staff-role-select {
   line-height: 1.6;
 }
 
+/* ==================== СТРАНИЦА СЧЕТОВ ==================== */
+.accounts-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.accounts-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #f2f3f7;
+}
+.accounts-establishment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.accounts-establishment-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #1a2540;
+  border: none;
+  border-radius: 14px;
+  padding: 16px 16px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  width: 100%;
+  text-align: left;
+}
+.accounts-establishment-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #f2f3f7;
+}
+.accounts-establishment-arrow {
+  color: #00aadd;
+  font-size: 14px;
+}
+.accounts-coming-soon {
+  margin-top: 20px;
+  color: #8e92a0;
+  font-size: 13px;
+  text-align: center;
+}
+.accounts-placeholder {
+  color: #8e92a0;
+  font-size: 15px;
+  text-align: center;
+  margin-top: 40px;
+}
+
 /* ==================== ВЫПАДАЮЩИЕ СПИСКИ ==================== */
 .dropdown-container {
   display: flex;

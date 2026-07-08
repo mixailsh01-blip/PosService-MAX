@@ -4423,11 +4423,8 @@ const initializeApp = () => {
     // Загружаем права пользователя сразу при запуске
     if (user?.id && window.API?.getPersonRights) {
       window.API.getPersonRights(user.id).then(права => {
-        window.userPermissions = права ? {
-          счета:              права['Счета']                       === 'Да',
-          анонимныеЗаявки:    права['Анонимные заявки']            === 'Да',
-          редактированиеПрав: права['Редактирование прав доступа'] === 'Да',
-        } : { счета: true, анонимныеЗаявки: false, редактированиеПрав: false };
+        // getPersonRights уже возвращает готовый объект прав
+        window.userPermissions = права ?? { счета: true, анонимныеЗаявки: false, редактированиеПрав: false, счетаЗаведения: [] };
         console.log('🔐 Права пользователя:', window.userPermissions);
         window.Auth?.applyPermissions?.();
       });

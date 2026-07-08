@@ -4420,6 +4420,19 @@ const initializeApp = () => {
     initializeUserData();
     restoreRequestsCacheFromStorage();
 
+    // Загружаем права пользователя сразу при запуске
+    if (user?.id && window.API?.getPersonRights) {
+      window.API.getPersonRights(user.id).then(права => {
+        window.userPermissions = права ? {
+          счета:              права['Счета']                       === 'Да',
+          анонимныеЗаявки:    права['Анонимные заявки']            === 'Да',
+          редактированиеПрав: права['Редактирование прав доступа'] === 'Да',
+        } : { счета: true, анонимныеЗаявки: false, редактированиеПрав: false };
+        console.log('🔐 Права пользователя:', window.userPermissions);
+        window.Auth?.applyPermissions?.();
+      });
+    }
+
     // При входе в WebApp отправляем данные пользователя в вебхук clientTG_support
     if (user?.id && window.API?.sendClientTGSupport) {
       fetchClientSupport({ force: true, cacheMs: 0 }).then((result) => {

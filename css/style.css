@@ -2200,6 +2200,8 @@ div.establishment-staff-role-select {
   border: none;
   background: transparent;
   font-family: 'PT Root UI', sans-serif;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .requests-filters-icon-btn {
@@ -2209,31 +2211,34 @@ div.establishment-staff-role-select {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #8b90a0;
-  font-size: 22px;
+  background: rgba(255,255,255,0.07);
+  color: #c0c6d8;
+  font-size: 18px;
 }
 
 .requests-filters-title {
   text-align: center;
-  font-size: clamp(22px, 4.5vw, 30px);
+  font-size: 18px;
   font-weight: 700;
   color: #f7f8fc;
 }
 
 .requests-filters-reset-btn {
   color: #00aadd;
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 600;
   justify-self: end;
 }
 
 .requests-filters-label {
   display: block;
-  margin-top: 24px;
-  margin-bottom: 10px;
-  color: #f6f7fb;
-  font-size: clamp(16px, 3.8vw, 22px);
-  font-weight: 700;
+  margin-top: 22px;
+  margin-bottom: 8px;
+  color: #8e92a0;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .requests-filters-select-wrap {
@@ -2242,14 +2247,14 @@ div.establishment-staff-role-select {
 
 .requests-filters-select {
   width: 100%;
-  min-height: 58px;
-  padding: 0 54px 0 18px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 20px;
-  background: #131929;
+  min-height: 52px;
+  padding: 0 48px 0 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.05);
   color: #ffffff;
   font-family: 'PT Root UI', sans-serif;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 500;
   outline: none;
   appearance: none;
@@ -2257,32 +2262,39 @@ div.establishment-staff-role-select {
 }
 
 .requests-filters-select:focus {
-  border-color: rgba(12, 134, 255, 0.55);
-  box-shadow: 0 0 0 3px rgba(0, 170, 221, 0.12);
+  border-color: rgba(0, 170, 221, 0.5);
+  box-shadow: 0 0 0 3px rgba(0, 170, 221, 0.10);
+}
+
+.requests-filters-select option {
+  background: #1a2540;
+  color: #fff;
 }
 
 .requests-filters-select-icon {
   position: absolute;
-  right: 20px;
+  right: 16px;
   top: 50%;
   transform: translateY(-50%);
-  color: #ffffff;
-  font-size: 18px;
+  color: #00aadd;
+  font-size: 14px;
   pointer-events: none;
 }
 
 .requests-filters-apply-btn {
   width: 100%;
-  margin-top: 42px;
+  margin-top: 28px;
   border: none;
-  border-radius: 999px;
-  padding: 16px 20px;
-  background: linear-gradient(135deg, #00d4ff 0%, #00aaee 35%, #9900cc 100%);
+  border-radius: 14px;
+  padding: 15px 20px;
+  background: linear-gradient(90deg, #00aadd 0%, #007aaa 100%);
   color: #ffffff;
   font-family: 'PT Root UI', sans-serif;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.28);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 4px 18px rgba(0, 170, 221, 0.25);
 }
 
 .request-card {

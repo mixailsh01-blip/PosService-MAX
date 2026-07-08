@@ -859,6 +859,99 @@ body.hide-main-logo #accounts.page {
   position: relative;
 }
 
+/* Модалка редактирования профиля */
+.edit-modal-sheet {
+  background: #1a2540;
+  border-radius: 20px;
+  padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
+  width: 88%;
+  max-width: 380px;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.edit-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.edit-modal-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #f2f3f7;
+}
+.edit-modal-close {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.07);
+  border: none;
+  color: #c0c6d8;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.edit-modal-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #8e92a0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+.edit-modal-input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.05);
+  color: #fff;
+  font-family: 'PT Root UI', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  outline: none;
+  margin-bottom: 14px;
+}
+.edit-modal-input:focus {
+  border-color: rgba(0,170,221,0.5);
+  box-shadow: 0 0 0 3px rgba(0,170,221,0.10);
+}
+.edit-modal-apply-btn {
+  width: 100%;
+  margin-top: 6px;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #00aadd 0%, #007aaa 100%);
+  color: #fff;
+  font-family: 'PT Root UI', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 4px 16px rgba(0,170,221,0.25);
+}
+.edit-modal-cancel-btn {
+  width: 100%;
+  margin-top: 10px;
+  padding: 13px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.06);
+  color: #8e92a0;
+  font-family: 'PT Root UI', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
 .establishment-modal-content {
   width: 100vw;
   max-width: none;

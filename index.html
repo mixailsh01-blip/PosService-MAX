@@ -10,7 +10,7 @@
   <style>html,body{background:#121212}#welcome-screen{background:#1e1e1e;position:fixed;inset:0;z-index:1000}</style>
 
   <!-- ==================== СТИЛИ ==================== -->
-  <link rel="stylesheet" href="css/style.css?v=20260708-26" />
+  <link rel="stylesheet" href="css/style.css?v=20260708-27" />
 
   <!-- Font Awesome — async, не блокирует рендер -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" media="print" onload="this.media='all'" />
@@ -163,15 +163,19 @@
     
     <!-- Модальное окно редактирования профиля -->
     <div id="edit-modal" class="modal hidden">
-      <div class="modal-content">
-        <button id="close-modal-icon" class="modal-close" aria-label="Закрыть">×</button>
-        <h3 class="font-bold mb-4">Редактировать профиль</h3>
-        <input type="text" id="edit-firstname" class="w-full p-2 mb-3 rounded bg-gray-700 text-white" placeholder="Имя" />
-        <input type="text" id="edit-lastname" class="w-full p-2 mb-4 rounded bg-gray-700 text-white" placeholder="Фамилия" />
-        <div class="flex gap-2">
-          <button id="save-profile-btn" class="btn-Save flex-1">Сохранить</button>
-          <button id="close-modal-btn" class="btn-CancelModal flex-1">Отмена</button>
+      <div class="edit-modal-sheet">
+        <div class="edit-modal-header">
+          <span class="edit-modal-title">Редактировать профиль</span>
+          <button id="close-modal-icon" class="edit-modal-close" aria-label="Закрыть">
+            <i class="fas fa-times"></i>
+          </button>
         </div>
+        <label class="edit-modal-label">Имя</label>
+        <input type="text" id="edit-firstname" class="edit-modal-input" placeholder="Имя" />
+        <label class="edit-modal-label">Фамилия</label>
+        <input type="text" id="edit-lastname" class="edit-modal-input" placeholder="Фамилия" />
+        <button id="save-profile-btn" class="edit-modal-apply-btn">Применить</button>
+        <button id="close-modal-btn" class="edit-modal-cancel-btn">Отмена</button>
       </div>
     </div>
 

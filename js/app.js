@@ -585,29 +585,30 @@ const setupModal = () => {
   const modal = document.getElementById('edit-modal');
   const userFullname = document.getElementById('user-fullname');
 
-  editIcon?.addEventListener('click', () => {
+  const openModal = () => {
     const nameParts = userFullname.textContent.split(' ');
     document.getElementById('edit-firstname').value = nameParts[0] || '';
     document.getElementById('edit-lastname').value = nameParts[1] || '';
     modal.classList.remove('hidden');
-  });
+    requestAnimationFrame(() => modal.classList.add('is-open'));
+  };
 
-  closeModalBtn?.addEventListener('click', () => {
-    modal.classList.add('hidden');
-  });
+  const closeModal = () => {
+    modal.classList.remove('is-open');
+    setTimeout(() => modal.classList.add('hidden'), 220);
+  };
 
-  closeModalIcon?.addEventListener('click', () => {
-    modal.classList.add('hidden');
-  });
+  editIcon?.addEventListener('click', openModal);
+  closeModalBtn?.addEventListener('click', closeModal);
+  closeModalIcon?.addEventListener('click', closeModal);
+  modal?.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
 
   saveProfileBtn?.addEventListener('click', () => {
     const firstName = document.getElementById('edit-firstname').value.trim();
     const lastName = document.getElementById('edit-lastname').value.trim();
     const fullName = [firstName, lastName].filter(Boolean).join(' ') || 'Без имени';
     userFullname.textContent = fullName;
-    modal.classList.add('hidden');
-    
-    // Также обновляем имя в приветствии
+    closeModal();
     document.getElementById('user-name').textContent = firstName || 'Гость';
   });
 };

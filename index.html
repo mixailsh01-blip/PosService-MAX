@@ -10,7 +10,7 @@
   <style>html,body{background:#121212}#welcome-screen{background:#1e1e1e;position:fixed;inset:0;z-index:1000}</style>
 
   <!-- ==================== СТИЛИ ==================== -->
-  <link rel="stylesheet" href="css/style.css?v=20260708-28" />
+  <link rel="stylesheet" href="css/style.css?v=20260708-29" />
 
   <!-- Font Awesome — async, не блокирует рендер -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" media="print" onload="this.media='all'" />
@@ -162,20 +162,21 @@
     <!-- ==================== МОДАЛЬНЫЕ ОКНА ==================== -->
     
     <!-- Модальное окно редактирования профиля -->
-    <div id="edit-modal" class="modal hidden">
-      <div class="edit-modal-sheet">
-        <div class="edit-modal-header">
-          <span class="edit-modal-title">Редактировать профиль</span>
-          <button id="close-modal-icon" class="edit-modal-close" aria-label="Закрыть">
-            <i class="fas fa-times"></i>
+    <div id="edit-modal" class="modal hidden edit-profile-modal">
+      <div class="edit-profile-sheet">
+        <div class="requests-filters-header">
+          <button id="close-modal-icon" class="requests-filters-icon-btn" aria-label="Закрыть">
+            <i class="fas fa-times" aria-hidden="true"></i>
           </button>
+          <div class="requests-filters-title">Редактировать профиль</div>
+          <div style="width:44px"></div>
         </div>
-        <label class="edit-modal-label">Имя</label>
-        <input type="text" id="edit-firstname" class="edit-modal-input" placeholder="Имя" />
-        <label class="edit-modal-label">Фамилия</label>
-        <input type="text" id="edit-lastname" class="edit-modal-input" placeholder="Фамилия" />
-        <button id="save-profile-btn" class="edit-modal-apply-btn">Применить</button>
-        <button id="close-modal-btn" class="edit-modal-cancel-btn">Отмена</button>
+        <label class="requests-filters-label">Имя</label>
+        <input type="text" id="edit-firstname" class="edit-profile-input" placeholder="Имя" />
+        <label class="requests-filters-label">Фамилия</label>
+        <input type="text" id="edit-lastname" class="edit-profile-input" placeholder="Фамилия" />
+        <button id="save-profile-btn" class="requests-filters-apply-btn">Применить</button>
+        <button id="close-modal-btn" class="edit-profile-cancel-btn">Отмена</button>
       </div>
     </div>
 
@@ -366,6 +367,6 @@
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
 <script src="js/api.js?v=20260708-11"></script>
 <script src="js/auth.js?v=20260708-12"></script>
-<script src="js/app.js?v=20260708-18"></script>
+<script src="js/app.js?v=20260708-19"></script>
 </body>
 </html>

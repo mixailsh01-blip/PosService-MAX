@@ -796,6 +796,7 @@ const applyClientSupportResponse = (result) => {
   }
 
   const items = Array.isArray(result) ? result : (result ? [result] : []);
+
   const phone = items.reduce((found, item) => {
     return found ?? item?.Number ?? item?.Nubmer ?? item?.phone_number ?? item?.phone ?? null;
   }, null);
@@ -807,6 +808,17 @@ const applyClientSupportResponse = (result) => {
     }
     const shareBtn = document.getElementById('share-contact-btn');
     shareBtn?.classList.add('hidden');
+  }
+
+  // Подставляем имя и фамилию из ответа сервера если они есть
+  const firstName = items.reduce((found, item) => found ?? item?.FirstName ?? null, null);
+  const lastName  = items.reduce((found, item) => found ?? item?.LastName  ?? null, null);
+  if (firstName || lastName) {
+    const fullName = [firstName, lastName].filter(Boolean).join(' ');
+    const userFullname = document.getElementById('user-fullname');
+    const userName = document.getElementById('user-name');
+    if (userFullname) userFullname.textContent = fullName;
+    if (userName) userName.textContent = firstName || 'Гость';
   }
 };
 

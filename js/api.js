@@ -327,6 +327,26 @@ const API = {
 
   ,
 
+  async editUser(userId, firstName, lastName) {
+    const hookUrl = `${API_BASE_URL}/webhook/UserEdit`;
+    try {
+      const response = await fetch(hookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ user_id: String(userId), first_name: firstName, last_name: lastName })
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const result = await response.json().catch(() => null);
+      console.log('✅ [API] UserEdit:', result);
+      return result;
+    } catch (error) {
+      console.error('❌ [API] Ошибка UserEdit:', error);
+      return null;
+    }
+  }
+
+  ,
+
   async getPersonRights(userId) {
     const hookUrl = `${API_BASE_URL}/webhook/person`;
     try {

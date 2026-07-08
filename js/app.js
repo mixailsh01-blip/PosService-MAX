@@ -605,13 +605,16 @@ const setupModal = () => {
 
   editIcon?.addEventListener('click', openModal);
 
-  saveProfileBtn?.addEventListener('click', () => {
+  saveProfileBtn?.addEventListener('click', async () => {
     const firstName = document.getElementById('edit-firstname').value.trim();
     const lastName = document.getElementById('edit-lastname').value.trim();
     const fullName = [firstName, lastName].filter(Boolean).join(' ') || 'Без имени';
     userFullname.textContent = fullName;
-    closeModal();
     document.getElementById('user-name').textContent = firstName || 'Гость';
+    closeModal();
+    if (user?.id && window.API?.editUser) {
+      window.API.editUser(user.id, firstName, lastName);
+    }
   });
 };
 

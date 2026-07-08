@@ -74,6 +74,14 @@ const Auth = {
     }
   },
 
+  applyPermissions() {
+    const p = window.userPermissions || {};
+    const accountsBtn = document.querySelector('.nav-btn[data-page="accounts"]');
+    if (accountsBtn) {
+      accountsBtn.style.display = p.счета ? '' : 'none';
+    }
+  },
+
   /**
    * Обновляет профиль и рестораны на основе данных из хука
    * @param {Object} userData - Данные пользователя из ответа хука
@@ -324,6 +332,18 @@ const Auth = {
       // Обновляем профиль
       this.updateProfile(currentUser);
       console.log('✅ [Auth] Профиль успешно обновлён');
+
+      // Загружаем права пользователя
+      if (userData?.id && window.API?.getPersonRights) {
+        const права = await window.API.getPersonRights(userData.id);
+        window.userPermissions = права ? {
+          счета:               права['Счета']                       === 'Да',
+          анонимныеЗаявки:     права['Анонимные заявки']            === 'Да',
+          редактированиеПрав:  права['Редактирование прав доступа'] === 'Да',
+        } : { счета: true, анонимныеЗаявки: false, редактированиеПрав: false };
+        console.log('🔐 [Auth] Права:', window.userPermissions);
+        this.applyPermissions();
+      }
 
       // Ждём 2 секунды для плавности
       await new Promise(resolve => setTimeout(resolve, 2000));

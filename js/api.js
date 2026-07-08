@@ -327,6 +327,27 @@ const API = {
 
   ,
 
+  async getPersonRights(userId) {
+    const hookUrl = `${API_BASE_URL}/webhook/person`;
+    try {
+      const response = await fetch(hookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ user_id: String(userId) })
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const result = await response.json();
+      console.log('✅ [API] Права пользователя:', result);
+      const person = Array.isArray(result) ? result[0] : result;
+      return person?.ПРАВА ?? null;
+    } catch (error) {
+      console.error('❌ [API] Ошибка getPersonRights:', error);
+      return null;
+    }
+  }
+
+  ,
+
   async sendRolesCatalog() {
     const hookUrl = `${API_BASE_URL}/webhook/post`;
 

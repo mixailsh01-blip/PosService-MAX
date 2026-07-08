@@ -579,7 +579,6 @@ const setupMarketButton = () => {
 
 const setupModal = () => {
   const editIcon = document.getElementById('edit-icon');
-  const closeModalBtn = document.getElementById('close-modal-btn');
   const closeModalIcon = document.getElementById('close-modal-icon');
   const saveProfileBtn = document.getElementById('save-profile-btn');
   const modal = document.getElementById('edit-modal');
@@ -605,7 +604,6 @@ const setupModal = () => {
   };
 
   editIcon?.addEventListener('click', openModal);
-  closeModalBtn?.addEventListener('click', closeModal);
 
   saveProfileBtn?.addEventListener('click', () => {
     const firstName = document.getElementById('edit-firstname').value.trim();

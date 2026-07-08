@@ -590,18 +590,22 @@ const setupModal = () => {
     document.getElementById('edit-firstname').value = nameParts[0] || '';
     document.getElementById('edit-lastname').value = nameParts[1] || '';
     modal.classList.remove('hidden');
-    requestAnimationFrame(() => modal.classList.add('is-open'));
+    if (tg?.BackButton) {
+      tg.BackButton.onClick(closeModal);
+      tg.BackButton.show();
+    }
   };
 
   const closeModal = () => {
-    modal.classList.remove('is-open');
-    setTimeout(() => modal.classList.add('hidden'), 220);
+    modal.classList.add('hidden');
+    if (tg?.BackButton) {
+      tg.BackButton.offClick(closeModal);
+      tg.BackButton.hide();
+    }
   };
 
   editIcon?.addEventListener('click', openModal);
   closeModalBtn?.addEventListener('click', closeModal);
-  closeModalIcon?.addEventListener('click', closeModal);
-  modal?.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
 
   saveProfileBtn?.addEventListener('click', () => {
     const firstName = document.getElementById('edit-firstname').value.trim();

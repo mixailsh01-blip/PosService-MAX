@@ -859,58 +859,72 @@ body.hide-main-logo #accounts.page {
   position: relative;
 }
 
-/* Модалка редактирования профиля — bottom sheet в стиле фильтров */
-.edit-profile-modal {
-  align-items: flex-end;
-  background: rgba(0, 0, 0, 0.58);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.22s ease;
+/* Редактирование профиля — полноэкранная страница */
+.edit-profile-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  background: #121929;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
 }
-.edit-profile-modal.is-open {
-  opacity: 1;
-  pointer-events: auto;
+.edit-profile-fullscreen.hidden {
+  display: none;
 }
-.edit-profile-sheet {
-  width: 100%;
-  padding: 18px 20px calc(24px + env(safe-area-inset-bottom));
-  border-radius: 28px 28px 0 0;
-  background:
-    radial-gradient(120% 120% at 50% 0%, rgba(0, 170, 238, 0.10) 0%, rgba(0, 170, 238, 0) 45%),
-    #1a2540;
-  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.32);
-  transform: translateY(100%);
-  transition: transform 0.22s ease;
+.edit-profile-fs-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(14px + env(safe-area-inset-top)) 20px 14px;
+  background: #1a2540;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
 }
-.edit-profile-modal.is-open .edit-profile-sheet {
-  transform: translateY(0);
+.edit-profile-fs-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #f2f3f7;
+}
+.edit-profile-fs-body {
+  padding: 24px 20px calc(32px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+}
+.edit-profile-fs-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #8e92a0;
+  margin-bottom: 8px;
+  margin-top: 20px;
+}
+.edit-profile-fs-label:first-child {
+  margin-top: 0;
 }
 .edit-profile-input {
   width: 100%;
   box-sizing: border-box;
-  min-height: 58px;
-  padding: 0 18px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 20px;
-  background: #131929;
+  min-height: 52px;
+  padding: 0 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: #1a2540;
   color: #ffffff;
   font-family: 'PT Root UI', sans-serif;
   font-size: 16px;
   font-weight: 500;
   outline: none;
-  appearance: none;
-  margin-bottom: 0;
 }
 .edit-profile-input:focus {
-  border-color: rgba(12, 134, 255, 0.55);
-  box-shadow: 0 0 0 3px rgba(0, 170, 221, 0.12);
+  border-color: rgba(0, 170, 221, 0.5);
+  box-shadow: 0 0 0 3px rgba(0, 170, 221, 0.10);
 }
 .edit-profile-cancel-btn {
   width: 100%;
-  margin-top: 14px;
+  margin-top: 12px;
   border: none;
   border-radius: 999px;
-  padding: 14px 20px;
+  padding: 15px 20px;
   background: rgba(255, 255, 255, 0.07);
   color: #8e92a0;
   font-family: 'PT Root UI', sans-serif;

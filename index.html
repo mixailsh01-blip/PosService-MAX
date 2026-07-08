@@ -10,7 +10,7 @@
   <style>html,body{background:#121212}#welcome-screen{background:#1e1e1e;position:fixed;inset:0;z-index:1000}</style>
 
   <!-- ==================== СТИЛИ ==================== -->
-  <link rel="stylesheet" href="css/style.css?v=20260708-29" />
+  <link rel="stylesheet" href="css/style.css?v=20260708-30" />
 
   <!-- Font Awesome — async, не блокирует рендер -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" media="print" onload="this.media='all'" />
@@ -162,20 +162,16 @@
     <!-- ==================== МОДАЛЬНЫЕ ОКНА ==================== -->
     
     <!-- Модальное окно редактирования профиля -->
-    <div id="edit-modal" class="modal hidden edit-profile-modal">
-      <div class="edit-profile-sheet">
-        <div class="requests-filters-header">
-          <button id="close-modal-icon" class="requests-filters-icon-btn" aria-label="Закрыть">
-            <i class="fas fa-times" aria-hidden="true"></i>
-          </button>
-          <div class="requests-filters-title">Редактировать профиль</div>
-          <div style="width:44px"></div>
-        </div>
-        <label class="requests-filters-label">Имя</label>
+    <div id="edit-modal" class="edit-profile-fullscreen hidden">
+      <div class="edit-profile-fs-header">
+        <span class="edit-profile-fs-title">Редактировать профиль</span>
+      </div>
+      <div class="edit-profile-fs-body">
+        <label class="edit-profile-fs-label">Имя</label>
         <input type="text" id="edit-firstname" class="edit-profile-input" placeholder="Имя" />
-        <label class="requests-filters-label">Фамилия</label>
+        <label class="edit-profile-fs-label">Фамилия</label>
         <input type="text" id="edit-lastname" class="edit-profile-input" placeholder="Фамилия" />
-        <button id="save-profile-btn" class="requests-filters-apply-btn">Применить</button>
+        <button id="save-profile-btn" class="requests-filters-apply-btn" style="margin-top:28px">Применить</button>
         <button id="close-modal-btn" class="edit-profile-cancel-btn">Отмена</button>
       </div>
     </div>
@@ -367,6 +363,6 @@
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
 <script src="js/api.js?v=20260708-11"></script>
 <script src="js/auth.js?v=20260708-12"></script>
-<script src="js/app.js?v=20260708-19"></script>
+<script src="js/app.js?v=20260708-20"></script>
 </body>
 </html>

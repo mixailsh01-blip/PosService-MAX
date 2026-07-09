@@ -371,34 +371,22 @@ const saveCachedEstablishments = (restaurants) => {
 const renderEstablishmentModalList = (restaurants) => {
   const list = document.querySelector('#establishment-modal .establishment-list');
   if (!list || !restaurants?.length) return;
-  const запрет = window.userPermissions?.запретПросмотраСотрудников;
 
   list.innerHTML = '';
   restaurants.forEach((restaurant) => {
-    const нельзяСмотреть = запрет?.has(String(restaurant.id));
     const button = document.createElement('button');
     button.className = 'establishment-item btn-RestModal w-full';
     button.dataset.establishmentId = restaurant.id;
     button.dataset.establishmentName = restaurant.name;
-    button.dataset.noAccess = нельзяСмотреть ? '1' : '';
     button.type = 'button';
-    if (нельзяСмотреть) {
-      button.innerHTML = `
-        <span class="establishment-item__label">${escapeHtml(restaurant.name)}</span>
-        <span class="establishment-item__access-tag">
-          <i class="fas fa-lock" aria-hidden="true"></i> Запросить доступ
+    button.innerHTML = `
+      <span class="establishment-item__label">${escapeHtml(restaurant.name)}</span>
+      <span class="establishment-item__actions">
+        <span class="establishment-item__share" data-establishment-share="true" role="button" tabindex="0" aria-label="Поделиться ${escapeHtml(restaurant.name)}">
+          <i class="fas fa-share-nodes" aria-hidden="true"></i>
         </span>
-      `;
-    } else {
-      button.innerHTML = `
-        <span class="establishment-item__label">${escapeHtml(restaurant.name)}</span>
-        <span class="establishment-item__actions">
-          <span class="establishment-item__share" data-establishment-share="true" role="button" tabindex="0" aria-label="Поделиться ${escapeHtml(restaurant.name)}">
-            <i class="fas fa-share-nodes" aria-hidden="true"></i>
-          </span>
-        </span>
-      `;
-    }
+      </span>
+    `;
     list.appendChild(button);
   });
 };
@@ -2805,28 +2793,12 @@ const setupEstablishmentSelection = () => {
     const shareButton = e.target.closest('[data-establishment-share="true"]');
     const establishmentName = String(item.dataset.establishmentName || '').trim();
     const establishmentId = String(item.dataset.establishmentId || '').trim();
-    const noAccess = item.dataset.noAccess === '1';
 
     if (shareButton) {
       e.preventDefault();
       e.stopPropagation();
       if (!establishmentId) return;
       await shareEstablishmentInvite(establishmentId, establishmentName);
-      return;
-    }
-
-    if (noAccess) {
-      e.preventDefault();
-      e.stopPropagation();
-      modal.classList.add('hidden');
-      try {
-        await fetch('https://quumahienot.beget.app/webhook/access', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user_id: String(user?.id ?? ''), establishment_id: establishmentId, establishment_name: establishmentName })
-        });
-        console.log('✅ Запрос доступа отправлен:', establishmentName);
-      } catch (err) { console.error('❌ webhook/access:', err); }
       return;
     }
 

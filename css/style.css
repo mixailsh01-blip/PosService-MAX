@@ -1658,22 +1658,6 @@ div.establishment-staff-role-select {
   transform: scale(0.99);
 }
 
-.establishment-item__access-tag {
-  flex: 0 0 auto;
-  margin-left: auto;
-  font-size: 11px;
-  font-weight: 600;
-  color: #ffffff;
-  background: linear-gradient(135deg, #00d4ff 0%, #00aaee 35%, #9900cc 100%);
-  border-radius: 999px;
-  padding: 5px 12px;
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  letter-spacing: 0.2px;
-  box-shadow: 0 2px 8px rgba(0, 170, 238, 0.3);
-}
 
 /* Страница счетов */
 #accounts.page.active {

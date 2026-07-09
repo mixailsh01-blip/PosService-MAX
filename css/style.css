@@ -831,6 +831,15 @@ body.hide-main-logo #accounts.page {
   margin-top: 8px;
 }
 
+.btn-SelectRestModal.btn-request-access {
+  background: rgba(142, 146, 160, 0.12);
+  color: #8e92a0;
+  border: 1px solid rgba(142, 146, 160, 0.25);
+  cursor: default;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
 /* ==================== МОДАЛЬНЫЕ ОКНА ==================== */
 /* РЕДАКТИРОВАНИЕ ПРОФИЛЯ */
 .modal {

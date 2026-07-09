@@ -83,6 +83,20 @@ const Auth = {
       accountsBtn.style.display = p.счета ? '' : 'none';
     }
 
+    // Кнопка "Заведения" в профиле — заменяем на "Запросить доступ" если нет доступа
+    const estBtn = document.getElementById('profile-establishments-btn');
+    if (estBtn) {
+      if (p.просмотрСотрудников === false) {
+        estBtn.textContent = 'Запросить доступ';
+        estBtn.disabled = true;
+        estBtn.classList.add('btn-request-access');
+      } else {
+        estBtn.textContent = 'Заведения';
+        estBtn.disabled = false;
+        estBtn.classList.remove('btn-request-access');
+      }
+    }
+
     // Рендерим список заведений на странице Счета
     const accountsPage = document.getElementById('accounts');
     if (!accountsPage) return;

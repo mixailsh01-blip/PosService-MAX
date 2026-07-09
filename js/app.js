@@ -372,6 +372,7 @@ const renderEstablishmentModalList = (restaurants) => {
   const list = document.querySelector('#establishment-modal .establishment-list');
   if (!list || !restaurants?.length) return;
   const запрет = window.userPermissions?.запретПросмотраСотрудников;
+  console.warn('🏪 renderEstablishmentModalList — запрет:', запрет, '| perms:', JSON.stringify(window.userPermissions, (k,v) => v instanceof Set ? [...v] : v));
   list.innerHTML = '';
   restaurants.forEach((restaurant) => {
     const нельзяСмотреть = запрет?.has(String(restaurant.id));

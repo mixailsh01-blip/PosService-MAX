@@ -84,7 +84,6 @@ const Auth = {
     }
 
     // Кнопка "Заведения" в профиле — заменяем на "Запросить доступ" если нет доступа
-    console.warn('🔐 applyPermissions — просмотрСотрудников:', p.просмотрСотрудников, '| full perms:', JSON.stringify(p, (k,v) => v instanceof Set ? [...v] : v));
     const estBtn = document.getElementById('profile-establishments-btn');
     if (estBtn) {
       // false = явно запрещено; undefined = права ещё не пришли, не трогаем

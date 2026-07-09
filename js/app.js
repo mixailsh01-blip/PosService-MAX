@@ -2791,7 +2791,7 @@ const setupEstablishmentSelection = () => {
   // Открытие модального окна
   selectBtn?.addEventListener('click', (e) => openModal(e, 'select'));
   profileEstablishmentsBtn?.addEventListener('click', (e) => {
-    if (profileEstablishmentsBtn.classList.contains('btn-request-access')) return;
+    if (window.userPermissions?.просмотрСотрудников === false) return;
     openModal(e, 'employees');
   });
 

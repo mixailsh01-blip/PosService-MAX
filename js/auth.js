@@ -88,18 +88,17 @@ const Auth = {
     if (estBtn) {
       if (p.просмотрСотрудников === false) {
         estBtn.textContent = 'Запросить доступ';
-        estBtn.dataset.accessDenied = '1';
-        estBtn.disabled = false;
-        estBtn.style.background = 'linear-gradient(135deg, #00d4ff 0%, #00aaee 35%, #9900cc 100%)';
-        estBtn.style.color = '';
-        estBtn.style.border = '';
-        estBtn.style.opacity = '';
-        estBtn.style.cursor = '';
+        estBtn.removeAttribute('disabled');
+        estBtn.style.removeProperty('background');
+        estBtn.style.setProperty('background', 'linear-gradient(135deg, #00d4ff 0%, #00aaee 35%, #9900cc 100%)', 'important');
+        estBtn.style.setProperty('color', '#fff', 'important');
+        estBtn.style.setProperty('opacity', '1', 'important');
+        window._estAccessDenied = true;
       } else {
         estBtn.textContent = 'Заведения';
-        estBtn.dataset.accessDenied = '';
-        estBtn.disabled = false;
-        estBtn.style.background = '';
+        estBtn.removeAttribute('disabled');
+        estBtn.style.removeProperty('background');
+        window._estAccessDenied = false;
       }
     }
 

@@ -2791,7 +2791,10 @@ const setupEstablishmentSelection = () => {
   // Открытие модального окна
   selectBtn?.addEventListener('click', (e) => openModal(e, 'select'));
   profileEstablishmentsBtn?.addEventListener('click', (e) => {
-    if (window._estAccessDenied) return;
+    if (window._estAccessDenied) {
+      window.openAccessRequestModal?.();
+      return;
+    }
     openModal(e, 'employees');
   });
 
@@ -4463,7 +4466,6 @@ window.openAccessRequestModal = () => {
   const modal = document.getElementById('access-request-modal');
   const list  = document.getElementById('access-request-list');
   const cancelBtn = document.getElementById('access-request-cancel');
-  console.warn('🔓 openAccessRequestModal called, modal:', !!modal, 'perms:', window.userPermissions);
   if (!modal || !list) return;
 
   // Берём заведения без доступа; fallback — все известные заведения с фильтром по Set

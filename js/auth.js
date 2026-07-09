@@ -87,13 +87,8 @@ const Auth = {
     const estBtn = document.getElementById('profile-establishments-btn');
     if (estBtn) {
       if (p.просмотрСотрудников === false) {
-        console.warn('🔒 applyPermissions: заменяем кнопку на Запросить доступ');
-        const newBtn = document.createElement('button');
-        newBtn.id = 'profile-establishments-btn';
-        newBtn.className = estBtn.className;
-        newBtn.textContent = 'Запросить доступ';
-        newBtn.addEventListener('click', () => window.openAccessRequestModal?.());
-        estBtn.parentNode.replaceChild(newBtn, estBtn);
+        estBtn.textContent = 'Запросить доступ';
+        estBtn.removeAttribute('disabled');
         window._estAccessDenied = true;
       } else {
         estBtn.textContent = 'Заведения';

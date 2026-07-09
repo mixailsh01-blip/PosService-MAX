@@ -83,17 +83,6 @@ const Auth = {
       accountsBtn.style.display = p.счета ? '' : 'none';
     }
 
-    // Кнопка "Заведения" в профиле — заменяем на "Запросить доступ" если нет доступа
-    const estBtn = document.getElementById('profile-establishments-btn');
-    if (estBtn) {
-      if (p.просмотрСотрудников === false) {
-        estBtn.textContent = 'Запросить доступ';
-        estBtn.removeAttribute('disabled');
-      } else {
-        estBtn.textContent = 'Заведения';
-        estBtn.removeAttribute('disabled');
-      }
-    }
 
     // Рендерим список заведений на странице Счета
     const accountsPage = document.getElementById('accounts');

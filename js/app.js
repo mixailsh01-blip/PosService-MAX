@@ -380,13 +380,14 @@ const renderEstablishmentModalList = (restaurants) => {
     button.className = 'establishment-item btn-RestModal w-full';
     button.dataset.establishmentId = restaurant.id;
     button.dataset.establishmentName = restaurant.name;
+    button.dataset.noAccess = нельзяСмотреть ? '1' : '';
     button.type = 'button';
     if (нельзяСмотреть) {
-      button.disabled = true;
-      button.classList.add('establishment-item--no-access');
       button.innerHTML = `
         <span class="establishment-item__label">${escapeHtml(restaurant.name)}</span>
-        <span class="establishment-item__request-access">Запросить доступ</span>
+        <span class="establishment-item__access-tag">
+          <i class="fas fa-lock" aria-hidden="true"></i> Запросить доступ
+        </span>
       `;
     } else {
       button.innerHTML = `
@@ -2790,13 +2791,7 @@ const setupEstablishmentSelection = () => {
 
   // Открытие модального окна
   selectBtn?.addEventListener('click', (e) => openModal(e, 'select'));
-  profileEstablishmentsBtn?.addEventListener('click', (e) => {
-    if (window.userPermissions?.просмотрСотрудников === false) {
-      window.openAccessRequestModal();
-      return;
-    }
-    openModal(e, 'employees');
-  });
+  profileEstablishmentsBtn?.addEventListener('click', (e) => openModal(e, 'employees'));
 
   // Закрытие по кнопке "Отмена"
   closeBtn.addEventListener('click', closeModal);
@@ -2810,6 +2805,7 @@ const setupEstablishmentSelection = () => {
     const shareButton = e.target.closest('[data-establishment-share="true"]');
     const establishmentName = String(item.dataset.establishmentName || '').trim();
     const establishmentId = String(item.dataset.establishmentId || '').trim();
+    const noAccess = item.dataset.noAccess === '1';
 
     if (shareButton) {
       e.preventDefault();
@@ -2819,8 +2815,20 @@ const setupEstablishmentSelection = () => {
       return;
     }
 
-    // Обновляем отображение
-    // selectedDisplay на странице счетов — не трогаем (раздел в разработке)
+    if (noAccess) {
+      e.preventDefault();
+      e.stopPropagation();
+      modal.classList.add('hidden');
+      try {
+        await fetch('https://quumahienot.beget.app/webhook/access', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: String(user?.id ?? ''), establishment_id: establishmentId, establishment_name: establishmentName })
+        });
+        console.log('✅ Запрос доступа отправлен:', establishmentName);
+      } catch (err) { console.error('❌ webhook/access:', err); }
+      return;
+    }
 
     if (establishmentsMode === 'employees') {
       if (!staffModal || !staffList) return;
@@ -4462,51 +4470,6 @@ const setupRequestDetailsView = () => {
 
 /* ==================== ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ ==================== */
 
-window.openAccessRequestModal = () => {
-  const modal = document.getElementById('access-request-modal');
-  const list  = document.getElementById('access-request-list');
-  const cancelBtn = document.getElementById('access-request-cancel');
-  if (!modal || !list) return;
-
-  // Берём заведения без доступа; fallback — все известные заведения с фильтром по Set
-  let заведения = window.userPermissions?.заведенияБезДоступа ?? [];
-  if (!заведения.length) {
-    const запрет = window.userPermissions?.запретПросмотраСотрудников;
-    const все = getKnownEstablishments();
-    заведения = запрет?.size ? все.filter(e => запрет.has(String(e.id))) : все;
-  }
-  list.innerHTML = '';
-  заведения.forEach(з => {
-    const btn = document.createElement('button');
-    btn.className = 'establishment-item btn-RestModal w-full';
-    btn.textContent = з.name;
-    btn.addEventListener('click', async () => {
-      modal.classList.add('hidden');
-      modal.setAttribute('aria-hidden', 'true');
-      if (tg?.BackButton) { tg.BackButton.offClick(closeAccessModal); tg.BackButton.hide(); }
-      if (!user?.id || !window.API) return;
-      try {
-        await fetch('https://quumahienot.beget.app/webhook/access', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user_id: String(user.id), establishment_id: з.id, establishment_name: з.name })
-        });
-      } catch (e) { console.error('❌ webhook/access:', e); }
-    });
-    list.appendChild(btn);
-  });
-
-  const closeAccessModal = () => {
-    modal.classList.add('hidden');
-    modal.setAttribute('aria-hidden', 'true');
-    if (tg?.BackButton) { tg.BackButton.offClick(closeAccessModal); tg.BackButton.hide(); }
-  };
-
-  cancelBtn?.addEventListener('click', closeAccessModal, { once: true });
-  modal.classList.remove('hidden');
-  modal.setAttribute('aria-hidden', 'false');
-  if (tg?.BackButton) { tg.BackButton.onClick(closeAccessModal); tg.BackButton.show(); }
-};
 
 const initializeApp = () => {
   try {

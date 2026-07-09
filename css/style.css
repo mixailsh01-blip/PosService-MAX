@@ -1658,27 +1658,21 @@ div.establishment-staff-role-select {
   transform: scale(0.99);
 }
 
-.establishment-item--no-access {
-  opacity: 0.6;
-  cursor: default;
-  pointer-events: none;
-}
-
-.establishment-item--no-access:active {
-  background: linear-gradient(180deg, rgba(48, 52, 64, 0.98) 0%, rgba(37, 40, 49, 0.98) 100%) !important;
-  transform: none !important;
-}
-
-.establishment-item__request-access {
+.establishment-item__access-tag {
   flex: 0 0 auto;
   margin-left: auto;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  color: #8e92a0;
-  border: 1px solid rgba(142, 146, 160, 0.3);
+  color: #ffffff;
+  background: linear-gradient(135deg, #00d4ff 0%, #00aaee 35%, #9900cc 100%);
   border-radius: 999px;
-  padding: 4px 12px;
+  padding: 5px 12px;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  letter-spacing: 0.2px;
+  box-shadow: 0 2px 8px rgba(0, 170, 238, 0.3);
 }
 
 /* Страница счетов */

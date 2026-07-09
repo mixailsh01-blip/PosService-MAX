@@ -88,10 +88,18 @@ const Auth = {
     if (estBtn) {
       if (p.просмотрСотрудников === false) {
         estBtn.textContent = 'Запросить доступ';
-        estBtn.onclick = (e) => { e.stopImmediatePropagation(); };
+        estBtn.dataset.accessDenied = '1';
+        estBtn.disabled = false;
+        estBtn.style.background = 'linear-gradient(135deg, #00d4ff 0%, #00aaee 35%, #9900cc 100%)';
+        estBtn.style.color = '';
+        estBtn.style.border = '';
+        estBtn.style.opacity = '';
+        estBtn.style.cursor = '';
       } else {
         estBtn.textContent = 'Заведения';
-        estBtn.onclick = null;
+        estBtn.dataset.accessDenied = '';
+        estBtn.disabled = false;
+        estBtn.style.background = '';
       }
     }
 

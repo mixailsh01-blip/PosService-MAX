@@ -87,17 +87,17 @@ const Auth = {
     const estBtn = document.getElementById('profile-establishments-btn');
     if (estBtn) {
       if (p.просмотрСотрудников === false) {
-        estBtn.textContent = 'Запросить доступ';
-        estBtn.removeAttribute('disabled');
-        estBtn.style.removeProperty('background');
-        estBtn.style.setProperty('background', 'linear-gradient(135deg, #00d4ff 0%, #00aaee 35%, #9900cc 100%)', 'important');
-        estBtn.style.setProperty('color', '#fff', 'important');
-        estBtn.style.setProperty('opacity', '1', 'important');
+        // Заменяем элемент целиком — чтобы не тащить старые стили/атрибуты
+        const newBtn = document.createElement('button');
+        newBtn.id = 'profile-establishments-btn';
+        newBtn.className = estBtn.className;
+        newBtn.textContent = 'Запросить доступ';
+        newBtn.addEventListener('click', () => { /* TODO: подключить хук */ });
+        estBtn.parentNode.replaceChild(newBtn, estBtn);
         window._estAccessDenied = true;
       } else {
         estBtn.textContent = 'Заведения';
         estBtn.removeAttribute('disabled');
-        estBtn.style.removeProperty('background');
         window._estAccessDenied = false;
       }
     }

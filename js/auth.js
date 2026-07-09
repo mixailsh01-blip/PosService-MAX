@@ -87,7 +87,7 @@ const Auth = {
     const estBtn = document.getElementById('profile-establishments-btn');
     if (estBtn) {
       if (p.просмотрСотрудников === false) {
-        // Заменяем элемент целиком — чтобы не тащить старые стили/атрибуты
+        console.warn('🔒 applyPermissions: заменяем кнопку на Запросить доступ');
         const newBtn = document.createElement('button');
         newBtn.id = 'profile-establishments-btn';
         newBtn.className = estBtn.className;

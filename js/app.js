@@ -4463,9 +4463,16 @@ window.openAccessRequestModal = () => {
   const modal = document.getElementById('access-request-modal');
   const list  = document.getElementById('access-request-list');
   const cancelBtn = document.getElementById('access-request-cancel');
+  console.warn('🔓 openAccessRequestModal called, modal:', !!modal, 'perms:', window.userPermissions);
   if (!modal || !list) return;
 
-  const заведения = window.userPermissions?.заведенияБезДоступа ?? [];
+  // Берём заведения без доступа; fallback — все известные заведения с фильтром по Set
+  let заведения = window.userPermissions?.заведенияБезДоступа ?? [];
+  if (!заведения.length) {
+    const запрет = window.userPermissions?.запретПросмотраСотрудников;
+    const все = getKnownEstablishments();
+    заведения = запрет?.size ? все.filter(e => запрет.has(String(e.id))) : все;
+  }
   list.innerHTML = '';
   заведения.forEach(з => {
     const btn = document.createElement('button');

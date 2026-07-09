@@ -2790,7 +2790,10 @@ const setupEstablishmentSelection = () => {
 
   // Открытие модального окна
   selectBtn?.addEventListener('click', (e) => openModal(e, 'select'));
-  profileEstablishmentsBtn?.addEventListener('click', (e) => openModal(e, 'employees'));
+  profileEstablishmentsBtn?.addEventListener('click', (e) => {
+    if (profileEstablishmentsBtn.classList.contains('btn-request-access')) return;
+    openModal(e, 'employees');
+  });
 
   // Закрытие по кнопке "Отмена"
   closeBtn.addEventListener('click', closeModal);

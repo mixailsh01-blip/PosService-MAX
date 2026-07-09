@@ -835,9 +835,6 @@ body.hide-main-logo #accounts.page {
   background: rgba(142, 146, 160, 0.12);
   color: #8e92a0;
   border: 1px solid rgba(142, 146, 160, 0.25);
-  cursor: default;
-  pointer-events: none;
-  opacity: 0.7;
 }
 
 /* ==================== МОДАЛЬНЫЕ ОКНА ==================== */

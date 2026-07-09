@@ -90,7 +90,7 @@ const Auth = {
       // false = явно запрещено; undefined = права ещё не пришли, не трогаем
       if (p.просмотрСотрудников === false) {
         estBtn.textContent = 'Запросить доступ';
-        estBtn.disabled = true;
+        estBtn.disabled = false;
         estBtn.classList.add('btn-request-access');
       } else {
         estBtn.textContent = 'Заведения';

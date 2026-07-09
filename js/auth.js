@@ -92,7 +92,7 @@ const Auth = {
         newBtn.id = 'profile-establishments-btn';
         newBtn.className = estBtn.className;
         newBtn.textContent = 'Запросить доступ';
-        newBtn.addEventListener('click', () => { /* TODO: подключить хук */ });
+        newBtn.addEventListener('click', () => window.openAccessRequestModal?.());
         estBtn.parentNode.replaceChild(newBtn, estBtn);
         window._estAccessDenied = true;
       } else {

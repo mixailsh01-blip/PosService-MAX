@@ -4459,6 +4459,46 @@ const setupRequestDetailsView = () => {
 
 /* ==================== ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ ==================== */
 
+window.openAccessRequestModal = () => {
+  const modal = document.getElementById('access-request-modal');
+  const list  = document.getElementById('access-request-list');
+  const cancelBtn = document.getElementById('access-request-cancel');
+  if (!modal || !list) return;
+
+  const заведения = window.userPermissions?.заведенияБезДоступа ?? [];
+  list.innerHTML = '';
+  заведения.forEach(з => {
+    const btn = document.createElement('button');
+    btn.className = 'establishment-item btn-RestModal w-full';
+    btn.textContent = з.name;
+    btn.addEventListener('click', async () => {
+      modal.classList.add('hidden');
+      modal.setAttribute('aria-hidden', 'true');
+      if (tg?.BackButton) { tg.BackButton.offClick(closeAccessModal); tg.BackButton.hide(); }
+      if (!user?.id || !window.API) return;
+      try {
+        await fetch('https://quumahienot.beget.app/webhook/access', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: String(user.id), establishment_id: з.id, establishment_name: з.name })
+        });
+      } catch (e) { console.error('❌ webhook/access:', e); }
+    });
+    list.appendChild(btn);
+  });
+
+  const closeAccessModal = () => {
+    modal.classList.add('hidden');
+    modal.setAttribute('aria-hidden', 'true');
+    if (tg?.BackButton) { tg.BackButton.offClick(closeAccessModal); tg.BackButton.hide(); }
+  };
+
+  cancelBtn?.addEventListener('click', closeAccessModal, { once: true });
+  modal.classList.remove('hidden');
+  modal.setAttribute('aria-hidden', 'false');
+  if (tg?.BackButton) { tg.BackButton.onClick(closeAccessModal); tg.BackButton.show(); }
+};
+
 const initializeApp = () => {
   try {
     initializeUserData();

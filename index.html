@@ -179,6 +179,17 @@
     </div>
 
     <!-- Модальное окно выбора заведения -->
+    <!-- Модалка выбора заведения для запроса доступа -->
+    <div id="access-request-modal" class="modal hidden" aria-hidden="true">
+      <div class="modal-content establishment-modal-content">
+        <h3 class="font-bold mb-4 text-center">По какому заведению?</h3>
+        <div id="access-request-list" class="establishment-list space-y-3"></div>
+        <div style="margin-top:12px">
+          <button id="access-request-cancel" class="btn-CancelModal w-full">Отмена</button>
+        </div>
+      </div>
+    </div>
+
     <div id="establishment-modal" class="modal hidden">
         <div class="modal-content establishment-modal-content">
             <h3 class="font-bold mb-4 text-center">Ваши заведения</h3>
@@ -363,8 +374,8 @@
 </script>
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-<script src="js/api.js?v=20260709-15"></script>
-<script src="js/auth.js?v=20260709-20"></script>
-<script src="js/app.js?v=20260709-40"></script>
+<script src="js/api.js?v=20260709-16"></script>
+<script src="js/auth.js?v=20260709-21"></script>
+<script src="js/app.js?v=20260709-41"></script>
 </body>
 </html>

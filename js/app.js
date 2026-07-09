@@ -1444,7 +1444,7 @@ const getPendingLocalAttachment = (cacheKey) => {
 };
 const ESTABLISHMENTS_CACHE_STORAGE_KEY = 'miniapp_establishments_cache_v1';
 const UNREAD_STORAGE_KEY = 'miniapp_unread_counts_v1';
-const REQUESTS_CACHE_STORAGE_KEY = 'miniapp_requests_cache_v1';
+const REQUESTS_CACHE_STORAGE_KEY = 'miniapp_requests_cache_v2';
 const READ_CHAT_SIGNATURES_STORAGE_KEY = 'miniapp_read_chat_signatures_v1';
 const OPEN_CHAT_POLL_DELAYS_MS = [4000, 4000, 4000, 8000, 8000, 8000, 16000, 16000, 16000, 24000, 24000, 24000, 48000, 48000, 48000];
 const getScopedStorageKey = (baseKey) => `${baseKey}:${user?.id != null ? String(user.id) : 'guest'}`;
@@ -1916,7 +1916,7 @@ const saveRequestsCacheToStorage = () => {
       status: String(task.status || ''),
       chatId: String(task.chatId || ''),
       isClosed: Boolean(task.isClosed),
-      createdAt: task.createdAt || new Date().toISOString(),
+      createdAt: task.createdAt || '',
       unreadCount: Number(task.unreadCount || 0),
       chat: Array.isArray(task.chat)
         ? task.chat.slice(-20).map((message) => ({

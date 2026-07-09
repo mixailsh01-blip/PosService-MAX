@@ -4465,6 +4465,9 @@ const initializeApp = () => {
         window.userPermissions = права ?? { счета: true, анонимныеЗаявки: false, редактированиеПрав: false, счетаЗаведения: [] };
         console.log('🔐 Права пользователя:', window.userPermissions);
         window.Auth?.applyPermissions?.();
+        // Перерисовываем список заведений с учётом новых прав
+        const known = getKnownEstablishments();
+        if (known.length > 0) applyRestaurants(known);
       });
     }
 

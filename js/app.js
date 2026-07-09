@@ -2718,6 +2718,9 @@ const setupEstablishmentSelection = () => {
             <div class="establishment-staff-role">
               ${roleSelectHtml}
             </div>
+            <button class="establishment-staff-delete" data-personal-id="${escapeHtml(employeeId)}" type="button" aria-label="Удалить сотрудника">
+              <i class="fas fa-trash-can" aria-hidden="true"></i>
+            </button>
           </div>
         </div>
       `;

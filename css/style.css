@@ -1592,6 +1592,32 @@ div.establishment-staff-role-select {
   font-size: 12px;
 }
 
+.establishment-staff-delete {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  margin-left: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 70, 70, 0.3);
+  background: rgba(255, 50, 50, 0.08);
+  color: rgba(255, 90, 90, 0.8);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+
+.establishment-staff-delete:active {
+  background: rgba(255, 50, 50, 0.22);
+  border-color: rgba(255, 70, 70, 0.6);
+  transform: scale(0.92);
+}
+
+.establishment-staff-delete i {
+  font-size: 13px;
+}
+
 .establishment-staff-empty {
   padding: 24px 12px;
   text-align: center;

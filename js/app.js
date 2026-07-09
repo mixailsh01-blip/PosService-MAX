@@ -405,20 +405,31 @@ const applyRestaurants = (restaurants, { replace = false } = {}) => {
     const list = document.querySelector('#establishment-modal .establishment-list');
     if (list) {
       list.innerHTML = '';
+      const запрет = window.userPermissions?.запретПросмотраСотрудников;
       mergedRestaurants.forEach((restaurant) => {
+        const нельзяСмотреть = запрет?.has(String(restaurant.id));
         const button = document.createElement('button');
         button.className = 'establishment-item btn-RestModal w-full';
         button.dataset.establishmentId = restaurant.id;
         button.dataset.establishmentName = restaurant.name;
         button.type = 'button';
-        button.innerHTML = `
-          <span class="establishment-item__label">${escapeHtml(restaurant.name)}</span>
-          <span class="establishment-item__actions">
-            <span class="establishment-item__share" data-establishment-share="true" role="button" tabindex="0" aria-label="Поделиться ${escapeHtml(restaurant.name)}">
-              <i class="fas fa-share-nodes" aria-hidden="true"></i>
+        if (нельзяСмотреть) {
+          button.disabled = true;
+          button.classList.add('establishment-item--no-access');
+          button.innerHTML = `
+            <span class="establishment-item__label">${escapeHtml(restaurant.name)}</span>
+            <span class="establishment-item__request-access">Запросить доступ</span>
+          `;
+        } else {
+          button.innerHTML = `
+            <span class="establishment-item__label">${escapeHtml(restaurant.name)}</span>
+            <span class="establishment-item__actions">
+              <span class="establishment-item__share" data-establishment-share="true" role="button" tabindex="0" aria-label="Поделиться ${escapeHtml(restaurant.name)}">
+                <i class="fas fa-share-nodes" aria-hidden="true"></i>
+              </span>
             </span>
-          </span>
-        `;
+          `;
+        }
         list.appendChild(button);
       });
     }

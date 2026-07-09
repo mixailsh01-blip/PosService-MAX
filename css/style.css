@@ -1689,22 +1689,6 @@ div.establishment-staff-role-select {
   font-size: 14px;
 }
 
-/* Кнопки "Отмена" / "Назад" внутри модалок заведений */
-.establishment-modal-content .btn-CancelModal {
-  background: linear-gradient(135deg, #00d4ff 0%, #00aaee 35%, #9900cc 100%);
-  color: #ffffff;
-  opacity: 1;
-  transform: none;
-  margin-top: 0;
-}
-
-.establishment-modal-content .btn-CancelModal:hover {
-  background: linear-gradient(135deg, #00bfe8 0%, #8800bb 100%);
-}
-
-.establishment-modal-content .btn-CancelModal:active {
-  transform: scale(0.98) !important;
-}
 
 
 /* Страница счетов */

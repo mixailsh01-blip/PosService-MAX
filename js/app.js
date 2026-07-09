@@ -2598,19 +2598,17 @@ const setupEstablishmentSelection = () => {
   const profileEstablishmentsBtn = document.getElementById('profile-establishments-btn');
   const selectedDisplay = document.getElementById('selected-establishment');
   const modal = document.getElementById('establishment-modal');
-  const closeBtn = document.getElementById('close-establishment-modal-btn');
   const establishmentList = modal?.querySelector('.establishment-list');
   const staffModal = document.getElementById('establishment-staff-modal');
   const staffTitle = document.getElementById('establishment-staff-title');
   const staffList = document.getElementById('establishment-staff-list');
-  const staffCloseBtn = document.getElementById('close-establishment-staff-btn');
   let establishmentsMode = 'select';
   const rolesCatalogState = {
     loaded: false,
     roles: []
   };
 
-  if ((!selectBtn && !profileEstablishmentsBtn) || !selectedDisplay || !modal || !closeBtn || !establishmentList) return;
+  if ((!selectBtn && !profileEstablishmentsBtn) || !selectedDisplay || !modal || !establishmentList) return;
 
   const normalizeRolesFromCatalogResponse = (result) => {
     const items = Array.isArray(result) ? result : [result];
@@ -2780,10 +2778,6 @@ const setupEstablishmentSelection = () => {
   // Открытие модального окна
   selectBtn?.addEventListener('click', (e) => openModal(e, 'select'));
   profileEstablishmentsBtn?.addEventListener('click', (e) => openModal(e, 'employees'));
-
-  // Закрытие по кнопке "Отмена"
-  closeBtn.addEventListener('click', closeModal);
-  staffCloseBtn?.addEventListener('click', closeStaffModal);
 
   // Выбор заведения (делаем делегирование, т.к. список обновляется динамически)
   establishmentList.addEventListener('click', async (e) => {

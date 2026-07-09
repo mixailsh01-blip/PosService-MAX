@@ -368,6 +368,39 @@ const saveCachedEstablishments = (restaurants) => {
   }
 };
 
+const renderEstablishmentModalList = (restaurants) => {
+  const list = document.querySelector('#establishment-modal .establishment-list');
+  if (!list || !restaurants?.length) return;
+  const запрет = window.userPermissions?.запретПросмотраСотрудников;
+  list.innerHTML = '';
+  restaurants.forEach((restaurant) => {
+    const нельзяСмотреть = запрет?.has(String(restaurant.id));
+    const button = document.createElement('button');
+    button.className = 'establishment-item btn-RestModal w-full';
+    button.dataset.establishmentId = restaurant.id;
+    button.dataset.establishmentName = restaurant.name;
+    button.type = 'button';
+    if (нельзяСмотреть) {
+      button.disabled = true;
+      button.classList.add('establishment-item--no-access');
+      button.innerHTML = `
+        <span class="establishment-item__label">${escapeHtml(restaurant.name)}</span>
+        <span class="establishment-item__request-access">Запросить доступ</span>
+      `;
+    } else {
+      button.innerHTML = `
+        <span class="establishment-item__label">${escapeHtml(restaurant.name)}</span>
+        <span class="establishment-item__actions">
+          <span class="establishment-item__share" data-establishment-share="true" role="button" tabindex="0" aria-label="Поделиться ${escapeHtml(restaurant.name)}">
+            <i class="fas fa-share-nodes" aria-hidden="true"></i>
+          </span>
+        </span>
+      `;
+    }
+    list.appendChild(button);
+  });
+};
+
 const applyRestaurants = (restaurants, { replace = false } = {}) => {
   try {
     const mergedRestaurants = replace
@@ -401,38 +434,7 @@ const applyRestaurants = (restaurants, { replace = false } = {}) => {
       }
     }
 
-    // Обновляем список в модалке "Ваши заведения"
-    const list = document.querySelector('#establishment-modal .establishment-list');
-    if (list) {
-      list.innerHTML = '';
-      const запрет = window.userPermissions?.запретПросмотраСотрудников;
-      mergedRestaurants.forEach((restaurant) => {
-        const нельзяСмотреть = запрет?.has(String(restaurant.id));
-        const button = document.createElement('button');
-        button.className = 'establishment-item btn-RestModal w-full';
-        button.dataset.establishmentId = restaurant.id;
-        button.dataset.establishmentName = restaurant.name;
-        button.type = 'button';
-        if (нельзяСмотреть) {
-          button.disabled = true;
-          button.classList.add('establishment-item--no-access');
-          button.innerHTML = `
-            <span class="establishment-item__label">${escapeHtml(restaurant.name)}</span>
-            <span class="establishment-item__request-access">Запросить доступ</span>
-          `;
-        } else {
-          button.innerHTML = `
-            <span class="establishment-item__label">${escapeHtml(restaurant.name)}</span>
-            <span class="establishment-item__actions">
-              <span class="establishment-item__share" data-establishment-share="true" role="button" tabindex="0" aria-label="Поделиться ${escapeHtml(restaurant.name)}">
-                <i class="fas fa-share-nodes" aria-hidden="true"></i>
-              </span>
-            </span>
-          `;
-        }
-        list.appendChild(button);
-      });
-    }
+    renderEstablishmentModalList(mergedRestaurants);
 
     syncOpenTasksForKnownEstablishments();
   } catch (error) {
@@ -4465,9 +4467,7 @@ const initializeApp = () => {
         window.userPermissions = права ?? { счета: true, анонимныеЗаявки: false, редактированиеПрав: false, счетаЗаведения: [] };
         console.log('🔐 Права пользователя:', window.userPermissions);
         window.Auth?.applyPermissions?.();
-        // Перерисовываем список заведений с учётом новых прав
-        const known = getKnownEstablishments();
-        if (known.length > 0) applyRestaurants(known);
+        renderEstablishmentModalList(getKnownEstablishments());
       });
     }
 

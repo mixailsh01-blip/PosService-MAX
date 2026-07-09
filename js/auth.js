@@ -89,11 +89,9 @@ const Auth = {
       if (p.просмотрСотрудников === false) {
         estBtn.textContent = 'Запросить доступ';
         estBtn.removeAttribute('disabled');
-        window._estAccessDenied = true;
       } else {
         estBtn.textContent = 'Заведения';
         estBtn.removeAttribute('disabled');
-        window._estAccessDenied = false;
       }
     }
 

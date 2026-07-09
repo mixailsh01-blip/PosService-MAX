@@ -92,7 +92,10 @@ const initializeUserData = () => {
 
   // Остальная логика остаётся без изменений — обновление аватара, телефона и т.д.
   if (user) {
-    // user-fullname намеренно НЕ ставим из MAX — его заполнит applyClientSupportResponse из хука
+    // Ставим из MAX как плейсхолдер — applyClientSupportResponse перезапишет из хука
+    const fullName = [user.first_name, user.last_name].filter(Boolean).join(' ') || '';
+    if (fullName) document.getElementById('user-fullname').textContent = fullName;
+
     const phoneNumber = user.phone_number || user.phone || null;
     if (phoneNumber) {
       document.getElementById('user-phone').textContent = formatPhoneNumber(phoneNumber);

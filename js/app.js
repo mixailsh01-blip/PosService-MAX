@@ -2092,7 +2092,7 @@ const normalizeTaskFromWebhook = (item) => {
       comment_id: item?.comment_id ?? item?.commentId ?? `preview-${taskId}`,
       author: item?.author ?? item?.sender ?? item?.sender_name ?? item?.senderName ?? item?.username ?? 'Pyrus',
       text: item?.text ?? item?.message ?? item?.comment ?? item?.body ?? '',
-      date: item?.date ?? item?.updated_at ?? item?.updatedAt ?? item?.last_message_date ?? item?.lastMessageDate ?? item?.created_at ?? item?.createdAt ?? new Date().toISOString(),
+      date: item?.date ?? item?.updated_at ?? item?.updatedAt ?? item?.last_message_date ?? item?.lastMessageDate ?? item?.create_date ?? item?.created_at ?? item?.createdAt ?? new Date().toISOString(),
       channel_type: item?.channel_type ?? item?.channelType ?? 'custom',
       sender_type: item?.sender_type ?? item?.senderType ?? '',
       message_type: item?.message_type ?? item?.messageType ?? 'TEXT',
@@ -2127,7 +2127,7 @@ const normalizeTaskFromWebhook = (item) => {
     chatId: String(item.chat_id ?? item.chatId ?? ''),
     isClosed: hasClosedFlag ? Boolean(item.is_closed ?? item.isClosed ?? false) : undefined,
     chat: sortedChat,
-    createdAt: item.created_at ?? item.createdAt ?? sortedChat[0]?.date ?? '',
+    createdAt: item.create_date ?? item.created_at ?? item.createdAt ?? sortedChat[0]?.date ?? '',
     unreadCount: 0
   };
 };

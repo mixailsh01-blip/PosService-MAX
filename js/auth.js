@@ -86,15 +86,12 @@ const Auth = {
     // Кнопка "Заведения" в профиле — заменяем на "Запросить доступ" если нет доступа
     const estBtn = document.getElementById('profile-establishments-btn');
     if (estBtn) {
-      // false = явно запрещено; undefined = права ещё не пришли, не трогаем
       if (p.просмотрСотрудников === false) {
         estBtn.textContent = 'Запросить доступ';
-        estBtn.disabled = false;
-        estBtn.classList.add('btn-request-access');
+        estBtn.onclick = (e) => { e.stopImmediatePropagation(); };
       } else {
         estBtn.textContent = 'Заведения';
-        estBtn.disabled = false;
-        estBtn.classList.remove('btn-request-access');
+        estBtn.onclick = null;
       }
     }
 

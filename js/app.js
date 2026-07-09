@@ -2790,10 +2790,7 @@ const setupEstablishmentSelection = () => {
 
   // Открытие модального окна
   selectBtn?.addEventListener('click', (e) => openModal(e, 'select'));
-  profileEstablishmentsBtn?.addEventListener('click', (e) => {
-    if (window.userPermissions?.просмотрСотрудников === false) return;
-    openModal(e, 'employees');
-  });
+  profileEstablishmentsBtn?.addEventListener('click', (e) => openModal(e, 'employees'));
 
   // Закрытие по кнопке "Отмена"
   closeBtn.addEventListener('click', closeModal);

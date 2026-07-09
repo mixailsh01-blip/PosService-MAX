@@ -821,7 +821,6 @@ const applyClientSupportResponse = (result) => {
   };
   const firstName = items.reduce((found, item) => found ?? pickStr(item, 'FirstName', 'first_name', 'firstName', 'name'), null);
   const lastName  = items.reduce((found, item) => found ?? pickStr(item, 'LastName',  'last_name',  'lastName',  'family'), null);
-  console.warn('👤 [clientTG_support] firstName:', firstName, '| lastName:', lastName, '| raw items:', JSON.stringify(items).slice(0, 300));
   if (firstName || lastName) {
     const fullName = [firstName, lastName].filter(Boolean).join(' ');
     const userFullname = document.getElementById('user-fullname');

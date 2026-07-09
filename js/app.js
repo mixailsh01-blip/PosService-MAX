@@ -812,8 +812,16 @@ const applyClientSupportResponse = (result) => {
   }
 
   // Подставляем имя и фамилию из ответа сервера если они есть
-  const firstName = items.reduce((found, item) => found ?? item?.FirstName ?? null, null);
-  const lastName  = items.reduce((found, item) => found ?? item?.LastName  ?? null, null);
+  const pickStr = (item, ...keys) => {
+    for (const k of keys) {
+      const v = item?.[k];
+      if (typeof v === 'string' && v.trim()) return v.trim();
+    }
+    return null;
+  };
+  const firstName = items.reduce((found, item) => found ?? pickStr(item, 'FirstName', 'first_name', 'firstName', 'name'), null);
+  const lastName  = items.reduce((found, item) => found ?? pickStr(item, 'LastName',  'last_name',  'lastName',  'family'), null);
+  console.warn('👤 [clientTG_support] firstName:', firstName, '| lastName:', lastName, '| raw items:', JSON.stringify(items).slice(0, 300));
   if (firstName || lastName) {
     const fullName = [firstName, lastName].filter(Boolean).join(' ');
     const userFullname = document.getElementById('user-fullname');

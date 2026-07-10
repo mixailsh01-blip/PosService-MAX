@@ -4442,6 +4442,9 @@ const setupRequestDetailsView = () => {
 
 const initializeApp = () => {
   try {
+    // Страховка: если inline-скрипт не успел вызвать ready() (например, max-web-app.js был медленным)
+    if (typeof tg?.ready === 'function') tg.ready();
+
     initializeUserData();
     restoreRequestsCacheFromStorage();
 
@@ -4470,11 +4473,6 @@ const initializeApp = () => {
           return;
         }
         clearRequestsStateAndCache();
-        const bridgePhone = user?.phone_number || user?.phone;
-        if (bridgePhone) {
-          notifyRegistrClient({ phone_number: bridgePhone }, { stage: 'auto_from_bridge' });
-          return;
-        }
         showContactShareModal();
       });
     }

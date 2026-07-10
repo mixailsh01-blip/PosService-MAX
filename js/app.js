@@ -632,7 +632,7 @@ const showContactShareModal = () => {
   if (modal) modal.classList.remove('hidden');
   progress?.classList.add('hidden');
   if (progressText) {
-    progressText.textContent = 'Секунду… разработчик уже регистрирует вас в Pos Bazar 🙂';
+    progressText.textContent = 'Секунду… разработчик уже регистрирует вас в Pos Service 🙂';
   }
   if (modalBtn) {
     modalBtn.disabled = false;
@@ -653,7 +653,7 @@ const setContactShareLoading = (enabled, message = '') => {
   if (enabled) {
     progress?.classList.remove('hidden');
     if (progressText) {
-      progressText.textContent = message || 'Секунду… разработчик уже регистрирует вас в Pos Bazar 🙂';
+      progressText.textContent = message || 'Секунду… разработчик уже регистрирует вас в Pos Service 🙂';
     }
     if (modalBtn) {
       modalBtn.disabled = true;
@@ -999,7 +999,7 @@ const setupContactSharing = () => {
 
       if (result === true) {
         console.log('✅ Контакт запрошен, пытаемся получить данные...');
-        setContactShareLoading(true, 'Секунду… разработчик уже регистрирует вас в Pos Bazar 🙂');
+        setContactShareLoading(true, 'Секунду… разработчик уже регистрирует вас в Pos Service 🙂');
 
         let attemptsLeft = 6;
         const tryReadInitData = () => {

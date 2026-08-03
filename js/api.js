@@ -360,8 +360,8 @@ const API = {
       console.log('✅ [API] Данные пользователя:', result);
       const person = Array.isArray(result) ? result[0] : result;
       const заведения = person?.Заведения ?? [];
-      const да = v => v === true || v === 'Да';
-      const нет = v => v === false || v === 'Нет';
+      const да = v => v === true || v === 'Да' || String(v).toLowerCase() === 'true';
+      const нет = v => v === false || v === 'Нет' || String(v).toLowerCase() === 'false' || v == null || v === '';
       const счетаЗаведения = заведения.filter(з => да(з.ПРАВА?.['Счета']));
       const заведенияБезДоступа = заведения.filter(з => нет(з.ПРАВА?.['Просмотр сотрудников']));
       const запретПросмотра = new Set(заведенияБезДоступа.map(з => String(з.IDREST)));

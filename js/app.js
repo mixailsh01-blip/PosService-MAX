@@ -2806,6 +2806,24 @@ const setupEstablishmentSelection = () => {
       if (staffTitle) {
         staffTitle.textContent = establishmentName || 'Сотрудники';
       }
+      const запретПросмотра = window.userPermissions?.запретПросмотраСотрудников;
+      if (запретПросмотра && establishmentId && запретПросмотра.has(establishmentId)) {
+        staffList.innerHTML = '<div class="establishment-staff-empty">Недоступно по правам доступа: просмотр сотрудников</div>';
+        if (tg?.BackButton) {
+          if (typeof tg.BackButton.offClick === 'function') {
+            tg.BackButton.offClick(closeModal);
+            tg.BackButton.offClick(closeStaffModal);
+          }
+          if (typeof tg.BackButton.onClick === 'function') {
+            tg.BackButton.onClick(closeStaffModal);
+          }
+          if (typeof tg.BackButton.show === 'function') {
+            tg.BackButton.show();
+          }
+        }
+        return;
+      }
+
       staffList.innerHTML = '<div class="establishment-staff-empty">Загружаем сотрудников...</div>';
       await loadRolesCatalog();
       if (tg?.BackButton) {

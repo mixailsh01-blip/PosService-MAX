@@ -2602,7 +2602,9 @@ const setupEstablishmentSelection = () => {
   const staffModal = document.getElementById('establishment-staff-modal');
   const staffTitle = document.getElementById('establishment-staff-title');
   const staffList = document.getElementById('establishment-staff-list');
+  const staffRequestAccessBtn = document.getElementById('establishment-staff-request-access-btn');
   let establishmentsMode = 'select';
+  let isRequestingAccess = false;
   const rolesCatalogState = {
     loaded: false,
     roles: []
@@ -2669,6 +2671,36 @@ const setupEstablishmentSelection = () => {
       }
       console.error('❌ Ошибка шеринга заведения:', error);
       showPlatformPopup('Ошибка', 'Не удалось открыть экран отправки ссылки.');
+    }
+  };
+
+  const requestStaffAccess = async (establishmentId, establishmentName) => {
+    if (isRequestingAccess || !establishmentId) return;
+    isRequestingAccess = true;
+    if (staffRequestAccessBtn) {
+      staffRequestAccessBtn.disabled = true;
+      staffRequestAccessBtn.textContent = 'Отправляем запрос...';
+    }
+    try {
+      await fetch('https://quumahienot.beget.app/webhook/access', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: user?.id ? String(user.id) : null,
+          establishment_id: establishmentId,
+          establishment_name: establishmentName
+        })
+      });
+      showPlatformPopup('Запрос отправлен', 'Мы передали запрос на доступ. Ожидайте подтверждения.');
+    } catch (error) {
+      console.error('❌ Ошибка запроса доступа:', error);
+      showPlatformPopup('Ошибка', 'Не удалось отправить запрос доступа. Попробуйте позже.');
+    } finally {
+      isRequestingAccess = false;
+      if (staffRequestAccessBtn) {
+        staffRequestAccessBtn.disabled = false;
+        staffRequestAccessBtn.textContent = 'Запросить доступ';
+      }
     }
   };
 
@@ -2806,9 +2838,16 @@ const setupEstablishmentSelection = () => {
       if (staffTitle) {
         staffTitle.textContent = establishmentName || 'Сотрудники';
       }
+      staffRequestAccessBtn?.classList.add('hidden');
       const запретПросмотра = window.userPermissions?.запретПросмотраСотрудников;
       if (запретПросмотра && establishmentId && запретПросмотра.has(establishmentId)) {
         staffList.innerHTML = '<div class="establishment-staff-empty">Недоступно по правам доступа: просмотр сотрудников</div>';
+        if (staffRequestAccessBtn) {
+          staffRequestAccessBtn.classList.remove('hidden');
+          staffRequestAccessBtn.disabled = false;
+          staffRequestAccessBtn.textContent = 'Запросить доступ';
+          staffRequestAccessBtn.onclick = () => requestStaffAccess(establishmentId, establishmentName);
+        }
         if (tg?.BackButton) {
           if (typeof tg.BackButton.offClick === 'function') {
             tg.BackButton.offClick(closeModal);

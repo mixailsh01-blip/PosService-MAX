@@ -2682,7 +2682,7 @@ const setupEstablishmentSelection = () => {
       staffRequestAccessBtn.textContent = 'Отправляем запрос...';
     }
     try {
-      await fetch('https://quumahienot.beget.app/webhook/access', {
+      await fetch('https://quumahienot.beget.app/webhook/AccessRequest', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -2682,13 +2682,15 @@ const setupEstablishmentSelection = () => {
       staffRequestAccessBtn.textContent = 'Отправляем запрос...';
     }
     try {
+      const currentRole = window.userPermissions?.праваПоЗаведениям?.get(establishmentId) ?? null;
       await fetch('https://quumahienot.beget.app/webhook/AccessRequest', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           user_id: user?.id ? String(user.id) : null,
           establishment_id: establishmentId,
-          establishment_name: establishmentName
+          establishment_name: establishmentName,
+          access_role: currentRole
         })
       });
       showPlatformPopup('Запрос отправлен', 'Мы передали запрос на доступ. Ожидайте подтверждения.');

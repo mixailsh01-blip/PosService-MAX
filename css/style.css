@@ -1618,6 +1618,13 @@ div.establishment-staff-role-select {
   font-size: 13px;
 }
 
+#establishment-staff-request-access-btn {
+  opacity: 1;
+  transform: none;
+  margin-top: auto;
+  flex-shrink: 0;
+}
+
 .establishment-staff-empty {
   padding: 24px 12px;
   text-align: center;

@@ -2,6 +2,7 @@
 const tg = window.WebApp ?? window.Telegram?.WebApp ?? null;
 const user = tg?.initDataUnsafe?.user;
 const platformName = window.WebApp ? 'max' : (window.Telegram?.WebApp ? 'telegram' : 'web');
+let resolvedUserPhone = user?.phone_number || user?.phone || null;
 
 const BOT_DEEP_LINK_BASE = 'https://max.ru/id280504290898_bot?startapp=';
 
@@ -806,6 +807,7 @@ const applyClientSupportResponse = (result) => {
   }, null);
 
   if (phone) {
+    resolvedUserPhone = phone;
     const userPhoneEl = document.getElementById('user-phone');
     if (userPhoneEl && userPhoneEl.textContent.includes('XXX')) {
       userPhoneEl.textContent = formatPhoneNumber(phone);
@@ -1138,6 +1140,8 @@ const updateContactInfo = (contact) => {
     return;
   }
   
+  resolvedUserPhone = contact.phone_number;
+
   // Обновляем номер телефона в профиле
   const userPhoneElement = document.getElementById('user-phone');
   if (userPhoneElement) {
@@ -2688,7 +2692,7 @@ const setupEstablishmentSelection = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           user_id: user?.id ? String(user.id) : null,
-          phone_number: user?.phone_number || user?.phone || null,
+          phone_number: resolvedUserPhone || user?.phone_number || user?.phone || null,
           establishment_id: establishmentId,
           establishment_name: establishmentName,
           access_role: currentRole

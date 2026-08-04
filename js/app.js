@@ -2688,6 +2688,7 @@ const setupEstablishmentSelection = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           user_id: user?.id ? String(user.id) : null,
+          phone_number: user?.phone_number || user?.phone || null,
           establishment_id: establishmentId,
           establishment_name: establishmentName,
           access_role: currentRole

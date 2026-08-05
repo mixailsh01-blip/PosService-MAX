@@ -3042,17 +3042,26 @@ const setupEstablishmentSelection = () => {
 
 /* ==================== СЧЕТА ==================== */
 
+const formatBillDate = (raw) => {
+  const match = String(raw || '').trim().match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return match ? `${match[3]}.${match[2]}.${match[1]}` : String(raw || '').trim();
+};
+
 const normalizeBillItem = (item) => {
-  const да = v => v === true || v === 'Да' || String(v).toLowerCase() === 'true' || String(v).toLowerCase() === 'paid' || String(v).toLowerCase() === 'оплачен' || String(v).toLowerCase() === 'оплачено';
-  const number = String(item?.Номер ?? item?.number ?? item?.ID ?? item?.id ?? '').trim();
-  const amount = item?.Сумма ?? item?.amount ?? item?.sum ?? null;
-  const date = String(item?.Дата ?? item?.date ?? item?.created_at ?? '').trim();
-  const statusRaw = item?.Оплачено ?? item?.paid ?? item?.Статус ?? item?.status ?? null;
+  const number = String(item?.num_invoice ?? item?.Номер ?? item?.number ?? item?.ID ?? item?.id ?? '').trim();
+  const amount = item?.sum_invoice ?? item?.Сумма ?? item?.amount ?? item?.sum ?? null;
+  const date = formatBillDate(item?.date_invoice ?? item?.Дата ?? item?.date ?? item?.created_at ?? '');
+  const statusRaw = String(item?.status_invoice ?? item?.Оплачено ?? item?.paid ?? item?.Статус ?? item?.status ?? '').trim();
+  const statusLower = statusRaw.toLowerCase();
+  const isCancelled = ['отменён', 'отменен', 'cancelled', 'canceled'].includes(statusLower);
+  const isPaid = !isCancelled && (statusLower === 'оплачен' || statusLower === 'да' || statusLower === 'true' || statusLower === 'paid');
   return {
     number,
     amount,
     date,
-    isPaid: да(statusRaw),
+    status: statusRaw || (isPaid ? 'Оплачен' : 'Не оплачен'),
+    isPaid,
+    isCancelled,
     raw: item
   };
 };
@@ -3076,8 +3085,8 @@ const setupAccountsPage = () => {
 
   const renderBillsList = () => {
     const filtered = accountsState.items.filter((bill) => {
-      if (accountsState.filter === 'paid') return bill.isPaid;
-      if (accountsState.filter === 'unpaid') return !bill.isPaid;
+      if (accountsState.filter === 'paid') return bill.isPaid && !bill.isCancelled;
+      if (accountsState.filter === 'unpaid') return !bill.isPaid && !bill.isCancelled;
       return true;
     });
 
@@ -3086,17 +3095,21 @@ const setupAccountsPage = () => {
       return;
     }
 
-    billsList.innerHTML = filtered.map((bill) => `
-      <div class="accounts-bill-card">
-        <div class="accounts-bill-main">
-          <div class="accounts-bill-number">${escapeHtml(bill.number ? `Счёт №${bill.number}` : 'Счёт')}</div>
-          <div class="accounts-bill-meta">${escapeHtml([bill.date, bill.amount != null ? `${bill.amount} ₽` : ''].filter(Boolean).join(' • '))}</div>
+    billsList.innerHTML = filtered.map((bill) => {
+      const statusClass = bill.isCancelled
+        ? 'accounts-bill-status--cancelled'
+        : (bill.isPaid ? 'accounts-bill-status--paid' : 'accounts-bill-status--unpaid');
+      const amountLabel = bill.amount != null ? `${Number(bill.amount).toLocaleString('ru-RU')} ₽` : '';
+      return `
+        <div class="accounts-bill-card">
+          <div class="accounts-bill-main">
+            <div class="accounts-bill-number">${escapeHtml(bill.number ? `Счёт №${bill.number}` : 'Счёт')}</div>
+            <div class="accounts-bill-meta">${escapeHtml([bill.date, amountLabel].filter(Boolean).join(' • '))}</div>
+          </div>
+          <div class="accounts-bill-status ${statusClass}">${escapeHtml(bill.status)}</div>
         </div>
-        <div class="accounts-bill-status ${bill.isPaid ? 'accounts-bill-status--paid' : 'accounts-bill-status--unpaid'}">
-          ${bill.isPaid ? 'Оплачен' : 'Не оплачен'}
-        </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
   };
 
   const openBillsView = async (establishmentId, establishmentName) => {

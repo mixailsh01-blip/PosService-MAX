@@ -1915,6 +1915,10 @@ div.establishment-staff-role-select {
   background: rgba(255, 70, 70, 0.30);
 }
 
+.accounts-bill-status--cancelled {
+  background: rgba(140, 146, 160, 0.30);
+}
+
 /* ==================== ВЫПАДАЮЩИЕ СПИСКИ ==================== */
 .dropdown-container {
   display: flex;

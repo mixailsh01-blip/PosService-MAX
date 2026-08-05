@@ -2609,6 +2609,9 @@ const setupEstablishmentSelection = () => {
   const staffRequestAccessBtn = document.getElementById('establishment-staff-request-access-btn');
   let establishmentsMode = 'select';
   let isRequestingAccess = false;
+  let isDeletingStaff = false;
+  let currentStaffEstablishment = { id: '', name: '' };
+  let currentStaffItems = [];
   const rolesCatalogState = {
     loaded: false,
     roles: []
@@ -2711,8 +2714,52 @@ const setupEstablishmentSelection = () => {
     }
   };
 
+  const deleteStaffMember = async (employeeId) => {
+    if (isDeletingStaff || !employeeId) return;
+    const item = currentStaffItems.find((entry) => String(entry?.ID ?? '').trim() === employeeId);
+    if (!item) return;
+
+    const fullName = [item?.first_name, item?.last_name].filter(Boolean).join(' ').trim() || 'сотрудника';
+    const confirmed = typeof tg?.showConfirm === 'function'
+      ? await new Promise((resolve) => tg.showConfirm(`Удалить ${fullName}?`, resolve))
+      : confirm(`Удалить ${fullName}?`);
+    if (!confirmed) return;
+
+    isDeletingStaff = true;
+    const deleteBtn = staffList.querySelector(`.establishment-staff-delete[data-personal-id="${CSS.escape(employeeId)}"]`);
+    if (deleteBtn) deleteBtn.disabled = true;
+
+    try {
+      await fetch('https://quumahienot.beget.app/webhook/DeletUser', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ID: item?.ID ?? employeeId,
+          ITEM_ID: item?.ITEM_ID ?? null,
+          first_name: item?.first_name ?? null,
+          last_name: item?.last_name ?? null,
+          user_id: item?.user_id ?? null,
+          Телефон: item?.Телефон ?? item?.phone ?? item?.phone_number ?? null,
+          POST: item?.POST ?? item?.post ?? null,
+          establishment_id: currentStaffEstablishment.id,
+          establishment_name: currentStaffEstablishment.name,
+          requested_by_user_id: user?.id ? String(user.id) : null
+        })
+      });
+      currentStaffItems = currentStaffItems.filter((entry) => String(entry?.ID ?? '').trim() !== employeeId);
+      renderStaffList(currentStaffItems);
+    } catch (error) {
+      console.error('❌ Ошибка удаления сотрудника:', error);
+      showPlatformPopup('Ошибка', 'Не удалось удалить сотрудника. Попробуйте позже.');
+      if (deleteBtn) deleteBtn.disabled = false;
+    } finally {
+      isDeletingStaff = false;
+    }
+  };
+
   const renderStaffList = (items = []) => {
     if (!staffList) return;
+    currentStaffItems = items;
     if (!items.length) {
       staffList.innerHTML = '<div class="establishment-staff-empty">Сотрудники не найдены</div>';
       return;
@@ -2821,6 +2868,15 @@ const setupEstablishmentSelection = () => {
   selectBtn?.addEventListener('click', (e) => openModal(e, 'select'));
   profileEstablishmentsBtn?.addEventListener('click', (e) => openModal(e, 'employees'));
 
+  // Удаление сотрудника (делегирование, т.к. карточки перерисовываются)
+  staffList?.addEventListener('click', (e) => {
+    const deleteBtn = e.target.closest('.establishment-staff-delete');
+    if (!deleteBtn) return;
+    const employeeId = String(deleteBtn.dataset.personalId || '').trim();
+    if (!employeeId) return;
+    deleteStaffMember(employeeId);
+  });
+
   // Выбор заведения (делаем делегирование, т.к. список обновляется динамически)
   establishmentList.addEventListener('click', async (e) => {
     const item = e.target.closest('.establishment-item');
@@ -2845,6 +2901,7 @@ const setupEstablishmentSelection = () => {
       if (staffTitle) {
         staffTitle.textContent = establishmentName || 'Сотрудники';
       }
+      currentStaffEstablishment = { id: establishmentId, name: establishmentName };
       staffRequestAccessBtn?.classList.add('hidden');
       const запретПросмотра = window.userPermissions?.запретПросмотраСотрудников;
       if (запретПросмотра && establishmentId && запретПросмотра.has(establishmentId)) {

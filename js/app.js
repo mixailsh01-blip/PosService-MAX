@@ -3042,15 +3042,12 @@ const setupEstablishmentSelection = () => {
 
 /* ==================== СЧЕТА ==================== */
 
-const formatBillDate = (raw) => {
-  const match = String(raw || '').trim().match(/^(\d{4})-(\d{2})-(\d{2})/);
-  return match ? `${match[3]}.${match[2]}.${match[1]}` : String(raw || '').trim();
-};
-
 const normalizeBillItem = (item) => {
   const number = String(item?.num_invoice ?? item?.Номер ?? item?.number ?? item?.ID ?? item?.id ?? '').trim();
   const amount = item?.sum_invoice ?? item?.Сумма ?? item?.amount ?? item?.sum ?? null;
-  const date = formatBillDate(item?.date_invoice ?? item?.Дата ?? item?.date ?? item?.created_at ?? '');
+  const month = String(item?.month ?? '').trim();
+  const year = String(item?.year ?? '').trim();
+  const date = [month, year].filter(Boolean).join(' ');
   const statusRaw = String(item?.status_invoice ?? item?.Оплачено ?? item?.paid ?? item?.Статус ?? item?.status ?? '').trim();
   const statusLower = statusRaw.toLowerCase();
   const isCancelled = ['отменён', 'отменен', 'cancelled', 'canceled'].includes(statusLower);

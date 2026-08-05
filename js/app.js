@@ -3082,6 +3082,7 @@ const setupAccountsPage = () => {
     establishmentId: '',
     establishmentName: ''
   };
+  let isDownloadingBill = false;
 
   const renderBillsList = () => {
     const filtered = accountsState.items.filter((bill) => {
@@ -3101,13 +3102,13 @@ const setupAccountsPage = () => {
         : (bill.isPaid ? 'accounts-bill-status--paid' : 'accounts-bill-status--unpaid');
       const amountLabel = bill.amount != null ? `${Number(bill.amount).toLocaleString('ru-RU')} ₽` : '';
       return `
-        <div class="accounts-bill-card">
+        <button class="accounts-bill-card" type="button" data-task-id="${escapeHtml(String(bill.raw?.task_id ?? ''))}" data-row-id="${escapeHtml(String(bill.raw?.row_id ?? ''))}">
           <div class="accounts-bill-main">
             <div class="accounts-bill-number">${escapeHtml(bill.number ? `Счёт №${bill.number}` : 'Счёт')}</div>
             <div class="accounts-bill-meta">${escapeHtml([bill.date, amountLabel].filter(Boolean).join(' • '))}</div>
           </div>
           <div class="accounts-bill-status ${statusClass}">${escapeHtml(bill.status)}</div>
-        </div>
+        </button>
       `;
     }).join('');
   };
@@ -3166,6 +3167,42 @@ const setupAccountsPage = () => {
   });
 
   backBtn?.addEventListener('click', closeBillsView);
+
+  billsList.addEventListener('click', async (e) => {
+    const card = e.target.closest('.accounts-bill-card');
+    if (!card || isDownloadingBill) return;
+
+    const taskId = String(card.dataset.taskId || '').trim();
+    const rowId = String(card.dataset.rowId || '').trim();
+    const bill = accountsState.items.find((item) => (
+      String(item.raw?.task_id ?? '').trim() === taskId &&
+      String(item.raw?.row_id ?? '').trim() === rowId
+    ));
+    if (!bill) return;
+
+    isDownloadingBill = true;
+    card.classList.add('is-loading');
+    try {
+      const file = await window.API?.fetchInvoiceFile?.({
+        task_id: bill.raw?.task_id ?? null,
+        row_id: bill.raw?.row_id ?? null,
+        num_invoice: bill.number,
+        IDREST: accountsState.establishmentId,
+        Client: accountsState.establishmentName
+      }, user, tg);
+
+      if (!file || file.kind !== 'blob' || !(file.blob instanceof Blob) || file.blob.size <= 0) {
+        throw new Error('empty file');
+      }
+      window.FileViewerModal?.open({ blob: file.blob, fileName: file.fileName });
+    } catch (error) {
+      console.error('❌ Ошибка загрузки счёта:', error);
+      showPlatformPopup('Ошибка', 'Не удалось загрузить счёт. Попробуйте позже.');
+    } finally {
+      isDownloadingBill = false;
+      card.classList.remove('is-loading');
+    }
+  });
 
   filterBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -4765,6 +4802,7 @@ const setupRequestDetailsView = () => {
 
   window.startRequestsListOpenChatPolling = scheduleRequestsListOpenChatPolling;
   window.stopRequestsListOpenChatPolling = stopRequestsListOpenChatPolling;
+  window.FileViewerModal = FileViewerModal;
 
   window.preloadAllChats = async () => {
     if (!window.API?.sendOpenChat) return;

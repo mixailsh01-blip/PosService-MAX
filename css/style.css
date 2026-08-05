@@ -1873,11 +1873,28 @@ div.establishment-staff-role-select {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  width: 100%;
   border-radius: 18px;
   padding: 14px 16px;
   background: linear-gradient(180deg, rgba(30, 35, 52, 0.98) 0%, rgba(20, 24, 38, 0.98) 100%);
   border: 1px solid rgba(0, 200, 255, 0.12);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  font-family: 'PT Root UI', sans-serif;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.accounts-bill-card:active {
+  border-color: rgba(0, 200, 255, 0.35);
+  box-shadow: 0 4px 20px rgba(0, 170, 238, 0.2);
+  transform: scale(0.99);
+}
+
+.accounts-bill-card.is-loading {
+  opacity: 0.6;
+  pointer-events: none;
 }
 
 .accounts-bill-main {

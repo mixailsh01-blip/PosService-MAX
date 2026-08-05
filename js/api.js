@@ -625,6 +625,69 @@ const API = {
   ,
 
   /**
+   * Загрузка PDF счёта
+   * @param {Object} billPayload - Данные счёта (task_id, row_id, num_invoice, заведение)
+   * @param {Object|null} userData - Данные пользователя
+   * @param {Object|null} webApp - Telegram/MAX WebApp
+   * @returns {Promise<Object|null>} { kind: 'blob', blob, fileName, contentType }
+   */
+  async fetchInvoiceFile(billPayload = {}, userData = null, webApp = null) {
+    const hookUrl = `${API_BASE_URL}/webhook/DownloadPay`;
+    const payload = {
+      task_id: billPayload?.task_id ?? null,
+      row_id: billPayload?.row_id ?? null,
+      num_invoice: billPayload?.num_invoice ?? null,
+      IDREST: billPayload?.IDREST ?? null,
+      Client: billPayload?.Client ?? null,
+      user_id: userData?.id || null,
+      username: userData?.username || null,
+      first_name: userData?.first_name || null,
+      last_name: userData?.last_name || null,
+      ...getBridgeMeta(webApp)
+    };
+
+    try {
+      console.log('📤 [API] Загружаем счёт:', payload);
+
+      const response = await fetch(hookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': '*/*'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const contentType = String(response.headers.get('content-type') || '').toLowerCase();
+      const disposition = String(response.headers.get('content-disposition') || '');
+      const responseFileNameMatch = disposition.match(/filename\*=UTF-8''([^;]+)|filename="?([^"]+)"?/i);
+      const responseFileName = decodeURIComponent(
+        responseFileNameMatch?.[1] ||
+        responseFileNameMatch?.[2] ||
+        (billPayload?.num_invoice ? `Счёт ${billPayload.num_invoice}.pdf` : 'Счёт.pdf')
+      );
+
+      const blob = await response.blob();
+      console.log('✅ [API] Ответ DownloadPay(blob):', { size: blob.size, type: blob.type || contentType });
+      return {
+        kind: 'blob',
+        blob,
+        fileName: responseFileName,
+        contentType: blob.type || contentType || 'application/pdf'
+      };
+    } catch (error) {
+      console.error('❌ [API] Ошибка DownloadPay:', error);
+      return null;
+    }
+  }
+
+  ,
+
+  /**
    * При открытии страницы отправляем данные пользователя в вебхук
    * @param {Object} userData - Bridge user object
    * @param {Object} webApp - window.WebApp / window.Telegram.WebApp

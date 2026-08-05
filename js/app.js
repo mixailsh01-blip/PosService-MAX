@@ -2837,7 +2837,8 @@ const setupEstablishmentSelection = () => {
       const firstName = String(item?.first_name || '').trim();
       const lastName = String(item?.last_name || '').trim();
       const fullName = [firstName, lastName].filter(Boolean).join(' ') || 'Без имени';
-      const phone = String(item?.Телефон ?? item?.phone ?? item?.phone_number ?? '').trim() || 'Без телефона';
+      const rawPhone = String(item?.Телефон ?? item?.phone ?? item?.phone_number ?? '').trim();
+      const phone = (rawPhone && !rawPhone.startsWith('+') ? `+${rawPhone}` : rawPhone) || 'Без телефона';
       const role = String(item?.POST ?? item?.post ?? '').trim();
       const employeeId = String(item?.ID ?? '').trim();
       const roleItemId = String(item?.ITEM_ID ?? '').trim();

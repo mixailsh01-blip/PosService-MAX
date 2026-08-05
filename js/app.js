@@ -3194,7 +3194,7 @@ const setupAccountsPage = () => {
       if (!file || file.kind !== 'blob' || !(file.blob instanceof Blob) || file.blob.size <= 0) {
         throw new Error('empty file');
       }
-      window.FileViewerModal?.open({ blob: file.blob, fileName: file.fileName });
+      window.FileViewerModal?.open({ blob: file.blob, fileName: file.fileName, autoOpenOnFallback: true });
     } catch (error) {
       console.error('❌ Ошибка загрузки счёта:', error);
       showPlatformPopup('Ошибка', 'Не удалось загрузить счёт. Попробуйте позже.');
@@ -4333,7 +4333,15 @@ const setupRequestDetailsView = () => {
     return lib;
   };
 
-  const renderPdfIntoViewer = async (blob, fileName, blobUrl) => {
+  const openPdfExternally = (blobUrl) => {
+    if (typeof tg?.openLink === 'function') {
+      tg.openLink(blobUrl);
+      return;
+    }
+    window.open(blobUrl, '_blank', 'noopener,noreferrer');
+  };
+
+  const renderPdfIntoViewer = async (blob, fileName, blobUrl, autoOpenOnFallback = false) => {
     const pdfjsLib = getPdfJsLib();
     if (!pdfjsLib || !fileViewerBody) return false;
     setFileViewerBodyMode('document');
@@ -4410,15 +4418,14 @@ const setupRequestDetailsView = () => {
         </div>
       `;
       fileViewerBody.querySelector('#file-viewer-open-pdf')?.addEventListener('click', () => {
-        if (typeof tg?.openLink === 'function') {
-          tg.openLink(blobUrl);
-          return;
-        }
-        window.open(blobUrl, '_blank', 'noopener,noreferrer');
+        openPdfExternally(blobUrl);
       });
       fileViewerBody.querySelector('#file-viewer-download')?.addEventListener('click', () => {
         downloadBlobFile(blobUrl, fileName);
       });
+      if (autoOpenOnFallback) {
+        openPdfExternally(blobUrl);
+      }
       return false;
     } finally {
       if (pdfDocument) {
@@ -4432,7 +4439,7 @@ const setupRequestDetailsView = () => {
   };
 
   const FileViewerModal = {
-    open({ blob, fileName = 'file' }) {
+    open({ blob, fileName = 'file', autoOpenOnFallback = false }) {
       if (!fileViewerModal || !fileViewerBody || !fileViewerTitle) return;
       if (!(blob instanceof Blob) || blob.size <= 0) {
         throw new Error('invalid blob');
@@ -4462,7 +4469,7 @@ const setupRequestDetailsView = () => {
           </video>
         `;
       } else if (isPdfFile) {
-        void renderPdfIntoViewer(blob, fileName, currentFileViewerUrl);
+        void renderPdfIntoViewer(blob, fileName, currentFileViewerUrl, autoOpenOnFallback);
       } else {
         setFileViewerBodyMode('center');
         fileViewerBody.innerHTML = `

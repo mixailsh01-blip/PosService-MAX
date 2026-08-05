@@ -83,29 +83,8 @@ const Auth = {
       accountsBtn.style.display = p.счета ? '' : 'none';
     }
 
-
-    // Рендерим список заведений на странице Счета
-    const accountsPage = document.getElementById('accounts');
-    if (!accountsPage) return;
-
-    const список = p.счетаЗаведения ?? [];
-    if (список.length === 0) {
-      accountsPage.innerHTML = `<div class="accounts-placeholder">Нет доступных заведений для просмотра счетов.</div>`;
-      return;
-    }
-
-    const items = список.map(з => `
-      <button class="accounts-establishment-btn" data-id="${escapeHtml(String(з.id))}" data-name="${escapeHtml(з.name)}">
-        <span class="accounts-establishment-name">${escapeHtml(з.name)}</span>
-        <i class="fas fa-chevron-right accounts-establishment-arrow"></i>
-      </button>`).join('');
-
-    accountsPage.innerHTML = `
-      <div class="accounts-header">
-        <span class="accounts-title">Счета</span>
-      </div>
-      <div class="accounts-establishment-list">${items}</div>
-      <div class="accounts-coming-soon">Раздел счетов в разработке.</div>`;
+    // Список заведений и сами счета рендерит setupAccountsPage() в app.js
+    // (window.renderAccountsEstablishmentList) — здесь только видимость вкладки.
   },
 
   /**

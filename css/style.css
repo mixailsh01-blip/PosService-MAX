@@ -1586,7 +1586,7 @@ body.hide-main-logo #accounts.page {
 div.establishment-staff-role-select {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
   min-height: 34px;
   color: rgba(255, 255, 255, 0.5);
   font-size: 12px;

@@ -3139,7 +3139,12 @@ const setupAccountsPage = () => {
     }, user, tg);
 
     const items = Array.isArray(result) ? result : (result ? [result] : []);
-    accountsState.items = items.map(normalizeBillItem).sort((a, b) => b.sortKey - a.sortKey);
+    accountsState.items = items.map(normalizeBillItem).sort((a, b) => {
+      const unpaidPriority = (bill) => (!bill.isPaid && !bill.isCancelled) ? 0 : 1;
+      const priorityDiff = unpaidPriority(a) - unpaidPriority(b);
+      if (priorityDiff !== 0) return priorityDiff;
+      return b.sortKey - a.sortKey;
+    });
     renderBillsList();
   };
 

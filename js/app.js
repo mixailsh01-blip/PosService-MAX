@@ -706,6 +706,46 @@ const setupModal = () => {
   });
 };
 
+const setupKnowledgeBaseModal = () => {
+  const openBtn = document.getElementById('knowledge-base-btn');
+  const modal = document.getElementById('knowledge-base-modal');
+  const cancelBtn = document.getElementById('knowledge-base-cancel-btn');
+  const linkBtns = document.querySelectorAll('#knowledge-base-link-ru, #knowledge-base-link-howto');
+  if (!openBtn || !modal) return;
+
+  const closeModal = () => {
+    modal.classList.add('hidden');
+    if (tg?.BackButton) {
+      if (typeof tg.BackButton.offClick === 'function') tg.BackButton.offClick(closeModal);
+      if (typeof tg.BackButton.hide === 'function') tg.BackButton.hide();
+    }
+  };
+
+  openBtn.addEventListener('click', () => {
+    modal.classList.remove('hidden');
+    if (tg?.BackButton) {
+      if (typeof tg.BackButton.offClick === 'function') tg.BackButton.offClick(closeModal);
+      if (typeof tg.BackButton.onClick === 'function') tg.BackButton.onClick(closeModal);
+      if (typeof tg.BackButton.show === 'function') tg.BackButton.show();
+    }
+  });
+
+  linkBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const url = btn.dataset.url;
+      closeModal();
+      if (!url) return;
+      if (typeof tg?.openLink === 'function') {
+        tg.openLink(url);
+      } else {
+        window.open(url, '_blank', 'noopener,noreferrer');
+      }
+    });
+  });
+
+  cancelBtn?.addEventListener('click', closeModal);
+};
+
 /* ==================== РАБОТА С КОНТАКТАМИ ==================== */
 
 const showContactShareModal = () => {
@@ -4970,6 +5010,7 @@ const initializeApp = () => {
     }
 
     setupModal();
+    setupKnowledgeBaseModal();
     setupContactSharing();
     setupNavigation();
     setupAddRestaurantButton();

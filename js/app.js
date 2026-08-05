@@ -636,15 +636,20 @@ const saveNotificationPrefs = (prefs) => {
 
 const setupModal = () => {
   const editIcon = document.getElementById('edit-icon');
-  const closeModalIcon = document.getElementById('close-modal-icon');
-  const saveProfileBtn = document.getElementById('save-profile-btn');
   const modal = document.getElementById('edit-modal');
   const userFullname = document.getElementById('user-fullname');
+  const firstNameInput = document.getElementById('edit-firstname');
+  const lastNameInput = document.getElementById('edit-lastname');
+
+  let lastSavedProfile = { firstName: '', lastName: '' };
 
   const openModal = () => {
     const nameParts = userFullname.textContent.split(' ');
-    document.getElementById('edit-firstname').value = nameParts[0] || '';
-    document.getElementById('edit-lastname').value = nameParts[1] || '';
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts[1] || '';
+    firstNameInput.value = firstName;
+    lastNameInput.value = lastName;
+    lastSavedProfile = { firstName, lastName };
 
     const prefs = loadNotificationPrefs();
     Object.entries(NOTIFICATION_TOGGLE_IDS).forEach(([key, id]) => {
@@ -667,25 +672,36 @@ const setupModal = () => {
     }
   };
 
-  editIcon?.addEventListener('click', openModal);
+  const syncProfileFields = () => {
+    const firstName = firstNameInput.value.trim();
+    const lastName = lastNameInput.value.trim();
+    if (firstName === lastSavedProfile.firstName && lastName === lastSavedProfile.lastName) return;
+    lastSavedProfile = { firstName, lastName };
 
-  saveProfileBtn?.addEventListener('click', async () => {
-    const firstName = document.getElementById('edit-firstname').value.trim();
-    const lastName = document.getElementById('edit-lastname').value.trim();
     const fullName = [firstName, lastName].filter(Boolean).join(' ') || 'Без имени';
     userFullname.textContent = fullName;
     document.getElementById('user-name').textContent = firstName || 'Гость';
 
+    if (user?.id && window.API?.editUser) {
+      window.API.editUser(user.id, firstName, lastName);
+    }
+  };
+
+  const syncNotificationPrefs = () => {
     const prefs = {};
     Object.entries(NOTIFICATION_TOGGLE_IDS).forEach(([key, id]) => {
       prefs[key] = document.getElementById(id)?.checked !== false;
     });
     saveNotificationPrefs(prefs);
+  };
 
-    closeModal();
-    if (user?.id && window.API?.editUser) {
-      window.API.editUser(user.id, firstName, lastName);
-    }
+  editIcon?.addEventListener('click', openModal);
+
+  firstNameInput?.addEventListener('blur', syncProfileFields);
+  lastNameInput?.addEventListener('blur', syncProfileFields);
+
+  Object.values(NOTIFICATION_TOGGLE_IDS).forEach((id) => {
+    document.getElementById(id)?.addEventListener('change', syncNotificationPrefs);
   });
 };
 

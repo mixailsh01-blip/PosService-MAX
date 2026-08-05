@@ -388,6 +388,45 @@ const API = {
 
   ,
 
+  /**
+   * Изменение одной из настроек уведомлений
+   * @param {'requests'|'marketing'|'info'} type
+   * @param {boolean} enabled
+   * @param {Object|null} userData
+   */
+  async sendNotificationPref(type, enabled, userData = null) {
+    const hookByType = {
+      requests: `${API_BASE_URL}/webhook/Notifications1`,
+      marketing: `${API_BASE_URL}/webhook/Notifications2`,
+      info: `${API_BASE_URL}/webhook/Notifications3`
+    };
+    const hookUrl = hookByType[type];
+    if (!hookUrl) return null;
+
+    const payload = {
+      user_id: userData?.id ? String(userData.id) : null,
+      enabled: Boolean(enabled)
+    };
+
+    try {
+      console.log(`📤 [API] Отправляем Notifications (${type}):`, payload);
+      const response = await fetch(hookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const result = await response.json().catch(() => null);
+      console.log(`✅ [API] Ответ Notifications (${type}):`, result);
+      return result;
+    } catch (error) {
+      console.error(`❌ [API] Ошибка Notifications (${type}):`, error);
+      return null;
+    }
+  }
+
+  ,
+
   async getPersonRights(userId) {
     const hookUrl = `${API_BASE_URL}/webhook/person`;
     try {

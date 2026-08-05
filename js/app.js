@@ -687,12 +687,11 @@ const setupModal = () => {
     }
   };
 
-  const syncNotificationPrefs = () => {
-    const prefs = {};
-    Object.entries(NOTIFICATION_TOGGLE_IDS).forEach(([key, id]) => {
-      prefs[key] = document.getElementById(id)?.checked !== false;
-    });
+  const syncNotificationPrefs = (changedKey, enabled) => {
+    const prefs = loadNotificationPrefs();
+    prefs[changedKey] = enabled;
     saveNotificationPrefs(prefs);
+    window.API?.sendNotificationPref?.(changedKey, enabled, user);
   };
 
   editIcon?.addEventListener('click', openModal);
@@ -700,8 +699,10 @@ const setupModal = () => {
   firstNameInput?.addEventListener('blur', syncProfileFields);
   lastNameInput?.addEventListener('blur', syncProfileFields);
 
-  Object.values(NOTIFICATION_TOGGLE_IDS).forEach((id) => {
-    document.getElementById(id)?.addEventListener('change', syncNotificationPrefs);
+  Object.entries(NOTIFICATION_TOGGLE_IDS).forEach(([key, id]) => {
+    document.getElementById(id)?.addEventListener('change', (e) => {
+      syncNotificationPrefs(key, e.target.checked);
+    });
   });
 };
 

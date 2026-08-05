@@ -1625,6 +1625,12 @@ div.establishment-staff-role-select {
   flex-shrink: 0;
 }
 
+#confirm-modal-ok-btn,
+#confirm-modal-cancel-btn {
+  opacity: 1;
+  transform: none;
+}
+
 .establishment-staff-empty {
   padding: 24px 12px;
   text-align: center;

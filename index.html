@@ -13,7 +13,7 @@
   <style>html,body{background:#121212}#welcome-screen{background:#1e1e1e;position:fixed;inset:0;z-index:1000}#main-app{display:none}</style>
 
   <!-- ==================== СТИЛИ ==================== -->
-  <link rel="stylesheet" href="css/style.css?v=20260709-40" />
+  <link rel="stylesheet" href="css/style.css?v=20260709-41" />
 
   <!-- Font Awesome — async, не блокирует рендер -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" media="print" onload="this.media='all'" />
@@ -198,6 +198,14 @@
         </div>
     </div>
 
+    <div id="confirm-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 id="confirm-modal-title" class="text-center">Подтвердите действие</h3>
+            <button id="confirm-modal-ok-btn" class="btn-Save w-full" type="button">Подтвердить</button>
+            <button id="confirm-modal-cancel-btn" class="btn-CancelModal w-full" type="button">Отмена</button>
+        </div>
+    </div>
+
     <!-- Модальное окно: запрос номера телефона -->
     <div id="contact-share-modal" class="modal hidden">
       <div class="contact-share-card">
@@ -360,6 +368,6 @@
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
 <script src="js/api.js?v=20260709-18"></script>
 <script src="js/auth.js?v=20260709-25"></script>
-<script src="js/app.js?v=20260709-56"></script>
+<script src="js/app.js?v=20260709-57"></script>
 </body>
 </html>

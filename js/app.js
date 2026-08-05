@@ -15,6 +15,31 @@ const showPlatformPopup = (title, message) => {
   alert(title ? `${title}\n\n${message}` : message);
 };
 
+// MAX SDK не предоставляет showConfirm/window.confirm надёжно в вебвью,
+// поэтому подтверждение рисуем своей модалкой (#confirm-modal).
+const askConfirm = (message) => new Promise((resolve) => {
+  const modal = document.getElementById('confirm-modal');
+  const titleEl = document.getElementById('confirm-modal-title');
+  const okBtn = document.getElementById('confirm-modal-ok-btn');
+  const cancelBtn = document.getElementById('confirm-modal-cancel-btn');
+  if (!modal || !okBtn || !cancelBtn) {
+    resolve(true);
+    return;
+  }
+  if (titleEl) titleEl.textContent = message;
+  modal.classList.remove('hidden');
+  const cleanup = (result) => {
+    modal.classList.add('hidden');
+    okBtn.removeEventListener('click', onOk);
+    cancelBtn.removeEventListener('click', onCancel);
+    resolve(result);
+  };
+  const onOk = () => cleanup(true);
+  const onCancel = () => cleanup(false);
+  okBtn.addEventListener('click', onOk);
+  cancelBtn.addEventListener('click', onCancel);
+});
+
 const handleGlobalError = (message, source, lineno) => {
   showPlatformPopup('Ошибка', `${message} (строка ${lineno})`);
   return true;
@@ -2720,9 +2745,7 @@ const setupEstablishmentSelection = () => {
     if (!item) return;
 
     const fullName = [item?.first_name, item?.last_name].filter(Boolean).join(' ').trim() || 'сотрудника';
-    const confirmed = typeof tg?.showConfirm === 'function'
-      ? await new Promise((resolve) => tg.showConfirm(`Удалить ${fullName}?`, resolve))
-      : confirm(`Удалить ${fullName}?`);
+    const confirmed = await askConfirm(`Удалить ${fullName}?`);
     if (!confirmed) return;
 
     isDeletingStaff = true;

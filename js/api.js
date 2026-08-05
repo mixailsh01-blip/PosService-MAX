@@ -405,7 +405,7 @@ const API = {
 
     const payload = {
       user_id: userData?.id ? String(userData.id) : null,
-      enabled: Boolean(enabled)
+      enabled: enabled ? 'checked' : 'unchecked'
     };
 
     try {

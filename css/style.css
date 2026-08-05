@@ -873,21 +873,8 @@ body.hide-main-logo #accounts.page {
 .edit-profile-fullscreen.hidden {
   display: none;
 }
-.edit-profile-fs-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: calc(14px + env(safe-area-inset-top)) 20px 14px;
-  background: #1a2540;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-}
-.edit-profile-fs-title {
-  font-size: 17px;
-  font-weight: 700;
-  color: #f2f3f7;
-}
 .edit-profile-fs-body {
-  padding: 24px 20px calc(32px + env(safe-area-inset-bottom));
+  padding: calc(24px + env(safe-area-inset-top)) 20px calc(32px + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
 }

@@ -1754,16 +1754,6 @@ div.establishment-staff-role-select {
 }
 
 /* ==================== СТРАНИЦА СЧЕТОВ ==================== */
-.accounts-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 16px;
-}
-.accounts-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: #f2f3f7;
-}
 .accounts-establishment-list {
   display: flex;
   flex-direction: column;
@@ -1791,12 +1781,6 @@ div.establishment-staff-role-select {
   color: #00aadd;
   font-size: 14px;
 }
-.accounts-coming-soon {
-  margin-top: 20px;
-  color: #8e92a0;
-  font-size: 13px;
-  text-align: center;
-}
 .accounts-placeholder {
   color: #8e92a0;
   font-size: 15px;
@@ -1809,26 +1793,6 @@ div.establishment-staff-role-select {
   align-items: center;
   gap: 12px;
   margin-bottom: 16px;
-}
-
-.accounts-bills-back-btn {
-  flex: 0 0 auto;
-  width: 36px;
-  height: 36px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  border: 1px solid rgba(0, 180, 255, 0.3);
-  background: rgba(0, 170, 238, 0.08);
-  color: #00d4ff;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.accounts-bills-back-btn:active {
-  background: rgba(0, 170, 238, 0.2);
-  transform: scale(0.94);
 }
 
 .accounts-bills-title {

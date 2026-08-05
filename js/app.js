@@ -3076,7 +3076,6 @@ const setupAccountsPage = () => {
   const billsView = document.getElementById('accounts-bills-view');
   const billsTitle = document.getElementById('accounts-bills-title');
   const billsList = document.getElementById('accounts-bills-list');
-  const backBtn = document.getElementById('accounts-bills-back-btn');
   const filterBtns = document.querySelectorAll('#accounts-bills-view .accounts-filter-btn');
 
   if (!establishmentListEl || !billsView || !billsList) return;
@@ -3129,6 +3128,18 @@ const setupAccountsPage = () => {
     billsView.classList.remove('hidden');
     billsList.innerHTML = '<div class="establishment-staff-empty">Загружаем счета...</div>';
 
+    if (tg?.BackButton) {
+      if (typeof tg.BackButton.offClick === 'function') {
+        tg.BackButton.offClick(closeBillsView);
+      }
+      if (typeof tg.BackButton.onClick === 'function') {
+        tg.BackButton.onClick(closeBillsView);
+      }
+      if (typeof tg.BackButton.show === 'function') {
+        tg.BackButton.show();
+      }
+    }
+
     const result = await window.API?.sendPayStatus?.({
       IDREST: establishmentId,
       ID: establishmentId,
@@ -3151,6 +3162,14 @@ const setupAccountsPage = () => {
   const closeBillsView = () => {
     billsView.classList.add('hidden');
     establishmentListEl.classList.remove('hidden');
+    if (tg?.BackButton) {
+      if (typeof tg.BackButton.offClick === 'function') {
+        tg.BackButton.offClick(closeBillsView);
+      }
+      if (typeof tg.BackButton.hide === 'function') {
+        tg.BackButton.hide();
+      }
+    }
   };
 
   const renderEstablishmentList = () => {
@@ -3175,8 +3194,6 @@ const setupAccountsPage = () => {
     if (!establishmentId) return;
     openBillsView(establishmentId, establishmentName);
   });
-
-  backBtn?.addEventListener('click', closeBillsView);
 
   billsList.addEventListener('click', async (e) => {
     const card = e.target.closest('.accounts-bill-card');

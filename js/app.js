@@ -3042,12 +3042,19 @@ const setupEstablishmentSelection = () => {
 
 /* ==================== СЧЕТА ==================== */
 
+const RU_MONTH_ORDER = [
+  'январь', 'февраль', 'март', 'апрель', 'май', 'июнь',
+  'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'
+];
+
 const normalizeBillItem = (item) => {
   const number = String(item?.num_invoice ?? item?.Номер ?? item?.number ?? item?.ID ?? item?.id ?? '').trim();
   const amount = item?.sum_invoice ?? item?.Сумма ?? item?.amount ?? item?.sum ?? null;
   const month = String(item?.month ?? '').trim();
   const year = String(item?.year ?? '').trim();
   const date = [month, year].filter(Boolean).join(' ');
+  const monthIndex = RU_MONTH_ORDER.indexOf(month.toLowerCase());
+  const sortKey = (Number(year) || 0) * 100 + (monthIndex >= 0 ? monthIndex : 0);
   const statusRaw = String(item?.status_invoice ?? item?.Оплачено ?? item?.paid ?? item?.Статус ?? item?.status ?? '').trim();
   const statusLower = statusRaw.toLowerCase();
   const isCancelled = ['отменён', 'отменен', 'cancelled', 'canceled'].includes(statusLower);
@@ -3056,6 +3063,7 @@ const normalizeBillItem = (item) => {
     number,
     amount,
     date,
+    sortKey,
     status: statusRaw || (isPaid ? 'Оплачен' : 'Не оплачен'),
     isPaid,
     isCancelled,
@@ -3131,7 +3139,7 @@ const setupAccountsPage = () => {
     }, user, tg);
 
     const items = Array.isArray(result) ? result : (result ? [result] : []);
-    accountsState.items = items.map(normalizeBillItem);
+    accountsState.items = items.map(normalizeBillItem).sort((a, b) => b.sortKey - a.sortKey);
     renderBillsList();
   };
 

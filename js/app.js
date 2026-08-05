@@ -2782,6 +2782,43 @@ const setupEstablishmentSelection = () => {
     }
   };
 
+  const editStaffRole = async (selectEl) => {
+    const employeeId = String(selectEl.dataset.personalId || '').trim();
+    const roleItemId = String(selectEl.dataset.itemId || '').trim();
+    if (!employeeId) return;
+
+    const canEditRights = window.userPermissions?.праваПоЗаведениям?.get(currentStaffEstablishment.id)?.редактированиеПрав ?? false;
+    if (!canEditRights) return;
+
+    const selectedOption = selectEl.options[selectEl.selectedIndex];
+    const newRoleId = selectEl.value;
+    const newRoleName = selectedOption ? selectedOption.textContent.trim() : '';
+
+    selectEl.disabled = true;
+    try {
+      await fetch('https://quumahienot.beget.app/webhook/EditPerson', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ID: employeeId,
+          ITEM_ID: roleItemId,
+          new_role_id: newRoleId,
+          new_role_name: newRoleName,
+          establishment_id: currentStaffEstablishment.id,
+          establishment_name: currentStaffEstablishment.name,
+          requested_by_user_id: user?.id ? String(user.id) : null
+        })
+      });
+      const item = currentStaffItems.find((entry) => String(entry?.ID ?? '').trim() === employeeId);
+      if (item) item.POST = newRoleName;
+    } catch (error) {
+      console.error('❌ Ошибка изменения прав сотрудника:', error);
+      showPlatformPopup('Ошибка', 'Не удалось изменить права сотрудника. Попробуйте позже.');
+    } finally {
+      selectEl.disabled = false;
+    }
+  };
+
   const renderStaffList = (items = []) => {
     if (!staffList) return;
     currentStaffItems = items;
@@ -2910,6 +2947,13 @@ const setupEstablishmentSelection = () => {
     const employeeId = String(deleteBtn.dataset.personalId || '').trim();
     if (!employeeId) return;
     deleteStaffMember(employeeId);
+  });
+
+  // Изменение роли/прав сотрудника
+  staffList?.addEventListener('change', (e) => {
+    const select = e.target.closest('.establishment-staff-role-select');
+    if (!select || select.tagName !== 'SELECT') return;
+    editStaffRole(select);
   });
 
   // Выбор заведения (делаем делегирование, т.к. список обновляется динамически)

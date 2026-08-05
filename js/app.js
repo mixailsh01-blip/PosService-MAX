@@ -915,6 +915,26 @@ const applyClientSupportResponse = (result) => {
     if (userFullname) userFullname.textContent = fullName;
     if (userName) userName.textContent = firstName || 'Гость';
   }
+
+  // Подставляем настройки уведомлений из ответа сервера, если они есть
+  const да = (v) => v === true || String(v).toLowerCase() === 'true' || v === 'Да';
+  const pickBool = (item, ...keys) => {
+    for (const k of keys) {
+      const v = item?.[k];
+      if (v !== undefined && v !== null) return да(v);
+    }
+    return undefined;
+  };
+  const notifyRequests = items.reduce((found, item) => found ?? pickBool(item, 'NotifyRequests'), undefined);
+  const notifyMarketing = items.reduce((found, item) => found ?? pickBool(item, 'NotifyMarketing'), undefined);
+  const notifyUpdates = items.reduce((found, item) => found ?? pickBool(item, 'NotifyUpdates'), undefined);
+  if (notifyRequests !== undefined || notifyMarketing !== undefined || notifyUpdates !== undefined) {
+    const prefs = loadNotificationPrefs();
+    if (notifyRequests !== undefined) prefs.requests = notifyRequests;
+    if (notifyMarketing !== undefined) prefs.marketing = notifyMarketing;
+    if (notifyUpdates !== undefined) prefs.info = notifyUpdates;
+    saveNotificationPrefs(prefs);
+  }
 };
 
 const clientSupportState = {

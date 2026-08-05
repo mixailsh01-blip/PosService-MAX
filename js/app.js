@@ -2714,7 +2714,7 @@ const setupEstablishmentSelection = () => {
       staffRequestAccessBtn.textContent = 'Отправляем запрос...';
     }
     try {
-      const currentRole = window.userPermissions?.праваПоЗаведениям?.get(establishmentId) ?? null;
+      const currentRole = window.userPermissions?.праваПоЗаведениям?.get(establishmentId)?.role ?? null;
       await fetch('https://quumahienot.beget.app/webhook/AccessRequest', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -2741,6 +2741,8 @@ const setupEstablishmentSelection = () => {
 
   const deleteStaffMember = async (employeeId) => {
     if (isDeletingStaff || !employeeId) return;
+    const canDeleteStaff = window.userPermissions?.праваПоЗаведениям?.get(currentStaffEstablishment.id)?.удалениеСотрудников ?? false;
+    if (!canDeleteStaff) return;
     const item = currentStaffItems.find((entry) => String(entry?.ID ?? '').trim() === employeeId);
     if (!item) return;
 
@@ -2789,6 +2791,10 @@ const setupEstablishmentSelection = () => {
     }
 
     const roleOptions = rolesCatalogState.roles;
+    const currentPerms = window.userPermissions?.праваПоЗаведениям?.get(currentStaffEstablishment.id);
+    const canEditRights = currentPerms?.редактированиеПрав ?? false;
+    const canDeleteStaff = currentPerms?.удалениеСотрудников ?? false;
+
     staffList.innerHTML = items.map((item) => {
       const firstName = String(item?.first_name || '').trim();
       const lastName = String(item?.last_name || '').trim();
@@ -2798,7 +2804,7 @@ const setupEstablishmentSelection = () => {
       const employeeId = String(item?.ID ?? '').trim();
       const roleItemId = String(item?.ITEM_ID ?? '').trim();
       const hasAssignedRole = Boolean(role) && Boolean(roleItemId);
-      const roleSelectHtml = roleOptions.length > 0
+      const roleSelectHtml = (roleOptions.length > 0 && canEditRights)
         ? `
           <select
             class="establishment-staff-role-select"
@@ -2815,6 +2821,14 @@ const setupEstablishmentSelection = () => {
         `
         : `<div class="establishment-staff-role-select" data-personal-id="${escapeHtml(employeeId)}" data-item-id="${escapeHtml(roleItemId)}">${escapeHtml(role || 'Выберите должность')}</div>`;
 
+      const deleteButtonHtml = canDeleteStaff
+        ? `
+          <button class="establishment-staff-delete" data-personal-id="${escapeHtml(employeeId)}" type="button" aria-label="Удалить сотрудника">
+            <i class="fas fa-trash-can" aria-hidden="true"></i>
+          </button>
+        `
+        : '';
+
       return `
         <div class="establishment-staff-card" data-personal-id="${escapeHtml(employeeId)}" data-item-id="${escapeHtml(roleItemId)}">
           <div class="establishment-staff-head">
@@ -2827,9 +2841,7 @@ const setupEstablishmentSelection = () => {
             <div class="establishment-staff-role">
               ${roleSelectHtml}
             </div>
-            <button class="establishment-staff-delete" data-personal-id="${escapeHtml(employeeId)}" type="button" aria-label="Удалить сотрудника">
-              <i class="fas fa-trash-can" aria-hidden="true"></i>
-            </button>
+            ${deleteButtonHtml}
           </div>
         </div>
       `;

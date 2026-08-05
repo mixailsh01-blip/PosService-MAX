@@ -935,6 +935,76 @@ body.hide-main-logo #accounts.page {
   -webkit-tap-highlight-color: transparent;
 }
 
+.edit-profile-toggle-list {
+  margin-top: 4px;
+  background: #1a2540;
+  border-radius: 14px;
+  padding: 4px 16px;
+}
+
+.edit-profile-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.edit-profile-toggle-row:last-child {
+  border-bottom: none;
+}
+
+.edit-profile-toggle-label {
+  font-size: 15px;
+  font-weight: 500;
+  color: #f2f3f7;
+}
+
+.edit-profile-toggle {
+  position: relative;
+  flex: 0 0 auto;
+  display: inline-block;
+  width: 46px;
+  height: 26px;
+}
+
+.edit-profile-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.edit-profile-toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.edit-profile-toggle-slider::before {
+  content: "";
+  position: absolute;
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  top: 3px;
+  background: #ffffff;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+
+.edit-profile-toggle input:checked + .edit-profile-toggle-slider {
+  background: linear-gradient(135deg, #00d4ff 0%, #00aaee 35%, #9900cc 100%);
+}
+
+.edit-profile-toggle input:checked + .edit-profile-toggle-slider::before {
+  transform: translateX(20px);
+}
+
 .establishment-modal-content {
   width: 100vw;
   max-width: none;

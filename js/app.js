@@ -607,6 +607,33 @@ const setupMarketButton = () => {
 
 /* ==================== РАБОТА С МОДАЛЬНЫМИ ОКНАМИ ==================== */
 
+const NOTIFICATION_PREFS_STORAGE_KEY = 'miniapp_notification_prefs_v1';
+const NOTIFICATION_TOGGLE_IDS = {
+  requests: 'notify-requests-toggle',
+  marketing: 'notify-marketing-toggle',
+  info: 'notify-info-toggle'
+};
+
+const loadNotificationPrefs = () => {
+  try {
+    const raw = localStorage.getItem(getScopedStorageKey(NOTIFICATION_PREFS_STORAGE_KEY));
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch (error) {
+    console.warn('Не удалось загрузить notification prefs из localStorage:', error);
+    return {};
+  }
+};
+
+const saveNotificationPrefs = (prefs) => {
+  try {
+    localStorage.setItem(getScopedStorageKey(NOTIFICATION_PREFS_STORAGE_KEY), JSON.stringify(prefs));
+  } catch (error) {
+    console.warn('Не удалось сохранить notification prefs в localStorage:', error);
+  }
+};
+
 const setupModal = () => {
   const editIcon = document.getElementById('edit-icon');
   const closeModalIcon = document.getElementById('close-modal-icon');
@@ -618,6 +645,13 @@ const setupModal = () => {
     const nameParts = userFullname.textContent.split(' ');
     document.getElementById('edit-firstname').value = nameParts[0] || '';
     document.getElementById('edit-lastname').value = nameParts[1] || '';
+
+    const prefs = loadNotificationPrefs();
+    Object.entries(NOTIFICATION_TOGGLE_IDS).forEach(([key, id]) => {
+      const toggle = document.getElementById(id);
+      if (toggle) toggle.checked = prefs[key] !== false;
+    });
+
     modal.classList.remove('hidden');
     if (tg?.BackButton) {
       tg.BackButton.onClick(closeModal);
@@ -641,6 +675,13 @@ const setupModal = () => {
     const fullName = [firstName, lastName].filter(Boolean).join(' ') || 'Без имени';
     userFullname.textContent = fullName;
     document.getElementById('user-name').textContent = firstName || 'Гость';
+
+    const prefs = {};
+    Object.entries(NOTIFICATION_TOGGLE_IDS).forEach(([key, id]) => {
+      prefs[key] = document.getElementById(id)?.checked !== false;
+    });
+    saveNotificationPrefs(prefs);
+
     closeModal();
     if (user?.id && window.API?.editUser) {
       window.API.editUser(user.id, firstName, lastName);

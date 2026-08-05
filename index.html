@@ -13,7 +13,7 @@
   <style>html,body{background:#121212}#welcome-screen{background:#1e1e1e;position:fixed;inset:0;z-index:1000}#main-app{display:none}</style>
 
   <!-- ==================== СТИЛИ ==================== -->
-  <link rel="stylesheet" href="css/style.css?v=20260709-46" />
+  <link rel="stylesheet" href="css/style.css?v=20260709-47" />
 
   <!-- Font Awesome — async, не блокирует рендер -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" media="print" onload="this.media='all'" />
@@ -190,6 +190,32 @@
         <input type="text" id="edit-firstname" class="edit-profile-input" placeholder="Имя" />
         <label class="edit-profile-fs-label">Фамилия</label>
         <input type="text" id="edit-lastname" class="edit-profile-input" placeholder="Фамилия" />
+
+        <label class="edit-profile-fs-label">Уведомления</label>
+        <div class="edit-profile-toggle-list">
+          <div class="edit-profile-toggle-row">
+            <span class="edit-profile-toggle-label">Уведомления о заявках</span>
+            <label class="edit-profile-toggle">
+              <input type="checkbox" id="notify-requests-toggle" checked>
+              <span class="edit-profile-toggle-slider"></span>
+            </label>
+          </div>
+          <div class="edit-profile-toggle-row">
+            <span class="edit-profile-toggle-label">Маркетинговые уведомления</span>
+            <label class="edit-profile-toggle">
+              <input type="checkbox" id="notify-marketing-toggle" checked>
+              <span class="edit-profile-toggle-slider"></span>
+            </label>
+          </div>
+          <div class="edit-profile-toggle-row">
+            <span class="edit-profile-toggle-label">Информационные обновления</span>
+            <label class="edit-profile-toggle">
+              <input type="checkbox" id="notify-info-toggle" checked>
+              <span class="edit-profile-toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
         <button id="save-profile-btn" class="requests-filters-apply-btn" style="margin-top:28px">Применить</button>
       </div>
     </div>
@@ -384,6 +410,6 @@
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
 <script src="js/api.js?v=20260709-21"></script>
 <script src="js/auth.js?v=20260709-26"></script>
-<script src="js/app.js?v=20260709-69"></script>
+<script src="js/app.js?v=20260709-70"></script>
 </body>
 </html>

@@ -327,6 +327,47 @@ const API = {
 
   ,
 
+  async sendPayStatus(establishmentPayload = {}, userData = null, webApp = null) {
+    const hookUrl = `${API_BASE_URL}/webhook/PayStatus`;
+    const payload = {
+      IDREST: establishmentPayload?.IDREST ?? establishmentPayload?.ID ?? establishmentPayload?.id ?? null,
+      KК: establishmentPayload?.KК ?? establishmentPayload?.KK ?? establishmentPayload?.Client ?? establishmentPayload?.name ?? null,
+      Client: establishmentPayload?.Client ?? establishmentPayload?.name ?? null,
+      ID: establishmentPayload?.ID ?? establishmentPayload?.IDREST ?? establishmentPayload?.id ?? null,
+      user_id: userData?.id || null,
+      username: userData?.username || null,
+      first_name: userData?.first_name || null,
+      last_name: userData?.last_name || null,
+      ...getBridgeMeta(webApp)
+    };
+
+    try {
+      console.log('📤 [API] Отправляем PayStatus:', payload);
+
+      const response = await fetch(hookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const result = await response.json().catch(() => null);
+      console.log('✅ [API] Ответ PayStatus:', result);
+      return result;
+    } catch (error) {
+      console.error('❌ [API] Ошибка PayStatus:', error);
+      return null;
+    }
+  }
+
+  ,
+
   async editUser(userId, firstName, lastName) {
     const hookUrl = `${API_BASE_URL}/webhook/UserEdit`;
     try {

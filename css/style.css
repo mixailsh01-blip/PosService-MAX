@@ -1804,6 +1804,117 @@ div.establishment-staff-role-select {
   margin-top: 40px;
 }
 
+.accounts-bills-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.accounts-bills-back-btn {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 180, 255, 0.3);
+  background: rgba(0, 170, 238, 0.08);
+  color: #00d4ff;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.accounts-bills-back-btn:active {
+  background: rgba(0, 170, 238, 0.2);
+  transform: scale(0.94);
+}
+
+.accounts-bills-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #f2f3f7;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.accounts-filter-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.accounts-filter-btn {
+  flex: 1 1 0;
+  font-family: 'PT Root UI', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 9px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 180, 255, 0.2);
+  background: rgba(0, 170, 238, 0.05);
+  color: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.accounts-filter-btn.is-active {
+  background: linear-gradient(135deg, #00d4ff 0%, #00aaee 35%, #9900cc 100%);
+  border-color: transparent;
+  color: #ffffff;
+}
+
+.accounts-bill-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-radius: 18px;
+  padding: 14px 16px;
+  background: linear-gradient(180deg, rgba(30, 35, 52, 0.98) 0%, rgba(20, 24, 38, 0.98) 100%);
+  border: 1px solid rgba(0, 200, 255, 0.12);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.accounts-bill-main {
+  min-width: 0;
+}
+
+.accounts-bill-number {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.accounts-bill-meta {
+  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 13px;
+}
+
+.accounts-bill-status {
+  flex: 0 0 auto;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+  background: rgba(140, 146, 160, 0.25);
+}
+
+.accounts-bill-status--paid {
+  background: rgba(40, 195, 80, 0.30);
+}
+
+.accounts-bill-status--unpaid {
+  background: rgba(255, 70, 70, 0.30);
+}
+
 /* ==================== ВЫПАДАЮЩИЕ СПИСКИ ==================== */
 .dropdown-container {
   display: flex;

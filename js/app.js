@@ -3040,6 +3040,132 @@ const setupEstablishmentSelection = () => {
   });
 };
 
+/* ==================== СЧЕТА ==================== */
+
+const normalizeBillItem = (item) => {
+  const да = v => v === true || v === 'Да' || String(v).toLowerCase() === 'true' || String(v).toLowerCase() === 'paid' || String(v).toLowerCase() === 'оплачен' || String(v).toLowerCase() === 'оплачено';
+  const number = String(item?.Номер ?? item?.number ?? item?.ID ?? item?.id ?? '').trim();
+  const amount = item?.Сумма ?? item?.amount ?? item?.sum ?? null;
+  const date = String(item?.Дата ?? item?.date ?? item?.created_at ?? '').trim();
+  const statusRaw = item?.Оплачено ?? item?.paid ?? item?.Статус ?? item?.status ?? null;
+  return {
+    number,
+    amount,
+    date,
+    isPaid: да(statusRaw),
+    raw: item
+  };
+};
+
+const setupAccountsPage = () => {
+  const establishmentListEl = document.getElementById('accounts-establishment-list');
+  const billsView = document.getElementById('accounts-bills-view');
+  const billsTitle = document.getElementById('accounts-bills-title');
+  const billsList = document.getElementById('accounts-bills-list');
+  const backBtn = document.getElementById('accounts-bills-back-btn');
+  const filterBtns = document.querySelectorAll('#accounts-bills-view .accounts-filter-btn');
+
+  if (!establishmentListEl || !billsView || !billsList) return;
+
+  const accountsState = {
+    items: [],
+    filter: 'all',
+    establishmentId: '',
+    establishmentName: ''
+  };
+
+  const renderBillsList = () => {
+    const filtered = accountsState.items.filter((bill) => {
+      if (accountsState.filter === 'paid') return bill.isPaid;
+      if (accountsState.filter === 'unpaid') return !bill.isPaid;
+      return true;
+    });
+
+    if (!filtered.length) {
+      billsList.innerHTML = '<div class="establishment-staff-empty">Счета не найдены</div>';
+      return;
+    }
+
+    billsList.innerHTML = filtered.map((bill) => `
+      <div class="accounts-bill-card">
+        <div class="accounts-bill-main">
+          <div class="accounts-bill-number">${escapeHtml(bill.number ? `Счёт №${bill.number}` : 'Счёт')}</div>
+          <div class="accounts-bill-meta">${escapeHtml([bill.date, bill.amount != null ? `${bill.amount} ₽` : ''].filter(Boolean).join(' • '))}</div>
+        </div>
+        <div class="accounts-bill-status ${bill.isPaid ? 'accounts-bill-status--paid' : 'accounts-bill-status--unpaid'}">
+          ${bill.isPaid ? 'Оплачен' : 'Не оплачен'}
+        </div>
+      </div>
+    `).join('');
+  };
+
+  const openBillsView = async (establishmentId, establishmentName) => {
+    accountsState.establishmentId = establishmentId;
+    accountsState.establishmentName = establishmentName;
+    accountsState.filter = 'all';
+    filterBtns.forEach((btn) => btn.classList.toggle('is-active', btn.dataset.filter === 'all'));
+    if (billsTitle) billsTitle.textContent = establishmentName || 'Счета';
+
+    establishmentListEl.classList.add('hidden');
+    billsView.classList.remove('hidden');
+    billsList.innerHTML = '<div class="establishment-staff-empty">Загружаем счета...</div>';
+
+    const result = await window.API?.sendPayStatus?.({
+      IDREST: establishmentId,
+      ID: establishmentId,
+      KК: establishmentName,
+      KK: establishmentName,
+      Client: establishmentName,
+      name: establishmentName
+    }, user, tg);
+
+    const items = Array.isArray(result) ? result : (result ? [result] : []);
+    accountsState.items = items.map(normalizeBillItem);
+    renderBillsList();
+  };
+
+  const closeBillsView = () => {
+    billsView.classList.add('hidden');
+    establishmentListEl.classList.remove('hidden');
+  };
+
+  const renderEstablishmentList = () => {
+    const establishments = window.userPermissions?.счетаЗаведения ?? [];
+    if (!establishments.length) {
+      establishmentListEl.innerHTML = '<div class="accounts-placeholder">Нет заведений с доступом к счетам</div>';
+      return;
+    }
+    establishmentListEl.innerHTML = establishments.map((est) => `
+      <button class="accounts-establishment-btn" type="button" data-establishment-id="${escapeHtml(String(est.id))}" data-establishment-name="${escapeHtml(est.name)}">
+        <span class="accounts-establishment-name">${escapeHtml(est.name)}</span>
+        <i class="fas fa-chevron-right accounts-establishment-arrow" aria-hidden="true"></i>
+      </button>
+    `).join('');
+  };
+
+  establishmentListEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('.accounts-establishment-btn');
+    if (!btn) return;
+    const establishmentId = String(btn.dataset.establishmentId || '').trim();
+    const establishmentName = String(btn.dataset.establishmentName || '').trim();
+    if (!establishmentId) return;
+    openBillsView(establishmentId, establishmentName);
+  });
+
+  backBtn?.addEventListener('click', closeBillsView);
+
+  filterBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      accountsState.filter = btn.dataset.filter || 'all';
+      filterBtns.forEach((b) => b.classList.toggle('is-active', b === btn));
+      renderBillsList();
+    });
+  });
+
+  renderEstablishmentList();
+  window.renderAccountsEstablishmentList = renderEstablishmentList;
+};
+
 /* ==================== СОЗДАНИЕ ЗАЯВКИ ==================== */
 
 const setupTaskCreation = () => {
@@ -4658,6 +4784,7 @@ const initializeApp = () => {
         console.log('🔐 Права пользователя:', window.userPermissions);
         window.Auth?.applyPermissions?.();
         renderEstablishmentModalList(getKnownEstablishments());
+        window.renderAccountsEstablishmentList?.();
       });
     }
 
@@ -4686,6 +4813,7 @@ const initializeApp = () => {
     setupMarketButton();
     enhanceMobileUX();
     setupEstablishmentSelection();
+    setupAccountsPage();
     setupTaskCreation();
     setupRequestsFiltersModal();
     setupRequestDetailsView();

@@ -13,7 +13,7 @@
   <style>html,body{background:#121212}#welcome-screen{background:#1e1e1e;position:fixed;inset:0;z-index:1000}#main-app{display:none}</style>
 
   <!-- ==================== СТИЛИ ==================== -->
-  <link rel="stylesheet" href="css/style.css?v=20260709-42" />
+  <link rel="stylesheet" href="css/style.css?v=20260709-43" />
 
   <!-- Font Awesome — async, не блокирует рендер -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" media="print" onload="this.media='all'" />
@@ -128,8 +128,31 @@
 
     <!-- Страница счетов -->
     <div id="accounts" class="page">
-        <div id="selected-establishment" class="bg-gray-800 p-4 rounded-lg text-center text-gray-400 font-medium">
-            Раздел счетов скоро станет доступен. Следите за обновлениями приложения.
+        <div id="selected-establishment" class="hidden"></div>
+
+        <div class="accounts-header">
+            <div class="accounts-title">Счета</div>
+        </div>
+
+        <div id="accounts-establishment-list" class="accounts-establishment-list">
+            <!-- Заполняется динамически из счетаЗаведения -->
+        </div>
+
+        <div id="accounts-bills-view" class="hidden">
+            <div class="accounts-bills-header">
+                <button id="accounts-bills-back-btn" class="accounts-bills-back-btn" type="button" aria-label="Назад">
+                    <i class="fas fa-chevron-left" aria-hidden="true"></i>
+                </button>
+                <h3 id="accounts-bills-title" class="accounts-bills-title"></h3>
+            </div>
+            <div class="accounts-filter-row">
+                <button class="accounts-filter-btn is-active" data-filter="all" type="button">Все</button>
+                <button class="accounts-filter-btn" data-filter="paid" type="button">Оплаченные</button>
+                <button class="accounts-filter-btn" data-filter="unpaid" type="button">Неоплаченные</button>
+            </div>
+            <div id="accounts-bills-list" class="establishment-staff-list">
+                <!-- Заполняется динамически -->
+            </div>
         </div>
     </div>
 
@@ -366,8 +389,8 @@
 </script>
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-<script src="js/api.js?v=20260709-19"></script>
+<script src="js/api.js?v=20260709-20"></script>
 <script src="js/auth.js?v=20260709-25"></script>
-<script src="js/app.js?v=20260709-61"></script>
+<script src="js/app.js?v=20260709-62"></script>
 </body>
 </html>

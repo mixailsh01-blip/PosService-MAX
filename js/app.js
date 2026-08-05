@@ -2793,6 +2793,7 @@ const setupEstablishmentSelection = () => {
     const selectedOption = selectEl.options[selectEl.selectedIndex];
     const newRoleId = selectEl.value;
     const newRoleName = selectedOption ? selectedOption.textContent.trim() : '';
+    const item = currentStaffItems.find((entry) => String(entry?.ID ?? '').trim() === employeeId);
 
     selectEl.disabled = true;
     try {
@@ -2802,6 +2803,7 @@ const setupEstablishmentSelection = () => {
         body: JSON.stringify({
           ID: employeeId,
           ITEM_ID: roleItemId,
+          user_id: item?.user_id ?? null,
           new_role_id: newRoleId,
           new_role_name: newRoleName,
           establishment_id: currentStaffEstablishment.id,
@@ -2809,7 +2811,6 @@ const setupEstablishmentSelection = () => {
           requested_by_user_id: user?.id ? String(user.id) : null
         })
       });
-      const item = currentStaffItems.find((entry) => String(entry?.ID ?? '').trim() === employeeId);
       if (item) item.POST = newRoleName;
     } catch (error) {
       console.error('❌ Ошибка изменения прав сотрудника:', error);

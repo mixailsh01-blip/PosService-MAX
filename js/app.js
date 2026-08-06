@@ -709,7 +709,6 @@ const setupModal = () => {
 const setupKnowledgeBaseModal = () => {
   const openBtn = document.getElementById('knowledge-base-btn');
   const modal = document.getElementById('knowledge-base-modal');
-  const cancelBtn = document.getElementById('knowledge-base-cancel-btn');
   const linkBtns = document.querySelectorAll('#knowledge-base-link-ru, #knowledge-base-link-howto');
   if (!openBtn || !modal) return;
 
@@ -742,8 +741,6 @@ const setupKnowledgeBaseModal = () => {
       }
     });
   });
-
-  cancelBtn?.addEventListener('click', closeModal);
 };
 
 /* ==================== РАБОТА С КОНТАКТАМИ ==================== */

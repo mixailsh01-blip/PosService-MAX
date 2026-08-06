@@ -1685,8 +1685,7 @@ div.establishment-staff-role-select {
 #confirm-modal-ok-btn,
 #confirm-modal-cancel-btn,
 #knowledge-base-link-ru,
-#knowledge-base-link-howto,
-#knowledge-base-cancel-btn {
+#knowledge-base-link-howto {
   opacity: 1;
   transform: none;
 }

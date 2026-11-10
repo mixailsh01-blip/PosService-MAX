@@ -2,6 +2,10 @@ name: Build Hoppscotch (Pyrus login)
 
 on:
   workflow_dispatch:
+    inputs:
+      apply_patch:
+        description: Apply Pyrus patch (false = plain upstream, no push)
+        default: 'true'
   push:
     branches: [main]
     paths:
@@ -31,8 +35,10 @@ jobs:
           git clone "$UPSTREAM_REPO" upstream
           cd upstream
           git checkout "$UPSTREAM_SHA"
-          git apply --check ../hoppscotch-pyrus/pyrus-login.patch
-          git apply ../hoppscotch-pyrus/pyrus-login.patch
+          if [ "${{ github.event.inputs.apply_patch }}" != "false" ]; then
+            git apply --check ../hoppscotch-pyrus/pyrus-login.patch
+            git apply ../hoppscotch-pyrus/pyrus-login.patch
+          fi
 
       - uses: docker/setup-buildx-action@v3
 
@@ -50,7 +56,7 @@ jobs:
           context: upstream
           file: upstream/prod.Dockerfile
           target: aio
-          push: true
+          push: ${{ github.event.inputs.apply_patch != 'false' }}
           tags: |
             ghcr.io/${{ env.OWNER }}/hoppscotch-pyrus:latest
             ghcr.io/${{ env.OWNER }}/hoppscotch-pyrus:${{ github.sha }}

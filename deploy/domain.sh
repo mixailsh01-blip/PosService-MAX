@@ -14,10 +14,10 @@ NET=n8n_default
 cd "$DIR"
 
 echo "== 1. DNS"
-IPS="$(getent ahostsv4 "$DOMAIN" | awk '{print $1}' | sort -u | tr '\n' ' ')"
+IPS="$(getent ahostsv4 "$DOMAIN" 2>/dev/null | awk '{print $1}' | sort -u | tr '\n' ' ' || true)"
 MYIP="$(curl -fsS4 --max-time 5 https://ifconfig.me 2>/dev/null || hostname -I | awk '{print $1}')"
 if ! echo " $IPS" | grep -q " $MYIP "; then
-  echo "Домен $DOMAIN пока не указывает на этот сервер ($MYIP). Сейчас он указывает на: ${IPS:-никуда}"
+  echo "Домен $DOMAIN пока не указывает на этот сервер ($MYIP). Сейчас он указывает на: ${IPS:-никуда (записи в DNS нет)}"
   echo "Добавьте A-запись и запустите команду ещё раз (DNS может обновляться до часа)."
   exit 1
 fi

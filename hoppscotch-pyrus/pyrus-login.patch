@@ -26500,12 +26500,292 @@ index d78a86b..9cf7537 100644
 +  <rect x="339" y="0" width="100" height="100" rx="22" fill="#FFFFFF"/>
 +  <path transform="translate(369.69 72) scale(0.032 -0.032)" fill="#073E59" d="M498.6651611328125 0V1242.6632080078125H20V1440H1186.66748046875V1242.6632080078125H708.0023193359375V0Z"/>
  </svg>
+diff --git a/packages/hoppscotch-common/public/sprt-favicon-32.png b/packages/hoppscotch-common/public/sprt-favicon-32.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..e11d1375c495d15e892e51c36c3bfd6e9a3b0496
+GIT binary patch
+literal 1664
+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
+KMNUMnLSTZ-3MZBT
+
+literal 0
+HcmV?d00001
+
+diff --git a/packages/hoppscotch-common/public/sprt-favicon.svg b/packages/hoppscotch-common/public/sprt-favicon.svg
+new file mode 100644
+index 0000000..cb3eda1
+--- /dev/null
++++ b/packages/hoppscotch-common/public/sprt-favicon.svg
+@@ -0,0 +1 @@
++<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="113" fill="#073E59"/><path transform="translate(114.80 332.80) scale(0.21942857142857142 -0.21942857142857142)" fill="#FFFFFF" d="M662.0013427734375 -30Q506.667724609375 -30 382.16748046875 23.50018310546875Q257.667236328125 77.0003662109375 177.1671142578125 176.33407592773438Q96.6669921875 275.66778564453125 73.333740234375 412.6683349609375L290.671142578125 446.002197265625Q323.67095947265625 314.002685546875 428.6702880859375 240.66973876953125Q533.6696166992188 167.3367919921875 674.001708984375 167.3367919921875Q760.6671752929688 167.3367919921875 833.9998779296875 194.66973876953125Q907.3325805664062 222.002685546875 951.6656799316406 273.5020446777344Q995.998779296875 325.00140380859375 995.998779296875 397.333984375Q995.998779296875 436.33294677734375 982.6658630371094 466.3323669433594Q969.3329467773438 496.331787109375 945.5001525878906 518.4981994628906Q921.6673583984375 540.6646118164062 888.3343811035156 557.3312377929688Q855.0014038085938 573.9978637695312 815.3345947265625 585.9979248046875L446.0009765625 695.331298828125Q392.001708984375 710.9977416992188 336.16839599609375 736.6641845703125Q280.3350830078125 762.3306274414062 233.6680908203125 803.6639404296875Q187.0010986328125 844.9972534179688 158.16741943359375 906.6642761230469Q129.333740234375 968.331298828125 129.333740234375 1055.9989013671875Q129.333740234375 1189.3329467773438 197.83401489257812 1281.8331604003906Q266.33428955078125 1374.3333740234375 383.00128173828125 1421.8333435058594Q499.66827392578125 1469.3333129882812 644.66845703125 1468.6666259765625Q791.001953125 1467.333251953125 906.3353881835938 1417.3333129882812Q1021.6688232421875 1367.3333740234375 1098.1689758300781 1273.5000610351562Q1174.6691284179688 1179.666748046875 1204.0028076171875 1047.333251953125L979.99853515625 1008.6658935546875Q964.6651611328125 1090.3318481445312 915.9988403320312 1148.8312072753906Q867.33251953125 1207.33056640625 795.9999084472656 1238.6635131835938Q724.6672973632812 1269.9964599609375 642.001708984375 1271.329833984375Q561.6693725585938 1272.6632080078125 495.5032958984375 1246.6636047363281Q429.33721923828125 1220.6640014648438 389.6708068847656 1173.9979248046875Q350.00439453125 1127.3318481445312 350.00439453125 1065.9991455078125Q350.00439453125 1005.9999389648438 384.8373718261719 969.1670532226562Q419.67034912109375 932.3341674804688 471.3365478515625 910.8343811035156Q523.0027465820312 889.3345947265625 574.00244140625 875.334716796875L840.00146484375 800.0018310546875Q890.0018310546875 786.3350830078125 953.6687622070312 762.8350219726562Q1017.335693359375 739.3349609375 1076.8358764648438 697.0015563964844Q1136.3360595703125 654.6681518554688 1175.1694946289062 585.5013732910156Q1214.0029296875 516.3345947265625 1214.0029296875 410.667724609375Q1214.0029296875 302.33392333984375 1170.0026550292969 219.66702270507812Q1126.0023803710938 137.0001220703125 1049.3353881835938 81.66671752929688Q972.6683959960938 26.33331298828125 873.0014953613281 -1.833343505859375Q773.3345947265625 -30 662.0013427734375 -30Z"/></svg>
+\ No newline at end of file
+diff --git a/packages/hoppscotch-common/public/sprt-icon-180.png b/packages/hoppscotch-common/public/sprt-icon-180.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..6c037215073f2776d5932fd42332e2e1133d225e
+GIT binary patch
+literal 11439
+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
+CU!86M
+
+literal 0
+HcmV?d00001
+
 diff --git a/packages/hoppscotch-common/public/yandex-app/index.html b/packages/hoppscotch-common/public/yandex-app/index.html
 new file mode 100644
-index 0000000..67ad106
+index 0000000..2d608b5
 --- /dev/null
 +++ b/packages/hoppscotch-common/public/yandex-app/index.html
-@@ -0,0 +1,86 @@
+@@ -0,0 +1,161 @@
 +<!DOCTYPE html>
 +<html lang="ru">
 +<head>
@@ -26518,7 +26798,7 @@ index 0000000..67ad106
 +  (function(){
 +    var MAP={'--bg':'--primary-color','--bg-1':'--primary-light-color','--bg-2':'--primary-dark-color',
 +      '--fg':'--secondary-dark-color','--fg-1':'--secondary-color','--fg-2':'--secondary-light-color',
-+      '--line':'--divider-color','--line-2':'--divider-dark-color',
++      '--line':'--divider-dark-color','--line-2':'--divider-dark-color',
 +      '--accent':'--accent-color','--accent-2':'--accent-dark-color','--accent-fg':'--accent-contrast-color'};
 +    function apply(){
 +      try{
@@ -26544,46 +26824,121 @@ index 0000000..67ad106
 +  })();
 +</script>
 +<style>
-+  :root{--bg:#0a0a0a;--bg-1:#141414;--bg-2:#1c1c1c;--fg:#fafafa;--fg-1:#a3a3a3;--fg-2:#737373;--line:#262626;--line-2:#404040;
++  :root{--bg:#0f0f0f;--bg-1:#171717;--bg-2:#1f1f1f;--fg:#fafafa;--fg-1:#a3a3a3;--fg-2:#737373;--line:#262626;--line-2:#3a3a3a;
 +    --accent:#ef4444;--accent-2:#dc2626;--accent-fg:#fff;--err:#f87171;--err-bg:rgba(239,68,68,.12);
 +    --font:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color-scheme:light}
 +  html.dark{color-scheme:dark}
 +  html:not(.dark){--err:#dc2626;--err-bg:#fee2e2}
-+  /* !important: перекрываем стили, которые приложение вставляет само */
-+  html body{font-family:var(--font)!important;font-size:13px;line-height:1.45;background:var(--bg)!important;color:var(--fg)!important;-webkit-font-smoothing:antialiased}
-+  #app{max-width:920px!important;padding:16px 20px 40px!important}
++  *{box-sizing:border-box}
++  html body{font-family:var(--font)!important;font-size:13px;line-height:1.45;background:var(--bg)!important;color:var(--fg)!important;-webkit-font-smoothing:antialiased;margin:0}
++  #app{max-width:1040px!important;margin:0 auto!important;padding:20px 28px 56px!important}
 +  code{font-size:11px;color:var(--fg-2)}
-+  .muted{opacity:1!important;color:var(--fg-1)!important;font-size:12px;margin-bottom:4px}
-+  .hr{background:var(--line)!important}
-+  button{font:inherit;font-weight:600;padding:8px 14px!important;border:1px solid var(--line-2)!important;border-radius:6px!important;background:var(--bg)!important;color:var(--fg)!important;transition:border-color .12s,background .12s,color .12s}
++  .muted{opacity:1!important;color:var(--fg-1)!important}
++  .hr{display:none!important}
++
++  /* шапка раздела */
++  .topbar{display:flex;align-items:center;gap:12px;margin:0 0 20px;min-height:36px}
++  .ttl{margin:0;font-size:20px;font-weight:700;letter-spacing:-.01em;color:var(--fg)}
++  .restchip{margin-left:auto;max-width:50%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:5px 11px;border:1px solid var(--line-2);border-radius:999px;color:var(--fg-1);font-size:12px}
++  .iconbtn{display:inline-flex!important;align-items:center;justify-content:center;width:34px;height:34px;padding:0!important;border-radius:8px!important;flex:0 0 auto}
++  .iconbtn svg{width:18px;height:18px}
++
++  /* кнопки */
++  button{font:inherit;font-weight:600;font-size:13px;padding:8px 14px!important;border:1px solid var(--line-2)!important;border-radius:8px!important;background:var(--bg-1)!important;color:var(--fg)!important;cursor:pointer;transition:border-color .12s,background .12s,color .12s,transform .06s}
 +  button:hover:not([disabled]){border-color:var(--accent)!important;color:var(--accent)!important}
-+  button:focus-visible,input:focus,textarea:focus{outline:none;border-color:var(--accent)!important;box-shadow:0 0 0 1px var(--accent)}
-+  button[disabled]{opacity:.45!important}
-+  #go,#addToCartBtn,#checkoutBtn,#sendOrder,#submitOrder{background:var(--accent)!important;border-color:var(--accent)!important;color:var(--accent-fg)!important}
-+  #go:hover:not([disabled]),#addToCartBtn:hover:not([disabled]),#checkoutBtn:hover:not([disabled]),#sendOrder:hover:not([disabled]),#submitOrder:hover:not([disabled]){background:var(--accent-2)!important;border-color:var(--accent-2)!important;color:var(--accent-fg)!important}
-+  #backBtn,#logout,#changeRest,#closeItemDlg{background:transparent!important;color:var(--fg-1)!important}
-+  input,textarea,select{font:inherit;padding:8px 10px!important;border:1px solid var(--line-2)!important;border-radius:6px!important;background:var(--bg-1)!important;color:var(--fg)!important}
++  button:active:not([disabled]){transform:translateY(1px)}
++  button:focus-visible,input:focus,textarea:focus{outline:none;border-color:var(--accent)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)}
++  button[disabled]{opacity:.4!important;cursor:not-allowed}
++  button.primary,#addToCartBtn{background:var(--accent)!important;border-color:var(--accent)!important;color:var(--accent-fg)!important}
++  button.primary:hover:not([disabled]),#addToCartBtn:hover:not([disabled]){background:var(--accent-2)!important;border-color:var(--accent-2)!important;color:var(--accent-fg)!important}
++  #backBtn{background:var(--bg-1)!important;color:var(--fg-1)!important}
++  .foot{margin-top:24px!important;gap:10px}
++  .foot button,#clearCart,#closeItemDlg{color:var(--fg-1)!important;background:transparent!important}
++
++  /* поля */
++  input,textarea,select{font:inherit;width:100%;padding:9px 11px!important;border:1px solid var(--line-2)!important;border-radius:8px!important;background:var(--bg)!important;color:var(--fg)!important;transition:border-color .12s,box-shadow .12s}
 +  input::placeholder,textarea::placeholder{color:var(--fg-2)}
-+  .card,.menu-card,.modRow{background:var(--bg-1)!important;border:1px solid var(--line)!important;border-radius:8px!important}
-+  .card{padding:16px!important}
-+  .menu-card:hover,.modRow:hover{border-color:var(--line-2)!important}
-+  .list>button{text-align:left;padding:12px 14px!important;background:var(--bg-1)!important;border-color:var(--line)!important;font-weight:500}
-+  .list>button:hover:not([disabled]){border-color:var(--accent)!important;color:var(--fg)!important}
-+  .menu-img,.modThumb,.itemDlgImg{background:var(--bg-2)!important;border-radius:6px!important}
-+  .menu-card .menu-img{border-radius:0!important}
-+  .menu-title,.itemDlgTitle,.groupTitle,.modInfo .name{color:var(--fg)}
-+  .menu-desc,.itemDlgDesc,.groupHint,.modInfo .sub,.modName span{opacity:1!important;color:var(--fg-1)!important}
-+  .menu-cat{font-size:11px!important;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-1)}
-+  .badge{background:var(--bg-2)!important;color:var(--fg-1)!important;border-radius:4px!important;padding:3px 7px!important;font-size:11px!important}
-+  .rest-badge{background:var(--bg-2)!important;color:var(--fg)!important;border:1px solid var(--line);border-radius:6px!important;box-shadow:none!important}
++  textarea{min-height:76px!important;resize:vertical}
++  .fld{display:flex;flex-direction:column;gap:5px;min-width:0}
++  .fld>span{font-size:12px;font-weight:600;color:var(--fg-1)}
++  .grid3{display:grid;grid-template-columns:1fr 160px 160px;gap:12px;margin-bottom:12px}
++  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}
++  @media(max-width:720px){.grid3,.grid4{grid-template-columns:1fr 1fr}.grid3 .wide{grid-column:1/-1}}
++  input[type=checkbox],input[type=radio]{width:18px;height:18px;padding:0!important;accent-color:var(--accent)}
++
++  /* карточки */
++  .card{background:var(--bg-1)!important;border:1px solid var(--line)!important;border-radius:12px!important;padding:18px!important}
++  .sect{font-size:14px;font-weight:700;margin-bottom:14px}
++  .hint{font-size:12px;color:var(--fg-2);margin-top:2px}
++  .empty{padding:36px 16px;text-align:center;color:var(--fg-1);border:1px dashed var(--line-2);border-radius:12px}
++  .list{display:flex;flex-direction:column;gap:12px}
++
++  /* вход */
++  .authwrap{min-height:calc(100vh - 140px);display:flex;align-items:center;justify-content:center}
++  .card.auth{width:100%;max-width:440px;padding:28px!important}
++  .authhead{display:flex;gap:14px;align-items:center;margin-bottom:22px}
++  .authico{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent);flex:0 0 auto}
++  .authico svg{width:22px;height:22px}
++  .authttl{font-size:18px;font-weight:700;letter-spacing:-.01em}
++  .authsub{font-size:12px;color:var(--fg-1);margin-top:2px}
++  #go{margin-top:6px;padding:11px 14px!important}
++  #err{color:var(--err)!important;font-size:12px;min-height:0}
++  #err:empty{display:none}
++
++  /* главный экран и список ресторанов */
++  .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
++  .tile{display:grid!important;grid-template-columns:40px 1fr;grid-template-rows:auto auto;column-gap:14px;row-gap:2px;align-items:center;text-align:left;padding:16px!important;border-radius:12px!important;background:var(--bg-1)!important;border-color:var(--line)!important;color:var(--fg)!important;font-weight:600}
++  .tile:hover:not([disabled]){border-color:var(--accent)!important;color:var(--fg)!important;background:var(--bg-2)!important}
++  .tile .ti{grid-row:1/3;width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--bg-2);color:var(--accent)}
++  .tile .ti svg{width:20px;height:20px}
++  .tile .tt{font-size:14px;align-self:end}
++  .tile .td{font-size:12px;font-weight:400;color:var(--fg-1);align-self:start}
++  .tile[disabled] .ti{color:var(--fg-2)}
++  .list>.restaurantBtn{text-align:left;padding:14px 16px!important;border-radius:12px!important;background:var(--bg-1)!important;border-color:var(--line)!important;color:var(--fg)!important;font-weight:600;font-size:14px}
++  .list>.restaurantBtn:hover{border-color:var(--accent)!important;color:var(--fg)!important}
++
++  /* меню */
++  .menu-toolbar{display:flex;gap:10px;align-items:center;margin:0 0 6px;flex-wrap:wrap}
++  .menu-toolbar input{flex:1;min-width:240px}
++  .menu-cat{margin:26px 0 12px!important;font-size:12px!important;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--fg-1)}
++  .menu-grid{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(210px,1fr))!important;gap:14px!important}
++  .menu-card{background:var(--bg-1)!important;border:1px solid var(--line)!important;border-radius:12px!important;overflow:hidden;cursor:pointer;transition:border-color .12s,transform .12s}
++  .menu-card:hover{border-color:var(--line-2)!important;transform:translateY(-2px)}
++  .menu-img{height:130px!important;background:var(--bg-2)!important;border-radius:0!important}
++  .menu-noimg{color:var(--fg-2)!important}
++  .menu-body{padding:12px 14px 14px!important;gap:6px}
++  .menu-title{font-size:14px!important;font-weight:650!important;line-height:1.25;color:var(--fg)}
++  .menu-desc{opacity:1!important;color:var(--fg-1)!important;min-height:0!important}
++  .menu-meta{margin-top:4px;color:var(--fg-2)}
++  .menu-meta>*:last-child{color:var(--fg);font-weight:700;font-size:14px}
++  .menu-card.is-disabled{opacity:.5}
++
++  /* окно позиции */
++  dialog{background:var(--bg-1)!important;color:var(--fg)!important;border:1px solid var(--line-2)!important;border-radius:14px!important;padding:0!important;box-shadow:0 24px 64px rgba(0,0,0,.45)}
++  dialog::backdrop{background:rgba(0,0,0,.62);backdrop-filter:blur(2px)}
++  dialog .dlg{padding:20px!important}
++  dialog pre{background:var(--bg)!important;color:var(--fg)!important;border:1px solid var(--line);border-radius:8px!important}
++  .itemDlgImg{width:96px!important;height:96px!important;border-radius:10px!important;background:var(--bg-2)!important}
++  .itemDlgTitle{font-size:17px!important;font-weight:700!important}
++  .itemDlgDesc,.groupHint,.modInfo .sub,.modName span{opacity:1!important;color:var(--fg-1)!important}
++  .groupTitle{font-weight:700!important;font-size:14px}
++  .group{margin-top:18px!important}
++  .modRow{background:var(--bg)!important;border:1px solid var(--line)!important;border-radius:10px!important}
++  .modRow:hover{border-color:var(--line-2)!important}
++  .modThumb{background:var(--bg-2)!important;border-radius:8px!important}
++  .modInfo .name{color:var(--fg)}
++  .stepper{gap:8px}
++  .stepper button{width:30px;height:30px;padding:0!important;display:inline-flex;align-items:center;justify-content:center}
 +  .totalRow{border-color:var(--line)!important}
-+  dialog{background:var(--bg-1)!important;color:var(--fg)!important;border:1px solid var(--line-2)!important;border-radius:10px!important}
-+  dialog::backdrop{background:rgba(0,0,0,.6)}
-+  dialog pre{background:var(--bg)!important;color:var(--fg)!important;border:1px solid var(--line);border-radius:6px!important}
 +  .dlgActions{background:linear-gradient(to top,var(--bg-1) 75%,transparent)!important}
-+  .dlgActions button{border-radius:6px!important}
-+  #err{color:var(--err)!important;font-size:12px}
-+  input[type=checkbox],input[type=radio]{accent-color:var(--accent)}
++
++  /* корзина */
++  .citem{font-weight:650;font-size:14px}
++  .bigsum{font-weight:800;font-size:22px;letter-spacing:-.01em}
++  .badge{display:inline-block;background:color-mix(in srgb,var(--accent) 16%,transparent)!important;color:var(--accent)!important;border-radius:999px!important;padding:2px 8px!important;font-size:11px!important;font-weight:700}
++  .badge:empty{display:none}
++  .menu-toolbar .badge{background:var(--bg-2)!important;color:var(--fg-1)!important}
++  .rest-badge{background:var(--bg-2)!important;color:var(--fg)!important;border:1px solid var(--line);border-radius:8px!important;box-shadow:none!important}
 +  ::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:4px}
 +</style>
 +</head>
@@ -26594,10 +26949,10 @@ index 0000000..67ad106
 +</html>
 diff --git a/packages/hoppscotch-common/public/yandex-app/src/app/bootstrap.js b/packages/hoppscotch-common/public/yandex-app/src/app/bootstrap.js
 new file mode 100644
-index 0000000..a7320ed
+index 0000000..82afd37
 --- /dev/null
 +++ b/packages/hoppscotch-common/public/yandex-app/src/app/bootstrap.js
-@@ -0,0 +1,1355 @@
+@@ -0,0 +1,1353 @@
 +import '../core/n8nClient.js';
 +import {
 +  loadAuth,
@@ -26727,15 +27082,14 @@ index 0000000..a7320ed
 +function header(title) {
 +  const st = window.appState;
 +  const showBack = st.screen !== 'auth' && st.history.length > 0;
++  const chip = (st.restaurant?.id && st.screen !== 'auth' && st.screen !== 'restaurants')
++    ? `<div class="restchip" title="${st.restaurant.id}">${st.restaurant.name ? st.restaurant.name : 'Ресторан'}</div>` : '';
 +  return `
-+    <div class="row" style="margin:8px 0;">
-+      ${showBack ? `<button id="backBtn" type="button">← Назад</button>` : ''}
-+      <div style="font-weight:650;">${title}</div>
-+      <div style="margin-left:auto;font-size:12px;opacity:.7;">
-+        ${(st.restaurant?.id && st.screen !== 'auth' && st.screen !== 'restaurants') ? `${st.restaurant.name ? st.restaurant.name : 'Restaurant'} · <code>${st.restaurant.id}</code>` : ''}
-+      </div>
++    <div class="topbar">
++      ${showBack ? `<button id="backBtn" type="button" class="iconbtn" aria-label="Назад"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>` : ''}
++      <h1 class="ttl">${title}</h1>
++      ${chip}
 +    </div>
-+    <div class="hr"></div>
 +  `;
 +}
 +
@@ -26974,23 +27328,22 @@ index 0000000..a7320ed
 +// ---- Screens ----
 +function authScreen() {
 +  render(`
-+    ${header('Авторизация')}
-+    <div class="card">
-+      <div class="list">
-+        <div>
-+          <div class="muted">Base URL</div>
-+          <input id="baseUrl" placeholder="https://..." />
++    <div class="authwrap">
++      <div class="card auth">
++        <div class="authhead">
++          <div class="authico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M10.8 12.2L20 3M16 7l3 3"/></svg></div>
++          <div>
++            <div class="authttl">API Яндекс Еды</div>
++            <div class="authsub">Вход по Client ID и Client Secret интеграции</div>
++          </div>
 +        </div>
-+        <div>
-+          <div class="muted">Client ID</div>
-+          <input id="clientId" />
++        <div class="list">
++          <label class="fld"><span>Base URL</span><input id="baseUrl" placeholder="https://компания.iikoweb.ru/api/integrations/yandex-food" /></label>
++          <label class="fld"><span>Client ID</span><input id="clientId" autocomplete="off" /></label>
++          <label class="fld"><span>Client Secret</span><input id="clientSecret" type="password" autocomplete="off" /></label>
++          <button id="go" class="primary">Войти</button>
++          <div id="err"></div>
 +        </div>
-+        <div>
-+          <div class="muted">Client Secret</div>
-+          <input id="clientSecret" type="password" />
-+        </div>
-+        <button id="go">Войти</button>
-+        <div id="err" style="color:var(--err);"></div>
 +      </div>
 +    </div>
 +  `);
@@ -27083,17 +27436,17 @@ index 0000000..a7320ed
 +
 +  render(`
 +    ${header('Главный экран')}
-+    <div class="list">
-+      <button id="goMenu">🍽 Меню</button>
-+      <button id="goAvail">🚫 Недоступные позиции</button>
-+      <button id="goCart">🛒 Корзина <span class="badge" id="cartCountBadge"></span></button>
-+      <button disabled>🧾 Заказы (скоро)</button>
-+      <button disabled>➕ Создание заказа (позже)</button>
++    <div class="tiles">
++      <button id="goMenu" class="tile"><span class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg></span><span class="tt">Меню</span><span class="td">Позиции, цены, модификаторы</span></button>
++      <button id="goAvail" class="tile"><span class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg></span><span class="tt">Недоступные позиции</span><span class="td">Стоп-лист ресторана</span></button>
++      <button id="goCart" class="tile"><span class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h3l2.4 12h11l2-8.5H6.4"/></svg></span><span class="tt">Корзина <span class="badge" id="cartCountBadge"></span></span><span class="td">Сборка и проверка заказа</span></button>
++      <button class="tile" disabled><span class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span><span class="tt">Заказы</span><span class="td">Скоро</span></button>
++      <button class="tile" disabled><span class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span><span class="tt">Создание заказа</span><span class="td">Позже</span></button>
 +    </div>
 +
-+    <div style="margin-top:14px;" class="row">
-+      <button id="changeRest">Сменить ресторан</button>
-+      <button id="logout">Выйти</button>
++    <div class="foot row">
++      <button id="changeRest" type="button">Сменить ресторан</button>
++      <button id="logout" type="button">Выйти</button>
 +    </div>
 +  `);
 +
@@ -27658,7 +28011,7 @@ index 0000000..a7320ed
 +                  ${x.imgUrl ? `<img src="${x.imgUrl}" style="width:100%;height:100%;object-fit:cover;" alt="">` : `<div class="muted" style="font-size:11px;">нет фото</div>`}
 +                </div>
 +                <div style="min-width:0;flex:1;">
-+                  <div style="font-weight:650;">${x.name}</div>
++                  <div class="citem">${x.name}</div>
 +                  ${mods ? `<div class="muted" style="font-size:12px;margin-top:4px;">${mods}</div>` : ``}
 +                  <div class="row" style="justify-content:space-between;margin-top:8px;align-items:center;">
 +                    <div class="stepper" data-step="${x.key}">
@@ -27677,36 +28030,36 @@ index 0000000..a7320ed
 +
 +      
 +      <div class="card" style="margin-top:12px;">
-+        <div style="font-weight:700;margin-bottom:8px;">Доставка</div>
-+        <div class="row" style="gap:8px;flex-wrap:wrap;">
-+          <input id="addrFull" placeholder="Адрес (full)" style="flex:1;min-width:220px;" />
-+          <input id="addrLat" placeholder="latitude" style="width:140px;" />
-+          <input id="addrLon" placeholder="longitude" style="width:140px;" />
++        <div class="sect">Доставка</div>
++        <div class="grid3">
++          <label class="fld wide"><span>Адрес</span><input id="addrFull" placeholder="Город, улица, дом" /></label>
++          <label class="fld"><span>Широта</span><input id="addrLat" placeholder="latitude" /></label>
++          <label class="fld"><span>Долгота</span><input id="addrLon" placeholder="longitude" /></label>
 +        </div>
-+        <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:8px;">
-+          <input id="persons" type="number" min="0" placeholder="persons" style="width:120px;" />
-+          <input id="deliveryFee" type="number" min="0" placeholder="deliveryFee" style="width:140px;" />
-+          <input id="change" type="number" min="0" placeholder="change" style="width:120px;" />
-+          <input id="eatsId" placeholder="eatsId (опц.)" style="width:160px;" />
++        <div class="grid4">
++          <label class="fld"><span>Персон</span><input id="persons" type="number" min="0" /></label>
++          <label class="fld"><span>Доставка, ₽</span><input id="deliveryFee" type="number" min="0" /></label>
++          <label class="fld"><span>Сдача, ₽</span><input id="change" type="number" min="0" /></label>
++          <label class="fld"><span>eatsId (необяз.)</span><input id="eatsId" /></label>
 +        </div>
-+        <textarea id="comment" placeholder="Комментарий" style="margin-top:8px;width:100%;min-height:64px;"></textarea>
-+        <div class="muted" style="font-size:12px;margin-top:6px;">deliveryDate = текущее локальное время +2 часа.</div>
++        <label class="fld"><span>Комментарий</span><textarea id="comment" placeholder="Комментарий к заказу"></textarea></label>
++        <div class="hint">Время доставки (deliveryDate) ставится автоматически: текущее время + 2 часа.</div>
 +      </div>
 +
 +      <div class="card" style="margin-top:12px;">
 +        <div class="row" style="justify-content:space-between;align-items:center;">
 +          <div class="muted">Итого</div>
-+          <div style="font-weight:900;font-size:18px;">${rub(total)}</div>
++          <div class="bigsum">${rub(total)}</div>
 +        </div>
 +        <div class="row" style="gap:8px;margin-top:10px;flex-wrap:wrap;">
 +          <button id="clearCart" type="button">Очистить корзину</button>
 +          <button id="showOrderJson" type="button">JSON заказа</button>
 +          <button id="downloadOrderJson" type="button">Скачать JSON</button>
-+          <button id="checkoutBtn" type="button" disabled>Отправить (позже)</button>
++          <button id="checkoutBtn" type="button" class="primary" disabled>Отправить заказ</button>
 +        </div>
 +      </div>
 +    ` : `
-+      <div class="muted">Корзина пуста.</div>
++      <div class="empty">Корзина пуста. Добавьте позиции из меню.</div>
 +    `}
 +  `);
 +
@@ -29145,10 +29498,10 @@ index 0000000..caa0a4e
 +usePageHead({ title: ref("Яндекс Еда") })
 +</script>
 diff --git a/packages/hoppscotch-selfhost-web/index.html b/packages/hoppscotch-selfhost-web/index.html
-index 6d4ee07..8e1b867 100644
+index 6d4ee07..3a48de3 100644
 --- a/packages/hoppscotch-selfhost-web/index.html
 +++ b/packages/hoppscotch-selfhost-web/index.html
-@@ -1,14 +1,15 @@
+@@ -1,14 +1,16 @@
  <!DOCTYPE html>
 -<html lang="en">
 +<html lang="ru">
@@ -29160,11 +29513,12 @@ index 6d4ee07..8e1b867 100644
 +    <title>SPRT API</title>
      <meta charset="UTF-8" />
 -    <link rel="icon" href="/favicon.ico" />
-+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
-+    <link rel="icon" href="/favicon.ico?v=2" sizes="any" />
++    <link rel="icon" type="image/svg+xml" href="/sprt-favicon.svg?v=3" />
++    <link rel="icon" type="image/png" sizes="32x32" href="/sprt-favicon-32.png?v=3" />
++    <link rel="shortcut icon" href="/favicon.ico?v=3" />
      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 -    <link rel="apple-touch-icon" href="/icon.png" />
-+    <link rel="apple-touch-icon" href="/icon.png?v=2" />
++    <link rel="apple-touch-icon" href="/sprt-icon-180.png?v=3" />
    </head>
    <body>
      <div id="app"></div>
@@ -29210,10 +29564,19 @@ index a65d75d..272d52b 100644
      const deviceIdentifier =
        await persistenceService.getLocalConfig("deviceIdentifier")
 diff --git a/packages/hoppscotch-selfhost-web/vite.config.ts b/packages/hoppscotch-selfhost-web/vite.config.ts
-index 21df330..53c9004 100644
+index 21df330..f79d406 100644
 --- a/packages/hoppscotch-selfhost-web/vite.config.ts
 +++ b/packages/hoppscotch-selfhost-web/vite.config.ts
-@@ -242,6 +242,7 @@ export default defineConfig({
+@@ -228,6 +228,8 @@ export default defineConfig({
+       registerType: "prompt",
+       workbox: {
+         cleanupOutdatedCaches: true,
++        // мини-приложение «Яндекс Еда» всегда берём с сервера, без кеша service worker
++        globIgnores: ["**/yandex-app/**"],
+         maximumFileSizeToCacheInBytes: 15728640, // 15 MB
+         navigateFallbackDenylist: [
+           /robots.txt/,
+@@ -242,6 +244,7 @@ export default defineConfig({
            /announcements/,
            /admin/,
            /backend/,

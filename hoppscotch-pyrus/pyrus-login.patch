@@ -8070,8 +8070,20 @@ index d78a86b..9cf7537 100644
 +  <rect x="339" y="0" width="100" height="100" rx="22" fill="#FFFFFF"/>
 +  <path transform="translate(369.69 72) scale(0.032 -0.032)" fill="#073E59" d="M498.6651611328125 0V1242.6632080078125H20V1440H1186.66748046875V1242.6632080078125H708.0023193359375V0Z"/>
  </svg>
+diff --git a/packages/hoppscotch-common/src/components/app/Footer.vue b/packages/hoppscotch-common/src/components/app/Footer.vue
+index 6676e5d..aa16be5 100644
+--- a/packages/hoppscotch-common/src/components/app/Footer.vue
++++ b/packages/hoppscotch-common/src/components/app/Footer.vue
+@@ -29,6 +29,7 @@
+       </div>
+       <div class="flex">
+         <tippy
++          v-if="false"
+           interactive
+           trigger="click"
+           theme="popover"
 diff --git a/packages/hoppscotch-common/src/components/app/Header.vue b/packages/hoppscotch-common/src/components/app/Header.vue
-index 6bfd22e..417141c 100644
+index 6bfd22e..fe844b8 100644
 --- a/packages/hoppscotch-common/src/components/app/Header.vue
 +++ b/packages/hoppscotch-common/src/components/app/Header.vue
 @@ -56,12 +56,7 @@
@@ -8088,7 +8100,39 @@ index 6bfd22e..417141c 100644
          </div>
        </div>
        <div
-@@ -364,6 +359,7 @@
+@@ -77,6 +72,7 @@
+         <div class="flex">
+           <tippy
+             v-if="
++              false &&
+               kernelMode === 'web' &&
+               downloadableLinks &&
+               downloadableLinks.length > 0
+@@ -119,6 +115,7 @@
+           </tippy>
+ 
+           <HoppButtonSecondary
++            v-if="false"
+             v-tippy="{ theme: 'tooltip', allowHTML: true }"
+             :title="`${
+               mdAndLarger ? t('support.title') : t('app.options')
+@@ -169,6 +166,7 @@
+             class="inline-flex items-center space-x-2"
+           >
+             <div
++              v-if="false"
+               class="flex h-8 divide-x divide-emerald-600/25 rounded border border-emerald-600/25 bg-emerald-500/10 focus-within:divide-emerald-600/20 focus-within:border-emerald-600/20 focus-within:bg-emerald-600/20 hover:divide-emerald-600/20 hover:border-emerald-600/20 hover:bg-emerald-600/20"
+             >
+               <HoppButtonSecondary
+@@ -193,6 +191,7 @@
+               />
+             </div>
+             <tippy
++              v-if="false"
+               interactive
+               trigger="click"
+               theme="popover"
+@@ -364,6 +363,7 @@
  </template>
  
  <script setup lang="ts">
@@ -8264,6 +8308,76 @@ index 9bcd074..a9d4c5e 100644
 +    <rect width="512" height="512" rx="113" fill="#073E59"/><path transform="translate(114.80 332.80) scale(0.21942857142857142 -0.21942857142857142)" fill="#FFFFFF" d="M662.0013427734375 -30Q506.667724609375 -30 382.16748046875 23.50018310546875Q257.667236328125 77.0003662109375 177.1671142578125 176.33407592773438Q96.6669921875 275.66778564453125 73.333740234375 412.6683349609375L290.671142578125 446.002197265625Q323.67095947265625 314.002685546875 428.6702880859375 240.66973876953125Q533.6696166992188 167.3367919921875 674.001708984375 167.3367919921875Q760.6671752929688 167.3367919921875 833.9998779296875 194.66973876953125Q907.3325805664062 222.002685546875 951.6656799316406 273.5020446777344Q995.998779296875 325.00140380859375 995.998779296875 397.333984375Q995.998779296875 436.33294677734375 982.6658630371094 466.3323669433594Q969.3329467773438 496.331787109375 945.5001525878906 518.4981994628906Q921.6673583984375 540.6646118164062 888.3343811035156 557.3312377929688Q855.0014038085938 573.9978637695312 815.3345947265625 585.9979248046875L446.0009765625 695.331298828125Q392.001708984375 710.9977416992188 336.16839599609375 736.6641845703125Q280.3350830078125 762.3306274414062 233.6680908203125 803.6639404296875Q187.0010986328125 844.9972534179688 158.16741943359375 906.6642761230469Q129.333740234375 968.331298828125 129.333740234375 1055.9989013671875Q129.333740234375 1189.3329467773438 197.83401489257812 1281.8331604003906Q266.33428955078125 1374.3333740234375 383.00128173828125 1421.8333435058594Q499.66827392578125 1469.3333129882812 644.66845703125 1468.6666259765625Q791.001953125 1467.333251953125 906.3353881835938 1417.3333129882812Q1021.6688232421875 1367.3333740234375 1098.1689758300781 1273.5000610351562Q1174.6691284179688 1179.666748046875 1204.0028076171875 1047.333251953125L979.99853515625 1008.6658935546875Q964.6651611328125 1090.3318481445312 915.9988403320312 1148.8312072753906Q867.33251953125 1207.33056640625 795.9999084472656 1238.6635131835938Q724.6672973632812 1269.9964599609375 642.001708984375 1271.329833984375Q561.6693725585938 1272.6632080078125 495.5032958984375 1246.6636047363281Q429.33721923828125 1220.6640014648438 389.6708068847656 1173.9979248046875Q350.00439453125 1127.3318481445312 350.00439453125 1065.9991455078125Q350.00439453125 1005.9999389648438 384.8373718261719 969.1670532226562Q419.67034912109375 932.3341674804688 471.3365478515625 910.8343811035156Q523.0027465820312 889.3345947265625 574.00244140625 875.334716796875L840.00146484375 800.0018310546875Q890.0018310546875 786.3350830078125 953.6687622070312 762.8350219726562Q1017.335693359375 739.3349609375 1076.8358764648438 697.0015563964844Q1136.3360595703125 654.6681518554688 1175.1694946289062 585.5013732910156Q1214.0029296875 516.3345947265625 1214.0029296875 410.667724609375Q1214.0029296875 302.33392333984375 1170.0026550292969 219.66702270507812Q1126.0023803710938 137.0001220703125 1049.3353881835938 81.66671752929688Q972.6683959960938 26.33331298828125 873.0014953613281 -1.833343505859375Q773.3345947265625 -30 662.0013427734375 -30Z"/>
    </svg>
  </template>
+diff --git a/packages/hoppscotch-common/src/components/app/Sidenav.vue b/packages/hoppscotch-common/src/components/app/Sidenav.vue
+index e325ae2..816686e 100644
+--- a/packages/hoppscotch-common/src/components/app/Sidenav.vue
++++ b/packages/hoppscotch-common/src/components/app/Sidenav.vue
+@@ -29,8 +29,6 @@
+ <script setup lang="ts">
+ import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
+ import IconLink2 from "~icons/lucide/link-2"
+-import IconGraphql from "~icons/hopp/graphql"
+-import IconGlobe from "~icons/lucide/globe"
+ import IconSettings from "~icons/lucide/settings"
+ import { useSetting } from "@composables/settings"
+ import { useI18n } from "@composables/i18n"
+@@ -49,18 +47,6 @@ const primaryNavigation = [
+     title: "navigation.rest",
+     exact: true,
+   },
+-  {
+-    target: "/graphql",
+-    svg: IconGraphql,
+-    title: "navigation.graphql",
+-    exact: false,
+-  },
+-  {
+-    target: "/realtime",
+-    svg: IconGlobe,
+-    title: "navigation.realtime",
+-    exact: false,
+-  },
+   {
+     target: "/settings",
+     svg: IconSettings,
+diff --git a/packages/hoppscotch-common/src/components/http/Request.vue b/packages/hoppscotch-common/src/components/http/Request.vue
+index 82882fb..bf4e918 100644
+--- a/packages/hoppscotch-common/src/components/http/Request.vue
++++ b/packages/hoppscotch-common/src/components/http/Request.vue
+@@ -198,6 +198,7 @@
+                 />
+                 <hr />
+                 <HoppSmartItem
++                  v-if="false"
+                   ref="copyRequestAction"
+                   :label="t('request.share_request')"
+                   :icon="IconShare2"
+diff --git a/packages/hoppscotch-common/src/components/http/Sidebar.vue b/packages/hoppscotch-common/src/components/http/Sidebar.vue
+index 13a04d9..547a4f5 100644
+--- a/packages/hoppscotch-common/src/components/http/Sidebar.vue
++++ b/packages/hoppscotch-common/src/components/http/Sidebar.vue
+@@ -51,7 +51,7 @@
+       />
+     </HoppSmartTab>
+     <HoppSmartTab
+-      v-if="isRequestBearingTab"
++      v-if="false"
+       :id="'share-request'"
+       :icon="IconShare2"
+       :label="`${t('tab.shared_requests')}`"
+diff --git a/packages/hoppscotch-common/src/components/http/TabHead.vue b/packages/hoppscotch-common/src/components/http/TabHead.vue
+index b1ddf3d..d75fccb 100644
+--- a/packages/hoppscotch-common/src/components/http/TabHead.vue
++++ b/packages/hoppscotch-common/src/components/http/TabHead.vue
+@@ -65,7 +65,7 @@
+             "
+           />
+           <HoppSmartItem
+-            v-if="!isResponseExample"
++            v-if="false"
+             ref="shareRequestAction"
+             :icon="IconShare2"
+             :label="t('tab.share_tab_request')"
 diff --git a/packages/hoppscotch-common/src/components/sprt/Brand.vue b/packages/hoppscotch-common/src/components/sprt/Brand.vue
 new file mode 100644
 index 0000000..0ebf5b2
@@ -8853,6 +8967,19 @@ index 326768d..9b8fb5d 100644
  </script>
  
  <style lang="scss" scoped>
+diff --git a/packages/hoppscotch-common/src/pages/settings.vue b/packages/hoppscotch-common/src/pages/settings.vue
+index 27a43da..996e8fb 100644
+--- a/packages/hoppscotch-common/src/pages/settings.vue
++++ b/packages/hoppscotch-common/src/pages/settings.vue
+@@ -32,7 +32,7 @@
+             </div>
+           </section>
+ 
+-          <section>
++          <section v-if="false">
+             <h4 class="font-semibold text-secondaryDark">
+               {{ t("settings.experiments") }}
+             </h4>
 diff --git a/packages/hoppscotch-selfhost-web/index.html b/packages/hoppscotch-selfhost-web/index.html
 index 6d4ee07..fc06313 100644
 --- a/packages/hoppscotch-selfhost-web/index.html

@@ -1,0 +1,262 @@
+diff --git a/packages/hoppscotch-backend/src/auth/auth.module.ts b/packages/hoppscotch-backend/src/auth/auth.module.ts
+index 0e6c48e..aa2027a 100644
+--- a/packages/hoppscotch-backend/src/auth/auth.module.ts
++++ b/packages/hoppscotch-backend/src/auth/auth.module.ts
+@@ -1,5 +1,6 @@
+ import { Module } from '@nestjs/common';
+ import { AuthService } from './auth.service';
++import { PyrusAllowlistService } from './pyrus-allowlist.service';
+ import { AuthController } from './auth.controller';
+ import { UserModule } from 'src/user/user.module';
+ import { PassportModule } from '@nestjs/passport';
+@@ -29,7 +30,7 @@ import { InfraConfigModule } from 'src/infra-config/infra-config.module';
+     }),
+     InfraConfigModule,
+   ],
+-  providers: [AuthService],
++  providers: [AuthService, PyrusAllowlistService],
+   controllers: [AuthController],
+ })
+ export class AuthModule {
+diff --git a/packages/hoppscotch-backend/src/auth/auth.service.spec.ts b/packages/hoppscotch-backend/src/auth/auth.service.spec.ts
+index ceb04cc..cd4ac01 100644
+--- a/packages/hoppscotch-backend/src/auth/auth.service.spec.ts
++++ b/packages/hoppscotch-backend/src/auth/auth.service.spec.ts
+@@ -37,6 +37,7 @@ const authService = new AuthService(
+   mockMailer,
+   mockConfigService,
+   mockInfraConfigService,
++  { isAllowed: async () => true } as any,
+ );
+ 
+ const currentTime = new Date();
+diff --git a/packages/hoppscotch-backend/src/auth/auth.service.ts b/packages/hoppscotch-backend/src/auth/auth.service.ts
+index 58a904b..f3a3845 100644
+--- a/packages/hoppscotch-backend/src/auth/auth.service.ts
++++ b/packages/hoppscotch-backend/src/auth/auth.service.ts
+@@ -10,6 +10,7 @@ import * as E from 'fp-ts/Either';
+ import { DeviceIdentifierToken } from 'src/types/Passwordless';
+ import {
+   INVALID_EMAIL,
++  EMAIL_NOT_ALLOWED,
+   INVALID_MAGIC_LINK_DATA,
+   VERIFICATION_TOKEN_DATA_NOT_FOUND,
+   MAGIC_LINK_EXPIRED,
+@@ -29,6 +30,7 @@ import { VerificationToken } from 'src/generated/prisma/client';
+ import { Origin } from './helper';
+ import { ConfigService } from '@nestjs/config';
+ import { InfraConfigService } from 'src/infra-config/infra-config.service';
++import { PyrusAllowlistService } from './pyrus-allowlist.service';
+ 
+ @Injectable()
+ export class AuthService {
+@@ -39,6 +41,7 @@ export class AuthService {
+     private readonly mailerService: MailerService,
+     private readonly configService: ConfigService,
+     private readonly infraConfigService: InfraConfigService,
++    private readonly pyrusAllowlist: PyrusAllowlistService,
+   ) {}
+ 
+   /**
+@@ -210,6 +213,12 @@ export class AuthService {
+         statusCode: HttpStatus.BAD_REQUEST,
+       });
+ 
++    if (!(await this.pyrusAllowlist.isAllowed(email)))
++      return E.left({
++        message: EMAIL_NOT_ALLOWED,
++        statusCode: HttpStatus.FORBIDDEN,
++      });
++
+     let user: AuthUser;
+     const queriedUser = await this.usersService.findUserByEmail(email);
+ 
+@@ -340,6 +349,13 @@ export class AuthService {
+         statusCode: HttpStatus.NOT_FOUND,
+       });
+ 
++    // Revoke access for people removed from Pyrus
++    if (!(await this.pyrusAllowlist.isAllowed(user.email)))
++      return E.left({
++        message: EMAIL_NOT_ALLOWED,
++        statusCode: HttpStatus.FORBIDDEN,
++      });
++
+     // Check to see if the hashed refresh_token received from the client is the same as the refresh_token saved in the DB
+     const isTokenMatched = await argon2.verify(
+       user.refreshToken,
+diff --git a/packages/hoppscotch-backend/src/auth/pyrus-allowlist.service.ts b/packages/hoppscotch-backend/src/auth/pyrus-allowlist.service.ts
+new file mode 100644
+index 0000000..17234b8
+--- /dev/null
++++ b/packages/hoppscotch-backend/src/auth/pyrus-allowlist.service.ts
+@@ -0,0 +1,110 @@
++import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
++import * as https from 'https';
++
++/**
++ * Allowlist of e-mails based on Pyrus organization members.
++ * Enabled only when PYRUS_LOGIN and PYRUS_SECURITY_KEY are set.
++ * When disabled, every e-mail is allowed (stock behaviour).
++ */
++@Injectable()
++export class PyrusAllowlistService implements OnModuleInit {
++  private readonly logger = new Logger(PyrusAllowlistService.name);
++  private readonly login = process.env.PYRUS_LOGIN;
++  private readonly key = process.env.PYRUS_SECURITY_KEY;
++  private readonly extra = (process.env.PYRUS_EXTRA_ALLOWED ?? '')
++    .split(',')
++    .map((s) => s.trim().toLowerCase())
++    .filter(Boolean);
++
++  private emails = new Set<string>();
++  private loaded = false;
++  private refreshing: Promise<void> | null = null;
++
++  get enabled(): boolean {
++    return !!(this.login && this.key);
++  }
++
++  async onModuleInit() {
++    if (!this.enabled) {
++      this.logger.warn('Pyrus allowlist disabled (PYRUS_LOGIN not set)');
++      return;
++    }
++    await this.refresh();
++    setInterval(() => void this.refresh(), 10 * 60 * 1000).unref();
++  }
++
++  private request(
++    url: string,
++    opts: { method?: string; headers?: Record<string, string>; body?: string },
++  ): Promise<any> {
++    return new Promise((resolve, reject) => {
++      const req = https.request(
++        url,
++        { method: opts.method ?? 'GET', headers: opts.headers, timeout: 15000 },
++        (res) => {
++          let data = '';
++          res.on('data', (c) => (data += c));
++          res.on('end', () => {
++            if (!res.statusCode || res.statusCode >= 300)
++              return reject(new Error(`HTTP ${res.statusCode} ${url}`));
++            try {
++              resolve(JSON.parse(data));
++            } catch {
++              reject(new Error(`Bad JSON from ${url}`));
++            }
++          });
++        },
++      );
++      req.on('timeout', () => req.destroy(new Error(`Timeout ${url}`)));
++      req.on('error', reject);
++      if (opts.body) req.write(opts.body);
++      req.end();
++    });
++  }
++
++  refresh(): Promise<void> {
++    if (this.refreshing) return this.refreshing;
++    this.refreshing = (async () => {
++      try {
++        const auth = await this.request('https://accounts.pyrus.com/api/v4/auth', {
++          method: 'POST',
++          headers: { 'Content-Type': 'application/json' },
++          body: JSON.stringify({
++            login: this.login,
++            security_key: this.key,
++          }),
++        });
++        const apiUrl: string = auth.api_url; // already ends with v4/
++        const res = await this.request(`${apiUrl}members`, {
++          headers: { Authorization: `Bearer ${auth.access_token}` },
++        });
++        const next = new Set<string>();
++        for (const m of res.members ?? []) {
++          if (m.banned === true || !m.email) continue;
++          next.add(String(m.email).toLowerCase());
++        }
++        this.emails = next;
++        this.loaded = true;
++        this.logger.log(`Pyrus members loaded: ${next.size}`);
++      } catch (e) {
++        // keep the previous list on failure
++        this.logger.error(`Pyrus refresh failed: ${(e as Error).message}`);
++      } finally {
++        this.refreshing = null;
++      }
++    })();
++    return this.refreshing;
++  }
++
++  async isAllowed(email: string | null | undefined): Promise<boolean> {
++    if (!this.enabled) return true;
++    if (!email) return false;
++    const e = email.trim().toLowerCase();
++    if (this.extra.includes(e)) return true;
++    if (!this.loaded) await this.refresh();
++    if (this.emails.has(e)) return true;
++    // unknown address: refresh once in case someone was just added
++    await this.refresh();
++    return this.emails.has(e);
++  }
++}
+diff --git a/packages/hoppscotch-backend/src/errors.ts b/packages/hoppscotch-backend/src/errors.ts
+index 98c749f..7e917ff 100644
+--- a/packages/hoppscotch-backend/src/errors.ts
++++ b/packages/hoppscotch-backend/src/errors.ts
+@@ -1,4 +1,5 @@
+ export const INVALID_EMAIL = 'invalid/email' as const;
++export const EMAIL_NOT_ALLOWED = 'auth/email_not_allowed' as const;
+ 
+ export const EMAIL_FAILED = 'email/failed' as const;
+ export const DUPLICATE_EMAIL = 'email/both_emails_cannot_be_same' as const;
+diff --git a/packages/hoppscotch-common/src/layouts/default.vue b/packages/hoppscotch-common/src/layouts/default.vue
+index 326768d..d1f24e1 100644
+--- a/packages/hoppscotch-common/src/layouts/default.vue
++++ b/packages/hoppscotch-common/src/layouts/default.vue
+@@ -1,5 +1,8 @@
+ <template>
+-  <div class="flex h-screen w-screen">
++  <div v-if="loginRequired" class="flex h-screen w-screen bg-primary">
++    <FirebaseLogin @hide-modal="() => {}" />
++  </div>
++  <div v-else class="flex h-screen w-screen">
+     <Splitpanes class="no-splitter" :dbl-click-splitter="false" horizontal>
+       <Pane style="height: auto">
+         <AppHeader />
+@@ -77,6 +80,7 @@ import { Pane, Splitpanes } from "splitpanes"
+ import "splitpanes/dist/splitpanes.css"
+ import { computed, onBeforeMount, onMounted, ref, watch } from "vue"
+ import { RouterView, useRouter } from "vue-router"
++import { useReadonlyStream } from "@composables/stream"
+ 
+ import { useI18n } from "~/composables/i18n"
+ import { useToast } from "~/composables/toast"
+@@ -222,6 +226,26 @@ defineActionHandler("settings.theme.black", () => {
+ })
+ 
+ hookKeybindingsListener()
++
++// Corporate build: the app is unusable without signing in.
++// Auth is initialised before the app mounts (see index.ts), but a probable
++// login (stored session) may still be confirming - wait for it first.
++const authSettled = ref(!platform.auth.getProbableUser())
++if (!authSettled.value) {
++  platform.auth
++    .waitProbableLoginToConfirm()
++    .catch(() => {})
++    .finally(() => {
++      authSettled.value = true
++    })
++}
++const currentUser = useReadonlyStream(
++  platform.auth.getCurrentUserStream(),
++  platform.auth.getCurrentUser()
++)
++const loginRequired = computed(
++  () => authSettled.value && currentUser.value === null
++)
+ </script>
+ 
+ <style lang="scss" scoped>

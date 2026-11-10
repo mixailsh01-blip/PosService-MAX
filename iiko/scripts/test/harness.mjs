@@ -8,6 +8,7 @@ const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor
 let calls = []
 const routes = {
   "/api/1/access_token": (b) => (b.apiLogin === "good" ? { token: "TOK-" + calls.length } : { __status: 401, errorDescription: "bad login" }),
+  "/api/v2/access_token": (b) => (b.apiKey === "good" && b.clientSecret === "sec" ? { token: "TOK2-" + calls.length } : { __status: 401, errorDescription: "bad key/secret" }),
   "/api/1/organizations": () => ({ organizations: [{ id: "org-1", name: "Кафе 1" }, { id: "org-2", name: "Кафе 2" }] }),
   "/api/1/terminal_groups": () => ({ terminalGroups: [{ organizationId: "org-1", items: [{ id: "tg-1", name: "Касса" }] }] }),
   "/api/1/nomenclature": () => ({ products: [{ id: "p0", type: "Modifier" }, { id: "p1", name: "Борщ", type: "Dish", sizePrices: [{ price: { currentPrice: 350, isIncludedInMenu: true } }] }] }),
@@ -108,6 +109,20 @@ const ok = (c, m) => { console.error((c ? "ok   " : "FAIL ") + m); if (!c) fails
   makeCtx(env, "<<baseUrl>>/api/1/access_token", '{"apiLogin":"<<apiLogin>>"}')
   await run(pre)
   ok(calls.length === 0, "запрос токена не вызывает авто-логика")
+}
+// 6b. новая схема: clientSecret -> /api/v2/access_token, appId передаётся, если задан
+{
+  calls = []
+  const env = { baseUrl: "https://api-ru.iiko.services", apiLogin: "good", clientSecret: "sec", appId: "app-1" }
+  makeCtx(env, "<<baseUrl>>/api/1/stop_lists", "{}")
+  await run(pre)
+  ok(calls[0].path === "/api/v2/access_token" && calls[0].body.apiKey === "good" && calls[0].body.appId === "app-1", "v2: токен по apiKey+clientSecret+appId")
+  ok(String(env.token).startsWith("TOK2-"), "v2: токен сохранён")
+  calls = []
+  const env2 = { baseUrl: "https://api-ru.iiko.services", apiLogin: "good", clientSecret: "sec" }
+  makeCtx(env2, "<<baseUrl>>/api/1/stop_lists", "{}")
+  await run(pre)
+  ok(calls[0].path === "/api/v2/access_token" && !("appId" in calls[0].body), "v2: без appId поле не отправляется")
 }
 // 7. post-request
 {

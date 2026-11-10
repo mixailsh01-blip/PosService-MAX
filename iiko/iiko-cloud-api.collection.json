@@ -33,7 +33,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xh_035c7ab1-b939-4f17-aa97-2b97fd05bb11",
+          "_ref_id": "req_mwb4t57z_5ceb1ec4-cfe6-452f-9fb0-329c5b1c4628",
           "description": "Организации, доступные вашему apiLogin. Первая запомнится как organizationId, список сохранится в organizationsList (если организаций несколько, впишите нужный organizationId в окружении).\n\nPOST /api/1/organizations\n\nНеобязательные поля (можно добавить в тело): organizationIds, returnAdditionalInfo, includeDisabled\n\nОписание в спецификации: Returns organizations available to api-login user."
         },
         {
@@ -62,7 +62,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xh_5aef0772-999b-4d91-bf2f-3350fed61f3a",
+          "_ref_id": "req_mwb4t57z_caa07822-b697-46fe-b81f-45fbac64ad8e",
           "description": "Группы терминалов организации. Первый терминал запомнится как terminalGroupId.\n\nPOST /api/1/terminal_groups\n\nПодставляется само из окружения: organizationId\n\nНеобязательные поля (можно добавить в тело): includeDisabled\n\nОписание в спецификации: Method that returns information on groups of delivery terminals."
         },
         {
@@ -91,7 +91,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xh_57793088-975c-42df-ba8c-bd80998c679b",
+          "_ref_id": "req_mwb4t57z_2f48a899-7365-4432-9ef0-663613f106b4",
           "description": "Всё меню организации: группы, товары, размеры, цены. Ответ большой; первый товар запомнится как productId.\n\nPOST /api/1/nomenclature\n\nПодставляется само из окружения: organizationId\n\nНеобязательные поля (можно добавить в тело): startRevision\n\nОписание в спецификации: Menu."
         },
         {
@@ -120,7 +120,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xh_eac3498f-b0ec-4606-a8b9-c76d4a571596",
+          "_ref_id": "req_mwb4t57z_4ce66ed3-a154-4e9d-a8ef-cd7774bfb084",
           "description": "Стоп-листы\n\nPOST /api/1/stop_lists\n\nПодставляется само из окружения: organizationId\n\nОписание в спецификации: Out-of-stock items."
         },
         {
@@ -149,7 +149,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xh_9daab146-78d2-4394-b4c8-29845101d9fb",
+          "_ref_id": "req_mwb4t57z_eb73a090-ebff-4371-a759-2159a971bb59",
           "description": "Типы оплат\n\nPOST /api/1/payment_types\n\nПодставляется само из окружения: organizationId\n\nОписание в спецификации: Payment types."
         },
         {
@@ -178,7 +178,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xh_2fad4731-759e-414b-8cc6-66796843a414",
+          "_ref_id": "req_mwb4t57z_e73035e9-7715-4f51-b638-168366170f94",
           "description": "Типы заказов\n\nPOST /api/1/deliveries/order_types\n\nПодставляется само из окружения: organizationId\n\nОписание в спецификации: Order types."
         },
         {
@@ -207,7 +207,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xh_6fbc0be8-2eee-42a2-a766-729483126284",
+          "_ref_id": "req_mwb4t57z_8c261810-f0e1-4f4a-8452-312485fd7ff3",
           "description": "Заказы за сегодня по всем статусам. Подставьте свои даты (формат yyyy-MM-dd HH:mm:ss.fff) или оставьте <<todayStart>> / <<todayEnd>> / <<weekAgoStart>>. Первый найденный заказ запомнится как orderId.\n\nPOST /api/1/deliveries/by_delivery_date_and_status\n\nПодставляется само из окружения: organizationId, todayStart, todayEnd\n\nНеобязательные поля (можно добавить в тело): deliveryDateTo, statuses, sourceKeys, courierIds\n\nОписание в спецификации: Retrieve list of orders by statuses and dates."
         },
         {
@@ -236,7 +236,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xh_3d40b1e4-c817-4fec-9d9e-6827d93e0dc7",
+          "_ref_id": "req_mwb4t57z_581ca7c3-79d0-4c4d-8342-26daff0ecb6e",
           "description": "Проверяет, примет ли iiko такой заказ, но заказ НЕ создаёт. Безопасно для проб. Самовывоз (DeliveryByClient), одна позиция и оплата наличными: товар, оплата и организация подставляются сами.\n\nPOST /api/1/deliveries/check_create\n\nПодставляется само из окружения: organizationId, terminalGroupId, orderNumber, nowPlus1h, productId, paymentTypeKind, paymentTypeId\n\nНеобязательные поля (можно добавить в тело): terminalGroupId, createOrderSettings\n\nОписание в спецификации: Check create delivery."
         },
         {
@@ -265,7 +265,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xh_461437a6-7522-4326-8865-0ce88db4aa14",
+          "_ref_id": "req_mwb4t57z_84188338-20b8-4be0-88e0-e652e4b269a3",
           "description": "Статус асинхронной команды iiko (создание заказа и т. п.). correlationId берётся из последнего созданного заказа.\n\nPOST /api/1/commands/status\n\nПодставляется само из окружения: organizationId, correlationId\n\nОписание в спецификации: Get status of command."
         },
         {
@@ -294,7 +294,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xh_1f1488c7-c929-49de-aa6e-4f1b960f7f8e",
+          "_ref_id": "req_mwb4t57z_31d50b3c-2cb7-4b4a-924c-c0dd7536eee3",
           "description": "Терминал на связи?\n\nPOST /api/1/terminal_groups/is_alive\n\nПодставляется само из окружения: organizationId, terminalGroupId\n\nНеобязательные поля (можно добавить в тело): organizationId, organizationIds\n\nОписание в спецификации: Returns information on availability of group of terminals."
         }
       ],
@@ -307,7 +307,7 @@
       "description": null,
       "preRequestScript": "",
       "testScript": "",
-      "_ref_id": "coll_mwaqz9xp_08d3a737-c4a9-46a2-af28-95159ad671c1"
+      "_ref_id": "coll_mwb4t587_f2a39a8c-49d0-47c3-84dc-8f313353945b"
     },
     {
       "v": 12,
@@ -316,7 +316,7 @@
       "requests": [
         {
           "v": "17",
-          "endpoint": "<<baseUrl>>/api/1/access_token",
+          "endpoint": "<<baseUrl>>/api/v2/access_token",
           "name": "Получить токен вручную (обычно не нужно)",
           "params": [],
           "headers": [
@@ -336,12 +336,12 @@
           "testScript": "",
           "body": {
             "contentType": "application/json",
-            "body": "{\n  \"apiLogin\": \"<<apiLogin>>\"\n}"
+            "body": "{\n  \"apiKey\": \"<<apiLogin>>\",\n  \"clientSecret\": \"<<clientSecret>>\"\n}"
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xh_eb7728dd-5f2e-4e3a-b89d-247088172785",
-          "description": "Токен получается и обновляется автоматически перед любым запросом коллекции, нужен только заполненный apiLogin в окружении. Этот запрос полезен, чтобы проверить, что apiLogin рабочий."
+          "_ref_id": "req_mwb4t57z_a93f722b-b56b-4a2f-87b3-3a4f0c068d66",
+          "description": "Токен получается и обновляется автоматически перед любым запросом коллекции, нужны заполненные apiLogin (API-ключ) и clientSecret в окружении. Этот запрос полезен, чтобы проверить, что ключ и секрет рабочие. Если у вас выдан appId, добавьте в тело поле \"appId\": \"<<appId>>\"."
         }
       ],
       "auth": {
@@ -353,7 +353,7 @@
       "description": null,
       "preRequestScript": "",
       "testScript": "",
-      "_ref_id": "coll_mwaqz9xp_3d58a1d4-5397-4c36-a6c4-45dc4fb37b41"
+      "_ref_id": "coll_mwb4t587_479883dd-42bb-48cd-b0e3-0142c1068b48"
     },
     {
       "v": 12,
@@ -386,7 +386,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xe_e573f126-a243-4e2e-9681-cedd98e006ae",
+          "_ref_id": "req_mwb4t57s_0984f44e-b947-40c3-86be-16844001bf4a",
           "description": "Регионы\n\nPOST /api/1/regions\n\nПодставляется само из окружения: organizationId\n\nОписание в спецификации: Regions."
         },
         {
@@ -415,7 +415,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xf_c7877ea4-59a7-4f93-a398-7e50c2bddf33",
+          "_ref_id": "req_mwb4t57s_cc9b1f0c-7499-4862-997d-8a43da9a8d2b",
           "description": "Города\n\nPOST /api/1/cities\n\nПодставляется само из окружения: organizationId\n\nОписание в спецификации: Cities."
         },
         {
@@ -444,7 +444,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xf_b5b4d2c0-5516-4c26-97c4-714891988214",
+          "_ref_id": "req_mwb4t57s_8c467fc2-c5c4-48c2-970b-ea06ae91dc79",
           "description": "Улицы города\n\nPOST /api/1/streets/by_city\n\nПодставляется само из окружения: organizationId, cityId\n\nОписание в спецификации: Streets by city."
         }
       ],
@@ -457,7 +457,7 @@
       "description": null,
       "preRequestScript": "",
       "testScript": "",
-      "_ref_id": "coll_mwaqz9xo_8139f1e6-4497-4a63-834a-18d1397d98d2"
+      "_ref_id": "coll_mwb4t586_4dbe9336-02f5-4f17-9d45-b9091931af80"
     },
     {
       "v": 12,
@@ -490,7 +490,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_829b908c-edc8-4ed2-a2cc-9e44df877c59",
+          "_ref_id": "req_mwb4t57z_4a7a378e-1df4-4b0e-954b-c57f4a940f47",
           "description": "Вебхуки: получить настройки\n\nPOST /api/1/webhooks/settings\n\nПодставляется само из окружения: organizationId\n\nОписание в спецификации: Get webhooks settings for specified organization and authorized API login."
         },
         {
@@ -519,7 +519,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_cc066f30-33aa-4ea2-a4fd-ecd7b479d047",
+          "_ref_id": "req_mwb4t57z_e62a6b14-6618-4d26-826e-85b44ded88e4",
           "description": "Вебхуки: изменить настройки\n\nPOST /api/1/webhooks/update_settings\n\nПодставляется само из окружения: organizationId\n\nНеобязательные поля (можно добавить в тело): authToken, webHooksFilter\n\nОписание в спецификации: Update webhooks settings for specified organization and authorized API login."
         }
       ],
@@ -532,7 +532,7 @@
       "description": null,
       "preRequestScript": "",
       "testScript": "",
-      "_ref_id": "coll_mwaqz9xo_06c2cd50-bb75-4d36-9e56-1b1e942eaf4b"
+      "_ref_id": "coll_mwb4t586_de46f6ec-1f9d-478e-a87e-01395a33cacd"
     },
     {
       "v": 12,
@@ -565,7 +565,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xf_a42cece5-d1e4-4f9b-9aaa-c7423e7c8519",
+          "_ref_id": "req_mwb4t57s_24234126-ce42-4e75-adfc-5557e897f0b2",
           "description": "СОЗДАЁТ РЕАЛЬНЫЙ ЗАКАЗ на кассе организации. Для проб используйте «Проверить заказ без создания». Самовывоз, одна позиция, оплата наличными; id заказа и correlationId сохранятся в окружении (orderId, correlationId), дальше можно сразу вызывать «Заказы по ID» и «Статус команды».\n\nPOST /api/1/deliveries/create\n\nПодставляется само из окружения: organizationId, terminalGroupId, orderNumber, nowPlus1h, productId, paymentTypeKind, paymentTypeId\n\nНеобязательные поля (можно добавить в тело): terminalGroupId, createOrderSettings\n\nОписание в спецификации: Create delivery."
         },
         {
@@ -594,7 +594,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xf_f458ab76-1478-4152-8bc7-c86f24641dec",
+          "_ref_id": "req_mwb4t57s_46c4924b-a675-4c70-85b5-08de6c3548a2",
           "description": "Отметить проблему в заказе\n\nPOST /api/1/deliveries/update_order_problem\n\nПодставляется само из окружения: organizationId, orderId\n\nОписание в спецификации: Update order problem."
         },
         {
@@ -623,7 +623,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xf_0b489ed7-8843-4e2c-b8f4-85ce1ec6c16b",
+          "_ref_id": "req_mwb4t57s_0a89eb4c-1b88-4960-a468-a239163dbddc",
           "description": "Обновить оплаты заказа\n\nPOST /api/1/deliveries/update_order_payments\n\nПодставляется само из окружения: organizationId, orderId, paymentTypeId, paymentTypeKind\n\nНеобязательные поля (можно добавить в тело): paymentItems\n\nОписание в спецификации: Update order payment details."
         },
         {
@@ -652,7 +652,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xf_4e21b791-c25e-49a7-bf47-2cd96a1e363d",
+          "_ref_id": "req_mwb4t57s_72e42dbb-04f3-49d2-826d-39aff3fa88fa",
           "description": "Изменить статус доставки\n\nPOST /api/1/deliveries/update_order_delivery_status\n\nПодставляется само из окружения: organizationId, orderId, now\n\nНеобязательные поля (можно добавить в тело): deliveryDate\n\nОписание в спецификации: Update delivery status."
         },
         {
@@ -681,7 +681,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xf_47291a1b-623c-498f-81aa-189d5b663a8a",
+          "_ref_id": "req_mwb4t57s_d2aeda87-26d6-4eea-b4a2-c3609b527525",
           "description": "Назначить курьера\n\nPOST /api/1/deliveries/update_order_courier\n\nПодставляется само из окружения: organizationId, orderId, employeeId\n\nОписание в спецификации: Update order courier."
         },
         {
@@ -710,7 +710,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xf_5496de3e-cceb-47d0-a80a-f481898539bb",
+          "_ref_id": "req_mwb4t57t_a2ca5007-d17d-4d2a-b07a-dd0dd88a37db",
           "description": "Добавить позиции в заказ\n\nPOST /api/1/deliveries/add_items\n\nПодставляется само из окружения: organizationId, orderId, productId\n\nНеобязательные поля (можно добавить в тело): items, combos\n\nОписание в спецификации: Add order items."
         },
         {
@@ -739,7 +739,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xf_19f8d556-ba87-4516-8d70-8e40daf228b1",
+          "_ref_id": "req_mwb4t57t_a47cc8b8-d7ca-48ed-ad36-ac28d7033621",
           "description": "Закрыть заказ доставки\n\nPOST /api/1/deliveries/close\n\nПодставляется само из окружения: now, organizationId, orderId\n\nНеобязательные поля (можно добавить в тело): deliveryDate\n\nОписание в спецификации: Close order."
         },
         {
@@ -768,7 +768,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xf_fc3b2c58-a580-49b5-96f1-e0d11e0e5815",
+          "_ref_id": "req_mwb4t57t_19e0f1c9-83f3-49fa-a4dd-37f9c6ce33a9",
           "description": "Отменить заказ доставки\n\nPOST /api/1/deliveries/cancel\n\nПодставляется само из окружения: organizationId, orderId\n\nНеобязательные поля (можно добавить в тело): movedOrderId, cancelCauseId, removalTypeId, userIdForWriteoff\n\nОписание в спецификации: Cancel delivery order."
         },
         {
@@ -797,7 +797,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xf_486d814c-acad-40ef-9c38-cc290c450056",
+          "_ref_id": "req_mwb4t57t_43909f42-cbf1-4da1-a7cc-15880323651c",
           "description": "Изменить время доставки\n\nPOST /api/1/deliveries/change_complete_before\n\nПодставляется само из окружения: organizationId, orderId, nowPlus1h\n\nОписание в спецификации: Change time when client wants the order to be delivered."
         },
         {
@@ -826,7 +826,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xf_140b0f70-38da-4572-b8a0-101621524ee0",
+          "_ref_id": "req_mwb4t57t_558e045c-cf74-4356-be93-82854767d6ff",
           "description": "Изменить адрес доставки\n\nPOST /api/1/deliveries/change_delivery_point\n\nПодставляется само из окружения: organizationId, orderId\n\nОписание в спецификации: Change order's delivery point information."
         },
         {
@@ -855,7 +855,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xf_b1816f38-6ece-4c5e-b991-1a0999e90dc3",
+          "_ref_id": "req_mwb4t57t_61485515-3b42-4277-8130-750953c76940",
           "description": "Изменить тип доставки\n\nPOST /api/1/deliveries/change_service_type\n\nПодставляется само из окружения: organizationId, orderId\n\nОписание в спецификации: Change order's delivery type."
         },
         {
@@ -884,7 +884,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xf_1e706925-b6be-4b17-a7ba-6c590ec971a5",
+          "_ref_id": "req_mwb4t57t_d625fa3c-0505-4a1f-970f-8809f9bed9c8",
           "description": "Заменить оплаты заказа\n\nPOST /api/1/deliveries/change_payments\n\nПодставляется само из окружения: organizationId, orderId, paymentTypeKind, paymentTypeId\n\nНеобязательные поля (можно добавить в тело): tips\n\nОписание в спецификации: Change order's payments."
         },
         {
@@ -913,7 +913,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xf_ddad5e92-299b-4955-806c-064c4bd419cf",
+          "_ref_id": "req_mwb4t57t_7982651d-7b66-4cd6-946e-bf1a1712e7d6",
           "description": "Изменить комментарий к заказу\n\nPOST /api/1/deliveries/change_comment\n\nПодставляется само из окружения: organizationId, orderId\n\nОписание в спецификации: Change delivery comment."
         },
         {
@@ -942,7 +942,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xf_1a53da25-f6df-4c09-b880-ade027dc5c94",
+          "_ref_id": "req_mwb4t57t_580248c4-8e9e-4a4a-bc03-6ffa19a8fba9",
           "description": "Напечатать счёт доставки\n\nPOST /api/1/deliveries/print_delivery_bill\n\nПодставляется само из окружения: organizationId, orderId\n\nОписание в спецификации: Print delivery bill."
         },
         {
@@ -971,7 +971,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xf_b734b3bf-41aa-4018-9723-fa64b45f7e93",
+          "_ref_id": "req_mwb4t57t_01ef8aa6-deca-4acf-8a89-518e93dc7e1f",
           "description": "Подтвердить заказ\n\nPOST /api/1/deliveries/confirm\n\nПодставляется само из окружения: organizationId, orderId\n\nОписание в спецификации: Confirm delivery."
         },
         {
@@ -1000,7 +1000,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xf_875b722d-91c4-4bc1-9579-e466f479c461",
+          "_ref_id": "req_mwb4t57t_edfeb6c5-78bb-4757-82f2-5f48961ee664",
           "description": "Отменить подтверждение заказа\n\nPOST /api/1/deliveries/cancel_confirmation\n\nПодставляется само из окружения: organizationId, orderId\n\nОписание в спецификации: Cancel delivery confirmation."
         },
         {
@@ -1029,7 +1029,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xf_23dc6669-0fdf-42ee-9b45-a3e0cb045de7",
+          "_ref_id": "req_mwb4t57t_6ed4016f-e8ce-488c-ae57-2b6a6e01c7fe",
           "description": "Назначить оператора\n\nPOST /api/1/deliveries/change_operator\n\nПодставляется само из окружения: organizationId, orderId\n\nОписание в спецификации: Assign/change the order operator."
         },
         {
@@ -1058,7 +1058,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xf_ab122b03-d01f-463c-b84b-a4538089cbd7",
+          "_ref_id": "req_mwb4t57t_7f36cbc1-1313-4570-aef1-cf492db36637",
           "description": "Заказы по ID. orderId берётся из окружения (после создания заказа или любого списка заказов).\n\nPOST /api/1/deliveries/by_id\n\nПодставляется само из окружения: organizationId, orderId\n\nНеобязательные поля (можно добавить в тело): orderIds, sourceKeys, posOrderIds\n\nОписание в спецификации: Retrieve orders by IDs."
         },
         {
@@ -1087,7 +1087,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xf_7878f849-da9e-43c0-8a21-0b146f80bb86",
+          "_ref_id": "req_mwb4t57t_e6a62d6b-9e12-44f7-9815-cd8fddf8a1f2",
           "description": "Заказы за сегодня по всем статусам. Подставьте свои даты (формат yyyy-MM-dd HH:mm:ss.fff) или оставьте <<todayStart>> / <<todayEnd>> / <<weekAgoStart>>. Первый найденный заказ запомнится как orderId.\n\nPOST /api/1/deliveries/by_delivery_date_and_status\n\nПодставляется само из окружения: organizationId, todayStart, todayEnd\n\nНеобязательные поля (можно добавить в тело): deliveryDateTo, statuses, sourceKeys, courierIds\n\nОписание в спецификации: Retrieve list of orders by statuses and dates."
         },
         {
@@ -1116,7 +1116,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xf_137caaa4-12f7-4842-acf8-64d8c08dad0a",
+          "_ref_id": "req_mwb4t57t_938bad3a-e5a3-4d6c-908b-a7154254d99c",
           "description": "Заказы, изменённые с ревизии\n\nPOST /api/1/deliveries/by_revision\n\nПодставляется само из окружения: organizationId\n\nНеобязательные поля (можно добавить в тело): sourceKeys\n\nОписание в спецификации: Retrieve list of orders changed from the time revision was passed."
         },
         {
@@ -1145,7 +1145,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xf_9eb0fc6f-c6d3-48ce-8a4c-264bfad1ac3d",
+          "_ref_id": "req_mwb4t57t_be5adae1-789c-4a77-b18f-2e40e84e6a05",
           "description": "Заказы по телефону клиента\n\nPOST /api/1/deliveries/by_delivery_date_and_phone\n\nПодставляется само из окружения: todayStart, todayEnd, organizationId\n\nНеобязательные поля (можно добавить в тело): deliveryDateFrom, deliveryDateTo, startRevision, sourceKeys, rowsCount\n\nОписание в спецификации: Retrieve list of orders by telephone number, dates and revision."
         },
         {
@@ -1174,7 +1174,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xf_3f408dee-7cc7-4b3a-98b2-2cc592fc180d",
+          "_ref_id": "req_mwb4t57t_a9c78ae3-1da8-4066-8631-e4482373be39",
           "description": "Поиск заказов с фильтрами\n\nPOST /api/1/deliveries/by_delivery_date_and_source_key_and_filter\n\nПодставляется само из окружения: organizationId, terminalGroupId, todayStart, todayEnd, orderId\n\nНеобязательные поля (можно добавить в тело): terminalGroupIds, deliveryDateFrom, deliveryDateTo, statuses, hasProblem, orderServiceType, searchText, timeToCookingErrorTimeout, cookingTimeout, sortProperty, sortDirection, rowsCount, sourceKeys, orderIds, posOrderIds\n\nОписание в спецификации: Search orders by search text and additional filters (date, problem, statuses and other)."
         },
         {
@@ -1203,7 +1203,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_8aafb018-6005-4558-90d0-528201e223d9",
+          "_ref_id": "req_mwb4t57t_08675a1d-f4c7-453c-9ace-9a8294bb0bc2",
           "description": "Проверяет, примет ли iiko такой заказ, но заказ НЕ создаёт. Безопасно для проб. Самовывоз (DeliveryByClient), одна позиция и оплата наличными: товар, оплата и организация подставляются сами.\n\nPOST /api/1/deliveries/check_create\n\nПодставляется само из окружения: organizationId, terminalGroupId, orderNumber, nowPlus1h, productId, paymentTypeKind, paymentTypeId\n\nНеобязательные поля (можно добавить в тело): terminalGroupId, createOrderSettings\n\nОписание в спецификации: Check create delivery."
         },
         {
@@ -1232,7 +1232,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_5838f61f-87d0-4f34-bfaa-261a37fe5136",
+          "_ref_id": "req_mwb4t57t_f58f69c7-b584-4ec1-a77b-2929901cbdad",
           "description": "Типы заказов\n\nPOST /api/1/deliveries/order_types\n\nПодставляется само из окружения: organizationId\n\nОписание в спецификации: Order types."
         },
         {
@@ -1261,7 +1261,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_73b6c2fe-8eb4-468f-8101-64d5995250ec",
+          "_ref_id": "req_mwb4t57t_6026d6ae-8846-4518-885f-650908db17f3",
           "description": "Черновик заказа по ID\n\nPOST /api/1/deliveries/drafts/by_id\n\nПодставляется само из окружения: organizationId, orderId, employeeId\n\nОписание в спецификации: Retrieve order draft by ID."
         },
         {
@@ -1290,7 +1290,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_de010c9d-5464-4da1-ae45-27c8ae464bb7",
+          "_ref_id": "req_mwb4t57t_9e9d9f52-0a66-4008-b583-03a4358056ff",
           "description": "Черновики заказов по фильтру\n\nPOST /api/1/deliveries/drafts/by_filter\n\nПодставляется само из окружения: organizationId, todayStart, todayEnd\n\nНеобязательные поля (можно добавить в тело): deliveryDateFrom, deliveryDateTo, phone, limit, offset, sourceKeys\n\nОписание в спецификации: Retrieve order drafts list by parameters."
         },
         {
@@ -1319,7 +1319,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_ca77c2ff-21f1-4927-a92b-1638122e7ec6",
+          "_ref_id": "req_mwb4t57t_1f9f3ef7-905e-4472-9b3f-1e2323ab1350",
           "description": "Сохранить черновик заказа\n\nPOST /api/1/deliveries/drafts/save\n\nПодставляется само из окружения: organizationId, orderNumber, nowPlus1h, productId, paymentTypeKind, paymentTypeId, terminalGroupId, employeeId\n\nНеобязательные поля (можно добавить в тело): terminalGroupId\n\nОписание в спецификации: Store order draft changes to DB."
         },
         {
@@ -1348,7 +1348,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_bae5a0b4-55c0-4028-90b0-3160da3a514d",
+          "_ref_id": "req_mwb4t57t_92175b60-39a1-4b1c-8679-6df8aa45bc99",
           "description": "Отправить черновик на кассу\n\nPOST /api/1/deliveries/drafts/commit\n\nПодставляется само из окружения: organizationId, terminalGroupId, orderId\n\nНеобязательные поля (можно добавить в тело): terminalGroupId, createOrderSettings\n\nОписание в спецификации: Admit order draft changes and send them to Front."
         },
         {
@@ -1377,7 +1377,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_24bc2090-0f03-4c18-ba7e-1e7a5b6f83ab",
+          "_ref_id": "req_mwb4t57t_dfadee14-6212-4e2a-8e26-c8b0e2bb446c",
           "description": "Удалить черновик\n\nPOST /api/1/deliveries/drafts/delete\n\nПодставляется само из окружения: organizationId, orderId\n\nОписание в спецификации: Delete order draft."
         }
       ],
@@ -1390,7 +1390,7 @@
       "description": null,
       "preRequestScript": "",
       "testScript": "",
-      "_ref_id": "coll_mwaqz9xo_a23c6ec0-a29f-4242-b4d5-f22afa4006b9"
+      "_ref_id": "coll_mwb4t586_203bc5ad-0def-43c5-ad26-15e827ee38cc"
     },
     {
       "v": 12,
@@ -1423,7 +1423,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_246b7bec-c202-4193-84d5-d510248f5b95",
+          "_ref_id": "req_mwb4t57t_e74d234c-225b-41c3-bf17-e27a24769fc9",
           "description": "СОЗДАЁТ РЕАЛЬНЫЙ ЗАКАЗ за столом. Стол, терминал, товар и организация подставляются сами. id заказа и correlationId сохранятся в окружении.\n\nPOST /api/1/order/create\n\nПодставляется само из окружения: organizationId, terminalGroupId, tableId, productId\n\nНеобязательные поля (можно добавить в тело): order, createOrderSettings\n\nОписание в спецификации: Create order."
         },
         {
@@ -1452,7 +1452,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_62e216de-8bb7-4918-99c4-bd93782cb4e7",
+          "_ref_id": "req_mwb4t57t_a118ffd5-f952-40ab-b8d2-1d05b447a08a",
           "description": "Заказы в зале по ID\n\nPOST /api/1/order/by_id\n\nПодставляется само из окружения: organizationId, orderId\n\nНеобязательные поля (можно добавить в тело): sourceKeys, orderIds, posOrderIds\n\nОписание в спецификации: Retrieve orders by IDs."
         },
         {
@@ -1481,7 +1481,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_8bf33c48-5bbb-4846-807f-14b9df6bde17",
+          "_ref_id": "req_mwb4t57t_e3b97a76-fd39-4798-b9b8-5043a392415b",
           "description": "Заказы по столам\n\nPOST /api/1/order/by_table\n\nПодставляется само из окружения: organizationId, tableId, todayStart, todayEnd\n\nНеобязательные поля (можно добавить в тело): sourceKeys, statuses, dateFrom, dateTo\n\nОписание в спецификации: Retrieve orders by tables."
         },
         {
@@ -1510,7 +1510,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_17602a12-a92a-4f88-9a04-bd50075870ec",
+          "_ref_id": "req_mwb4t57z_87728439-541b-44fb-841d-a6c179fd8483",
           "description": "Обновить оплаты\n\nPOST /api/1/order/update_payments\n\nПодставляется само из окружения: organizationId, orderId, paymentTypeId, paymentTypeKind\n\nНеобязательные поля (можно добавить в тело): paymentItems\n\nОписание в спецификации: Update order payment details."
         },
         {
@@ -1539,7 +1539,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_035ed2a6-15f8-4bb3-a8e0-6345380ed32c",
+          "_ref_id": "req_mwb4t57z_10a7c2c0-38fc-4513-bacf-ded1949bf048",
           "description": "Добавить позиции в заказ\n\nPOST /api/1/order/add_items\n\nПодставляется само из окружения: organizationId, orderId, productId\n\nНеобязательные поля (можно добавить в тело): items, combos\n\nОписание в спецификации: Add order items."
         },
         {
@@ -1568,7 +1568,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_99687485-ac0f-4b06-a5f9-cf41c688a2d2",
+          "_ref_id": "req_mwb4t57z_1963372b-9bbe-4e51-b745-fdbc34757690",
           "description": "Закрыть заказ\n\nPOST /api/1/order/close\n\nПодставляется само из окружения: organizationId, orderId\n\nНеобязательные поля (можно добавить в тело): chequeAdditionalInfo\n\nОписание в спецификации: Close order."
         },
         {
@@ -1597,7 +1597,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_a4f0eed1-80c7-40fc-8ebf-5828eca4c9c3",
+          "_ref_id": "req_mwb4t57z_c36ede84-7223-40f3-9be6-e11db45d1830",
           "description": "Заменить оплаты\n\nPOST /api/1/order/change_payments\n\nПодставляется само из окружения: organizationId, orderId, paymentTypeKind, paymentTypeId\n\nНеобязательные поля (можно добавить в тело): tips\n\nОписание в спецификации: Change table order's payments."
         },
         {
@@ -1626,7 +1626,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_9edb926a-8bfd-41c4-9ee2-f81230c8b798",
+          "_ref_id": "req_mwb4t57z_a6a7d2f9-fbd4-46a5-b5e1-02726bca0592",
           "description": "Подтянуть заказы кассы по столам\n\nPOST /api/1/order/init_by_table\n\nПодставляется само из окружения: organizationId, terminalGroupId, tableId\n\nОписание в спецификации: Init orders, created on POS, by tables."
         },
         {
@@ -1655,7 +1655,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_ce52c768-8a84-4634-a6c1-0b95fd3f8fe1",
+          "_ref_id": "req_mwb4t57z_818aabd4-859a-4e34-b4a4-0f576694f343",
           "description": "Подтянуть заказы кассы по ID кассы\n\nPOST /api/1/order/init_by_posOrder\n\nПодставляется само из окружения: organizationId, terminalGroupId\n\nОписание в спецификации: Init orders, created on POS, by POS orders."
         },
         {
@@ -1684,7 +1684,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_e9524886-158e-40a0-a99c-af0a9118801c",
+          "_ref_id": "req_mwb4t57z_c4bb10d8-f452-4eeb-a939-167bd5ba43c8",
           "description": "Добавить гостя в заказ\n\nPOST /api/1/order/add_customer\n\nПодставляется само из окружения: organizationId, orderId\n\nОписание в спецификации: Add customer to order."
         }
       ],
@@ -1697,7 +1697,7 @@
       "description": null,
       "preRequestScript": "",
       "testScript": "",
-      "_ref_id": "coll_mwaqz9xo_082c1975-efa1-4c3e-8c19-eedf758796b6"
+      "_ref_id": "coll_mwb4t586_1de0e9ed-d490-44fb-9a5c-d46df930ebab"
     },
     {
       "v": 12,
@@ -1730,7 +1730,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_97f4faf1-088d-46f2-8aba-1886e60b7663",
+          "_ref_id": "req_mwb4t57z_18733a82-221a-4c84-b681-d413ef911328",
           "description": "Список комбо\n\nPOST /api/1/combo\n\nПодставляется само из окружения: organizationId\n\nНеобязательные поля (можно добавить в тело): extraData\n\nОписание в спецификации: Get combos info"
         },
         {
@@ -1759,7 +1759,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_484b1c6d-5b2c-4cfb-81c3-de047bfdc0ab",
+          "_ref_id": "req_mwb4t57z_b0c11d20-7ce2-4bcc-a66e-b3bd8edbd595",
           "description": "Рассчитать цену комбо\n\nPOST /api/1/combo/calculate\n\nПодставляется само из окружения: productId, organizationId\n\nОписание в спецификации: Calculate combo price"
         }
       ],
@@ -1772,7 +1772,7 @@
       "description": null,
       "preRequestScript": "",
       "testScript": "",
-      "_ref_id": "coll_mwaqz9xo_835cf631-5d95-4e37-8099-dcfe6f84a5f4"
+      "_ref_id": "coll_mwb4t586_dbee2e8f-ab41-4744-9ac3-06ccdb8a2de4"
     },
     {
       "v": 12,
@@ -1805,7 +1805,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_1d08fe11-f60d-41d4-9f54-14a10e91fa28",
+          "_ref_id": "req_mwb4t57z_72daba3c-0a2c-496b-892d-8107fe7b6e4a",
           "description": "Поиск клиента iikoCard. type: phone | cardNumber | cardTrack | email | id. Найденный клиент запомнится как customerId.\n\nPOST /api/1/loyalty/iiko/customer/info\n\nПодставляется само из окружения: organizationId\n\nНеобязательные поля (можно добавить в тело): organizationId\n\nОписание в спецификации: Get customer info."
         },
         {
@@ -1834,7 +1834,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_dda4924e-b3b0-4dea-ba64-4850a85274c5",
+          "_ref_id": "req_mwb4t57z_a4dd0565-125c-41b3-b4f9-6e747a090db6",
           "description": "Рассчитать скидки по чеку\n\nPOST /api/1/loyalty/iiko/calculate\n\nПодставляется само из окружения: orderNumber, nowPlus1h, productId, paymentTypeKind, paymentTypeId, terminalGroupId, organizationId\n\nНеобязательные поля (можно добавить в тело): coupon, referrerId, terminalGroupId, availablePaymentMarketingCampaignIds, applicableManualConditions, dynamicDiscounts\n\nОписание в спецификации: Calculate checkin."
         },
         {
@@ -1863,7 +1863,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_daa951ef-f437-42ae-9019-1142bc1cb767",
+          "_ref_id": "req_mwb4t57z_d911badf-1d73-4927-af57-00a8d3b07306",
           "description": "Ручные условия акций\n\nPOST /api/1/loyalty/iiko/manual_condition\n\nПодставляется само из окружения: organizationId\n\nНеобязательные поля (можно добавить в тело): organizationId\n\nОписание в спецификации: Get manual conditions."
         },
         {
@@ -1892,7 +1892,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_c5bf8920-8aa3-464e-8110-44ff798b53e5",
+          "_ref_id": "req_mwb4t57z_d49a075b-eac9-4569-bbb4-8baf6b2b4e2b",
           "description": "Категории клиентов\n\nPOST /api/1/loyalty/iiko/customer_category\n\nПодставляется само из окружения: organizationId\n\nОписание в спецификации: Get customer categories."
         },
         {
@@ -1921,7 +1921,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xh_a798eeea-3e9f-4ee4-a05b-1df6d5b959f5",
+          "_ref_id": "req_mwb4t57z_e5c0afc4-ae4d-47f3-8f7d-7baa3e7eda23",
           "description": "Создаёт клиента или обновляет по телефону. id клиента запомнится как customerId.\n\nPOST /api/1/loyalty/iiko/customer/create_or_update\n\nПодставляется само из окружения: organizationId\n\nНеобязательные поля (можно добавить в тело): id, phone, cardTrack, cardNumber, name, middleName, surName, birthday, email, sex, consentStatus, shouldReceivePromoActionsInfo, referrerId, userData\n\nОписание в спецификации: Create or update customer."
         },
         {
@@ -1950,7 +1950,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xh_052ed97f-c7bf-40a5-bf7d-525bd585a444",
+          "_ref_id": "req_mwb4t57z_17e80cd0-be76-458e-803c-1d09d19b8e1d",
           "description": "Добавить клиенту категорию\n\nPOST /api/1/loyalty/iiko/customer_category/add\n\nПодставляется само из окружения: customerId, organizationId\n\nОписание в спецификации: Add category for customer."
         },
         {
@@ -1979,7 +1979,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xh_54415ab8-e9f0-4a21-ad5b-c3037d66e93b",
+          "_ref_id": "req_mwb4t57z_35a5a375-36c7-4481-8b7c-9b236e86dc75",
           "description": "Убрать у клиента категорию\n\nPOST /api/1/loyalty/iiko/customer_category/remove\n\nПодставляется само из окружения: customerId, organizationId\n\nОписание в спецификации: Remove category for customer."
         },
         {
@@ -2008,7 +2008,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xh_9d38387f-bdda-4ec4-834f-0c8df6c9a2ca",
+          "_ref_id": "req_mwb4t57z_7b85b5df-50a0-400f-aab5-e4e7a3244b39",
           "description": "Отправляет SMS клиенту (платная услуга iiko).\n\nPOST /api/1/loyalty/iiko/message/send_sms\n\nПодставляется само из окружения: organizationId\n\nОписание в спецификации: Send sms."
         },
         {
@@ -2037,7 +2037,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xh_5c1ed4cf-fe6e-4af8-8609-ff55ee965b6e",
+          "_ref_id": "req_mwb4t57z_6e753f24-50f1-41fa-84b8-6aae6de69b72",
           "description": "Отправить e-mail клиенту\n\nPOST /api/1/loyalty/iiko/message/send_email\n\nПодставляется само из окружения: organizationId\n\nОписание в спецификации: Send email."
         },
         {
@@ -2066,7 +2066,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xh_73ff0f92-8ed8-48dd-b1dd-2852c36579a8",
+          "_ref_id": "req_mwb4t57z_22e19673-9c5f-42f9-a5cf-77ffae3746e6",
           "description": "Программы лояльности\n\nPOST /api/1/loyalty/iiko/program\n\nПодставляется само из окружения: organizationId\n\nНеобязательные поля (можно добавить в тело): WithoutMarketingCampaigns\n\nОписание в спецификации: Get programs."
         },
         {
@@ -2095,7 +2095,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xh_383ebbae-621b-4e80-aff0-918f27036dcb",
+          "_ref_id": "req_mwb4t57z_a652a03e-124b-4577-9a6e-762ac1640dfe",
           "description": "Подключить клиента к программе\n\nPOST /api/1/loyalty/iiko/customer/program/add\n\nПодставляется само из окружения: customerId, organizationId\n\nНеобязательные поля (можно добавить в тело): customerId, programId\n\nОписание в спецификации: Add customer to program."
         },
         {
@@ -2124,7 +2124,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xh_7b56392d-da2c-49ba-bad6-7ae2ec334cb1",
+          "_ref_id": "req_mwb4t57z_4de671dc-0c6e-433d-9728-0f8abdc30a32",
           "description": "Привязать карту к клиенту\n\nPOST /api/1/loyalty/iiko/customer/card/add\n\nПодставляется само из окружения: customerId, organizationId\n\nОписание в спецификации: Add card."
         },
         {
@@ -2153,7 +2153,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xh_a1713d2b-b3f4-41bb-ac12-002bf1563eab",
+          "_ref_id": "req_mwb4t57z_65da949b-19bc-40db-a7b2-b4db7c4b04f3",
           "description": "Отвязать карту от клиента\n\nPOST /api/1/loyalty/iiko/customer/card/remove\n\nПодставляется само из окружения: customerId, organizationId\n\nОписание в спецификации: Delete card."
         },
         {
@@ -2182,7 +2182,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xh_97d6511f-9e73-4202-893e-f9db553894da",
+          "_ref_id": "req_mwb4t57z_e5adf8de-30cd-4491-90da-10eb3f93aa26",
           "description": "Заморозить сумму на кошельке\n\nPOST /api/1/loyalty/iiko/customer/wallet/hold\n\nПодставляется само из окружения: customerId, organizationId\n\nНеобязательные поля (можно добавить в тело): transactionId, comment\n\nОписание в спецификации: Hold money."
         },
         {
@@ -2211,7 +2211,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xh_7c96d409-81cd-4da9-9cf0-78002cd57ba8",
+          "_ref_id": "req_mwb4t57z_98b45e25-f1b7-4929-a717-79ae765a6f01",
           "description": "Отменить заморозку суммы\n\nPOST /api/1/loyalty/iiko/customer/wallet/cancel_hold\n\nПодставляется само из окружения: organizationId\n\nОписание в спецификации: Cancel hold money."
         },
         {
@@ -2240,7 +2240,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xh_50560df1-4647-4c72-bc2b-a3e67871ffb9",
+          "_ref_id": "req_mwb4t57z_bb61118f-4b18-47db-b180-dff9ab52e7ec",
           "description": "Пополнить кошелёк\n\nPOST /api/1/loyalty/iiko/customer/wallet/topup\n\nПодставляется само из окружения: customerId, organizationId\n\nНеобязательные поля (можно добавить в тело): customerId, walletId, sum, comment\n\nОписание в спецификации: Refill balance."
         },
         {
@@ -2269,7 +2269,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xh_411f2c94-c6c9-4ec0-80a2-32c18f6c8bf4",
+          "_ref_id": "req_mwb4t57z_68cf041f-17aa-4fe9-8085-84c6e13900ac",
           "description": "Списать с кошелька\n\nPOST /api/1/loyalty/iiko/customer/wallet/chargeoff\n\nПодставляется само из окружения: customerId, organizationId\n\nНеобязательные поля (можно добавить в тело): customerId, walletId, sum, comment\n\nОписание в спецификации: Withdraw balance."
         },
         {
@@ -2298,7 +2298,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xh_ed57c031-e74b-4c35-a890-3a536d5440aa",
+          "_ref_id": "req_mwb4t57z_3d4eb847-852f-486e-98dc-eb5d86a79cd3",
           "description": "Информация о купоне\n\nPOST /api/1/loyalty/iiko/coupons/info\n\nПодставляется само из окружения: organizationId\n\nНеобязательные поля (можно добавить в тело): series\n\nОписание в спецификации: Get coupon info."
         },
         {
@@ -2327,7 +2327,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xh_f373d2ea-5eaf-445c-a104-32ab640aa11e",
+          "_ref_id": "req_mwb4t57z_39a29387-5026-4e51-bb4b-0dc34efac73d",
           "description": "Серии купонов\n\nPOST /api/1/loyalty/iiko/coupons/series\n\nПодставляется само из окружения: organizationId\n\nОписание в спецификации: Get coupon series with non-activated coupons."
         },
         {
@@ -2356,7 +2356,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xh_24191a0f-52c3-4e0a-87ac-5a5273032ded",
+          "_ref_id": "req_mwb4t57z_938680f3-64a4-4b47-9c21-ac7dc4d36d93",
           "description": "Неактивированные купоны серии\n\nPOST /api/1/loyalty/iiko/coupons/by_series\n\nПодставляется само из окружения: organizationId\n\nНеобязательные поля (можно добавить в тело): pageSize, page\n\nОписание в спецификации: Get non-activated coupons"
         }
       ],
@@ -2369,7 +2369,7 @@
       "description": null,
       "preRequestScript": "",
       "testScript": "",
-      "_ref_id": "coll_mwaqz9xo_91a500fc-010c-40a9-b454-e091abb2d8b6"
+      "_ref_id": "coll_mwb4t586_617940e2-f5b0-4c53-aa5d-a7b1434dfdae"
     },
     {
       "v": 12,
@@ -2402,7 +2402,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_8be888d1-e257-4ccf-adb8-a1d22e554063",
+          "_ref_id": "req_mwb4t57t_3db07bc4-175c-4c04-bc0b-129fc08216a3",
           "description": "Всё меню организации: группы, товары, размеры, цены. Ответ большой; первый товар запомнится как productId.\n\nPOST /api/1/nomenclature\n\nПодставляется само из окружения: organizationId\n\nНеобязательные поля (можно добавить в тело): startRevision\n\nОписание в спецификации: Menu."
         },
         {
@@ -2431,7 +2431,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_623e754d-0a29-40fb-8d6c-ea01fef161a7",
+          "_ref_id": "req_mwb4t57t_47d323a5-42a1-44f1-b906-5235e3022516",
           "description": "Внешние меню и ценовые категории\n\nPOST /api/2/menu\n\nОписание в спецификации: External menus with price categories."
         },
         {
@@ -2460,7 +2460,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_65d432dd-da7a-4e72-9b9b-b94dbdfcaa66",
+          "_ref_id": "req_mwb4t57t_3a9967ce-f21e-40da-b22e-5bf9c42b73f2",
           "description": "Внешнее меню по ID (товары с ценами)\n\nPOST /api/2/menu/by_id\n\nПодставляется само из окружения: externalMenuId, organizationId, priceCategoryId\n\nНеобязательные поля (можно добавить в тело): priceCategoryId, version\n\nОписание в спецификации: Retrieve external menu by ID."
         }
       ],
@@ -2473,7 +2473,7 @@
       "description": null,
       "preRequestScript": "",
       "testScript": "",
-      "_ref_id": "coll_mwaqz9xo_9e024bd1-15b4-4968-afa0-30b22ce2ac98"
+      "_ref_id": "coll_mwb4t586_e85c2129-c49b-4340-aab8-ebc3b0d0715e"
     },
     {
       "v": 12,
@@ -2506,7 +2506,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_817637e3-7160-4f82-9eae-d19f2b236aca",
+          "_ref_id": "req_mwb4t57t_cb8b9b26-e0f5-4763-99a9-2a439b4b7cf1",
           "description": "Ограничения доставки\n\nPOST /api/1/delivery_restrictions\n\nПодставляется само из окружения: organizationId\n\nОписание в спецификации: Retrieve list of delivery restrictions."
         },
         {
@@ -2535,7 +2535,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_a389211d-1a6e-433a-afa0-8954caa19526",
+          "_ref_id": "req_mwb4t57t_d613a43a-4fd7-41f0-bd6f-6e3222febbaa",
           "description": "Изменить ограничения доставки\n\nPOST /api/1/delivery_restrictions/update\n\nПодставляется само из окружения: organizationId, terminalGroupId\n\nОписание в спецификации: Update delivery restrictions."
         },
         {
@@ -2564,7 +2564,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_49f6cd4e-db56-462e-a1a4-051ae81335c9",
+          "_ref_id": "req_mwb4t57t_94de07d8-762c-4012-867a-caf4513e47fb",
           "description": "Подходящие терминалы для адреса\n\nPOST /api/1/delivery_restrictions/allowed\n\nПодставляется само из окружения: organizationId, now\n\nНеобязательные поля (можно добавить в тело): organizationId, organizationIds, deliveryAddress, orderLocation, orderItems, deliveryDate, deliverySum, discountSum\n\nОписание в спецификации: Get suitable terminal groups for delivery restrictions."
         },
         {
@@ -2593,7 +2593,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_1afbdd63-735e-4825-9fb5-7e09e6e78775",
+          "_ref_id": "req_mwb4t57t_833e8933-1ee9-415c-9d2e-7ee0f4559077",
           "description": "Ограничения доставки (v2)\n\nPOST /api/2/delivery_restrictions\n\nПодставляется само из окружения: organizationId\n\nНеобязательные поля (можно добавить в тело): organizationIds\n\nОписание в спецификации: Get delivery restrictions (v2)."
         },
         {
@@ -2622,7 +2622,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_669ba2df-be45-4aad-a1f7-046b83c5fca9",
+          "_ref_id": "req_mwb4t57t_0c85bb4a-ed5d-45ff-8853-3c7c173b2e72",
           "description": "Подходящие терминалы для адреса (v2)\n\nPOST /api/2/delivery_restrictions/allowed\n\nПодставляется само из окружения: organizationId\n\nНеобязательные поля (можно добавить в тело): organizationIds, orderDate, orderLocation, deliveryAddress, returnRejected\n\nОписание в спецификации: Get suitable terminal groups for delivery restrictions (v2)."
         }
       ],
@@ -2635,7 +2635,7 @@
       "description": null,
       "preRequestScript": "",
       "testScript": "",
-      "_ref_id": "coll_mwaqz9xo_c4665d0c-5dbf-4394-ae30-baa5a3951e70"
+      "_ref_id": "coll_mwb4t586_7d76be1f-b84a-45ab-ab4d-b4fed4b32818"
     },
     {
       "v": 12,
@@ -2668,7 +2668,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_b0ea0c39-3c15-4d77-bd43-6b6608f6f856",
+          "_ref_id": "req_mwb4t57t_69f8afe1-105f-4e24-8c38-39ec5a449184",
           "description": "Организации, доступные вашему apiLogin. Первая запомнится как organizationId, список сохранится в organizationsList (если организаций несколько, впишите нужный organizationId в окружении).\n\nGET /api/1/organizations\n\nОписание в спецификации: Returns organizations available to api-login user."
         },
         {
@@ -2697,7 +2697,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_dd3d0cfc-a6af-4f13-83d3-93f033a04c1c",
+          "_ref_id": "req_mwb4t57t_79878a5c-d5b1-463a-bf07-ba0e156cef2c",
           "description": "Организации, доступные вашему apiLogin. Первая запомнится как organizationId, список сохранится в organizationsList (если организаций несколько, впишите нужный organizationId в окружении).\n\nPOST /api/1/organizations\n\nНеобязательные поля (можно добавить в тело): organizationIds, returnAdditionalInfo, includeDisabled\n\nОписание в спецификации: Returns organizations available to api-login user."
         }
       ],
@@ -2710,7 +2710,7 @@
       "description": null,
       "preRequestScript": "",
       "testScript": "",
-      "_ref_id": "coll_mwaqz9xo_bb535968-af88-4f16-8a7d-b7c730b6535d"
+      "_ref_id": "coll_mwb4t586_82fe753d-f1c1-4dc4-a79b-53188597d920"
     },
     {
       "v": 12,
@@ -2743,7 +2743,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xf_b1ff3c52-7d7a-47ed-bdcb-391e1c99049a",
+          "_ref_id": "req_mwb4t57s_aa06a308-8f1b-4c92-b40e-7dd4d199f578",
           "description": "Организации, где доступны резервы\n\nPOST /api/1/reserve/available_organizations\n\nПодставляется само из окружения: organizationId\n\nНеобязательные поля (можно добавить в тело): organizationIds, returnAdditionalInfo, includeDisabled\n\nОписание в спецификации: Returns all organizations of current account (determined by Authorization request header) for which banquet/reserve booking are available."
         },
         {
@@ -2772,7 +2772,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xf_7ed4f162-7ddf-4ce3-b33b-e65e53da8605",
+          "_ref_id": "req_mwb4t57s_1fb1f782-eef1-4856-9f16-46ce98d5aa46",
           "description": "Терминалы, где доступны резервы\n\nPOST /api/1/reserve/available_terminal_groups\n\nПодставляется само из окружения: organizationId\n\nОписание в спецификации: Returns all terminal groups of specified organizations, for which banquet/reserve booking are available."
         },
         {
@@ -2801,7 +2801,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xf_898ad6f9-7945-4d55-a115-95f9ebcdbf27",
+          "_ref_id": "req_mwb4t57s_8916ddc8-77f5-4939-b107-b052a72a9049",
           "description": "Залы и столы для резервов\n\nPOST /api/1/reserve/available_restaurant_sections\n\nПодставляется само из окружения: terminalGroupId\n\nНеобязательные поля (можно добавить в тело): returnSchema, revision\n\nОписание в спецификации: Returns all restaurant sections of specified terminal groups, for which banquet/reserve booking are available."
         },
         {
@@ -2830,7 +2830,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xf_c7d97e23-6619-45de-83df-2ba1de749e29",
+          "_ref_id": "req_mwb4t57s_6757596b-4af8-4619-aeb9-e41338d150d4",
           "description": "Загрузка залов (резервы и банкеты)\n\nPOST /api/1/reserve/restaurant_sections_workload\n\nПодставляется само из окружения: restaurantSectionId, todayStart, todayEnd\n\nНеобязательные поля (можно добавить в тело): dateTo\n\nОписание в спецификации: Returns all banquets/reserves for passed restaurant sections."
         },
         {
@@ -2859,7 +2859,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xf_5f91b641-ec48-40f3-8fa8-46327f578226",
+          "_ref_id": "req_mwb4t57s_7115d652-109d-4a19-a38e-4bf552e3893a",
           "description": "Создать резерв или банкет\n\nPOST /api/1/reserve/create\n\nПодставляется само из окружения: organizationId, terminalGroupId, orderNumber, productId, paymentTypeKind, paymentTypeId, tableId, nowPlus1h\n\nНеобязательные поля (можно добавить в тело): terminalGroupId, id, externalNumber, order, guestsCount, comment, transportToFrontTimeout, guests\n\nОписание в спецификации: Create banquet/reserve."
         },
         {
@@ -2888,7 +2888,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xf_0eba2ebf-7ed7-4fed-8cbf-c774b413e8b1",
+          "_ref_id": "req_mwb4t57s_d26a259f-7d51-47bf-b193-dbdaf6d45900",
           "description": "Статусы резервов по ID\n\nPOST /api/1/reserve/status_by_id\n\nПодставляется само из окружения: organizationId\n\nНеобязательные поля (можно добавить в тело): sourceKeys\n\nОписание в спецификации: Retrieve banquets/reserves statuses by IDs."
         }
       ],
@@ -2901,7 +2901,7 @@
       "description": null,
       "preRequestScript": "",
       "testScript": "",
-      "_ref_id": "coll_mwaqz9xo_5f39cffe-47da-4e60-8a5b-7510b5396f85"
+      "_ref_id": "coll_mwb4t586_65ef97ea-c5f6-4a98-9b0e-d3d1cd4f9b23"
     },
     {
       "v": 12,
@@ -2934,7 +2934,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_f7d7441b-89fb-4133-88e9-70d2d9096afc",
+          "_ref_id": "req_mwb4t57t_842f091c-a374-4db0-bb7d-039049daa04f",
           "description": "Скидки и надбавки\n\nPOST /api/1/discounts\n\nПодставляется само из окружения: organizationId\n\nОписание в спецификации: Discounts / surcharges."
         }
       ],
@@ -2947,7 +2947,7 @@
       "description": null,
       "preRequestScript": "",
       "testScript": "",
-      "_ref_id": "coll_mwaqz9xo_bd15833b-ed78-4cc0-8f39-59e9a05cb9c7"
+      "_ref_id": "coll_mwb4t586_99c87e18-12e8-4dfb-9fb7-8bf04d5fc0b5"
     },
     {
       "v": 12,
@@ -2980,7 +2980,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_7d0ee48d-8954-4219-a77a-0e5d39610272",
+          "_ref_id": "req_mwb4t57t_6bddbe22-9fca-4b23-b768-742a9bcec4b3",
           "description": "История координат курьеров\n\nPOST /api/1/employees/couriers/locations/by_time_offset\n\nПодставляется само из окружения: organizationId\n\nНеобязательные поля (можно добавить в тело): offsetInSeconds\n\nОписание в спецификации: Method of obtaining drivers' coordinates history."
         },
         {
@@ -3009,7 +3009,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_9fb97d2e-7a53-490b-9cd2-738fdb4262a0",
+          "_ref_id": "req_mwb4t57t_49b6ae34-a4d4-4e87-b783-c7b910e0f775",
           "description": "Курьеры\n\nPOST /api/1/employees/couriers\n\nПодставляется само из окружения: organizationId\n\nОписание в спецификации: Returns list of all employees which are delivery drivers in specified restaurants."
         },
         {
@@ -3038,7 +3038,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_1f073e0c-6b69-4a3e-99d0-7664fb31c599",
+          "_ref_id": "req_mwb4t57t_4708949a-4f85-4764-b76a-42dcc360d30a",
           "description": "Курьеры с проверкой роли\n\nPOST /api/1/employees/couriers/by_role\n\nПодставляется само из окружения: organizationId\n\nОписание в спецификации: Returns list of all employees which are delivery drivers in specified restaurants, and checks whether each employee has passed role."
         },
         {
@@ -3067,7 +3067,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_1269d914-a0de-4c6d-b16b-ef03b5800db9",
+          "_ref_id": "req_mwb4t57t_c5de2458-2465-4cbd-93c8-2556bd943f8d",
           "description": "Активные курьеры терминала\n\nPOST /api/1/employees/couriers/active_location/by_terminal\n\nПодставляется само из окружения: organizationId, terminalGroupId\n\nОписание в спецификации: Returns list of all active (courier session is opened) courier's locations which are delivery drivers in specified restaurant and are clocked in on specified delivery terminal."
         },
         {
@@ -3096,7 +3096,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_2386608d-3090-4886-90eb-bc33a558b99a",
+          "_ref_id": "req_mwb4t57t_7e6c4287-fe57-405d-9da2-2191fe3de3c9",
           "description": "Активные курьеры\n\nPOST /api/1/employees/couriers/active_location\n\nПодставляется само из окружения: organizationId\n\nОписание в спецификации: Returns list of all active (courier session is opened) courier's locations which are delivery drivers in specified restaurants."
         },
         {
@@ -3125,7 +3125,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_7935e9d5-3635-43f5-9616-7f92789e2467",
+          "_ref_id": "req_mwb4t57t_a9b018b2-8676-4c54-8db1-671bdc474ecf",
           "description": "Информация о сотруднике\n\nPOST /api/1/employees/info\n\nПодставляется само из окружения: organizationId, employeeId\n\nОписание в спецификации: Returns employee info."
         },
         {
@@ -3154,7 +3154,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_55b75d6a-bc0f-4467-aad0-3d2adaf3bdba",
+          "_ref_id": "req_mwb4t57t_bb9d70f0-98fa-4531-bf27-1cf38bf880e9",
           "description": "Открыть смену сотрудника\n\nPOST /api/1/employees/shift/clockin\n\nПодставляется само из окружения: organizationId, terminalGroupId, employeeId\n\nНеобязательные поля (можно добавить в тело): roleId\n\nОписание в спецификации: Open personal session."
         },
         {
@@ -3183,7 +3183,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_faf583ff-8199-4e8c-b1c0-058cdffd5dc0",
+          "_ref_id": "req_mwb4t57t_26e9029c-83f5-46d0-a2a3-5db28773c7fe",
           "description": "Закрыть смену сотрудника\n\nPOST /api/1/employees/shift/clockout\n\nПодставляется само из окружения: organizationId, terminalGroupId, employeeId\n\nОписание в спецификации: Close personal session."
         },
         {
@@ -3212,7 +3212,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_104056e8-42e5-48d3-8727-ce40750882bf",
+          "_ref_id": "req_mwb4t57t_d635de73-41f6-4929-ae05-b4f7d5d2cc31",
           "description": "Открыта ли смена сотрудника\n\nPOST /api/1/employees/shift/is_open\n\nПодставляется само из окружения: organizationId, terminalGroupId, employeeId\n\nОписание в спецификации: Check if personal session is open."
         }
       ],
@@ -3225,7 +3225,7 @@
       "description": null,
       "preRequestScript": "",
       "testScript": "",
-      "_ref_id": "coll_mwaqz9xo_9b801821-d59c-48b9-a73d-f6710fcc139a"
+      "_ref_id": "coll_mwb4t586_a0178f75-7f13-4391-b394-104de1782496"
     },
     {
       "v": 12,
@@ -3258,7 +3258,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_046a79a2-dee5-4621-8eca-2d0966562908",
+          "_ref_id": "req_mwb4t57t_00927b5e-39d6-4b0a-bae9-5a298fe56d1f",
           "description": "Причины отмены\n\nPOST /api/1/cancel_causes\n\nПодставляется само из окружения: organizationId\n\nОписание в спецификации: Delivery cancel causes."
         },
         {
@@ -3287,7 +3287,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_4274d5d1-5bd3-4970-adc3-b4a69a3fb5bb",
+          "_ref_id": "req_mwb4t57t_8b96f2f6-793b-4248-9c6c-670cb846dc73",
           "description": "Типы оплат\n\nPOST /api/1/payment_types\n\nПодставляется само из окружения: organizationId\n\nОписание в спецификации: Payment types."
         },
         {
@@ -3316,7 +3316,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_974c343e-f92e-4141-ad6a-f83f88f05a47",
+          "_ref_id": "req_mwb4t57t_1d373491-6c79-4c5e-b3fe-b146813943ae",
           "description": "Причины удаления\n\nPOST /api/1/removal_types\n\nПодставляется само из окружения: organizationId\n\nОписание в спецификации: Removal types (reasons for deletion)."
         },
         {
@@ -3345,7 +3345,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_fa450ae2-5078-4cba-a77a-91ad4df2ddcb",
+          "_ref_id": "req_mwb4t57t_4be3a5fd-4e17-4439-99a8-21744663c2e4",
           "description": "Типы чаевых\n\nPOST /api/1/tips_types\n\nОписание в спецификации: Get tips tipes for api-login`s rms group."
         },
         {
@@ -3374,7 +3374,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_7b4bf430-4356-4f4b-99ef-d7b349badb1d",
+          "_ref_id": "req_mwb4t57t_4227e3e5-01df-4f02-8aea-6c40cce0a54e",
           "description": "Источники заказов\n\nPOST /api/1/marketing_sources\n\nПодставляется само из окружения: organizationId\n\nОписание в спецификации: Marketing sources."
         }
       ],
@@ -3387,7 +3387,7 @@
       "description": null,
       "preRequestScript": "",
       "testScript": "",
-      "_ref_id": "coll_mwaqz9xo_876a5efb-b1a2-4ab8-81c8-2bd43cf70f76"
+      "_ref_id": "coll_mwb4t586_4073fd59-650b-4a28-a433-3728659d3dae"
     },
     {
       "v": 12,
@@ -3420,7 +3420,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_92ff5464-4213-41f7-b710-bf51b8259274",
+          "_ref_id": "req_mwb4t57t_a27d8f09-3c7e-4820-bec0-ab29a245a904",
           "description": "Статус асинхронной команды iiko (создание заказа и т. п.). correlationId берётся из последнего созданного заказа.\n\nPOST /api/1/commands/status\n\nПодставляется само из окружения: organizationId, correlationId\n\nОписание в спецификации: Get status of command."
         }
       ],
@@ -3433,7 +3433,7 @@
       "description": null,
       "preRequestScript": "",
       "testScript": "",
-      "_ref_id": "coll_mwaqz9xo_922b5a83-5863-41fd-953f-3776e2e86373"
+      "_ref_id": "coll_mwb4t586_31af8dac-49c1-45af-b023-70f2e3bae14a"
     },
     {
       "v": 12,
@@ -3466,7 +3466,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_fdf5e562-031a-4bb5-8328-2f8c10b57477",
+          "_ref_id": "req_mwb4t57t_ce181b8e-d24a-43c3-81a9-7318a4d4ef58",
           "description": "Стоп-листы\n\nPOST /api/1/stop_lists\n\nПодставляется само из окружения: organizationId\n\nОписание в спецификации: Out-of-stock items."
         }
       ],
@@ -3479,7 +3479,7 @@
       "description": null,
       "preRequestScript": "",
       "testScript": "",
-      "_ref_id": "coll_mwaqz9xo_782b2318-8aa2-4b33-995d-45a10c0b9a67"
+      "_ref_id": "coll_mwb4t586_1e3fe167-4ce9-4066-8a40-26f996afa8a7"
     },
     {
       "v": 12,
@@ -3512,7 +3512,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_b63d2913-d4ec-411a-bf33-7f37a9e11333",
+          "_ref_id": "req_mwb4t57z_4012ad74-67a1-47ae-8972-9fe076102d6c",
           "description": "Группы терминалов организации. Первый терминал запомнится как terminalGroupId.\n\nPOST /api/1/terminal_groups\n\nПодставляется само из окружения: organizationId\n\nНеобязательные поля (можно добавить в тело): includeDisabled\n\nОписание в спецификации: Method that returns information on groups of delivery terminals."
         },
         {
@@ -3541,7 +3541,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_cf47d5d1-e247-4efa-b7ea-cb2e8ffcc777",
+          "_ref_id": "req_mwb4t57z_e7b83bc7-26c4-44f8-ab9e-52d3900df0d8",
           "description": "Терминал на связи?\n\nPOST /api/1/terminal_groups/is_alive\n\nПодставляется само из окружения: organizationId, terminalGroupId\n\nНеобязательные поля (можно добавить в тело): organizationId, organizationIds\n\nОписание в спецификации: Returns information on availability of group of terminals."
         },
         {
@@ -3570,7 +3570,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_8045a6a8-a08d-4d62-8a06-4b2e8a61fac4",
+          "_ref_id": "req_mwb4t57z_19c25873-efd4-4267-8c9c-0f212c968ccf",
           "description": "Разбудить терминалы\n\nPOST /api/1/terminal_groups/awake\n\nПодставляется само из окружения: organizationId, terminalGroupId\n\nОписание в спецификации: Awake terminal groups from sleep mode."
         }
       ],
@@ -3583,7 +3583,7 @@
       "description": null,
       "preRequestScript": "",
       "testScript": "",
-      "_ref_id": "coll_mwaqz9xp_a35e079d-58fe-4cef-87ec-9c2abd2bd0ff"
+      "_ref_id": "coll_mwb4t587_f75ae475-d1e1-4172-bdfd-795eb107179a"
     },
     {
       "v": 12,
@@ -3616,7 +3616,7 @@
           },
           "requestVariables": [],
           "responses": {},
-          "_ref_id": "req_mwaqz9xg_eadec179-90eb-46b3-af12-7c654f51156c",
+          "_ref_id": "req_mwb4t57t_382b46ff-00b5-402a-8049-91f31896e439",
           "description": "Отправить уведомление на кассу\n\nPOST /api/1/notifications/send\n\nПодставляется само из окружения: organizationId\n\nОписание в спецификации: Send notification to external systems (iikoFront and iikoWeb)."
         }
       ],
@@ -3629,7 +3629,7 @@
       "description": null,
       "preRequestScript": "",
       "testScript": "",
-      "_ref_id": "coll_mwaqz9xp_9873410d-dc22-498d-8515-2f137237ac5d"
+      "_ref_id": "coll_mwb4t587_5fc08bb3-bcd5-4637-ba7d-6b0290dbaa9a"
     }
   ],
   "requests": [],
@@ -3640,8 +3640,8 @@
   },
   "headers": [],
   "variables": [],
-  "description": "Коллекция методов iiko Cloud API (api-ru.iiko.services) с автоматизацией для СПРТ.\n\nЧто нужно сделать один раз: выбрать окружение «iiko Cloud API» (справа вверху) и вписать в нём apiLogin.\n\nДальше всё само:\n• токен получается и обновляется перед каждым запросом;\n• organizationId, terminalGroupId, productId, paymentTypeId, tableId и другие ID подставляются в тело запроса автоматически;\n• orderId, correlationId, customerId запоминаются из ответов, и следующие запросы используют их;\n• даты можно писать как <<todayStart>>, <<todayEnd>>, <<weekAgoStart>>, <<now>>, <<nowPlus1h>>; <<guid>> и <<orderNumber>> дают новый GUID и номер заказа;\n• ошибка iiko (errorDescription) показывается во вкладке «Тесты»; просроченный токен обновляется сам.\n\nНачните с папки «⚡ Быстрый старт». Методы, помеченные «(создаёт заказ!)», создают реальные заказы на кассе.\n\nСправка по методам: https://api-ru.iiko.services/docs",
-  "preRequestScript": "// СПРТ • автоматизация iiko Cloud API.\n// Выполняется перед каждым запросом коллекции: сама получает токен и подставляет ID.\n// Вручную нужно вписать только apiLogin в окружении «iiko Cloud API».\nconst get = (k) => {\n  const v = pw.env.get(k)\n  return v === undefined || v === null ? \"\" : String(v)\n}\nconst set = (k, v) => pw.env.set(k, v === undefined || v === null ? \"\" : String(v))\n\nconst base = (get(\"baseUrl\") || \"https://api-ru.iiko.services\").replace(/\\/+$/, \"\")\nconst url = String(hopp.request.url || \"\")\nconst reqBody = hopp.request.body\nconst raw = url + \" \" + (reqBody && typeof reqBody.body === \"string\" ? reqBody.body : \"\")\nconst used = (name) => raw.includes(\"<<\" + name + \">>\")\nconst isAuthCall = /\\/access_token(\\?|$)/.test(url)\n\n// ---- динамические значения: даты, GUID, номер заказа ----\nconst pad = (n, l = 2) => String(n).padStart(l, \"0\")\nconst fmt = (d) =>\n  `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ` +\n  `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${pad(d.getMilliseconds(), 3)}`\nconst now = new Date()\nconst dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0)\nconst dayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999)\nconst guid = () =>\n  \"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx\".replace(/[xy]/g, (c) => {\n    const r = (Math.random() * 16) | 0\n    return (c === \"x\" ? r : (r & 0x3) | 0x8).toString(16)\n  })\nset(\"todayStart\", fmt(dayStart))\nset(\"todayEnd\", fmt(dayEnd))\nset(\"weekAgoStart\", fmt(new Date(dayStart.getTime() - 7 * 86400000)))\nset(\"now\", fmt(now))\nset(\"nowPlus1h\", fmt(new Date(now.getTime() + 3600000)))\nset(\"guid\", guid())\nset(\"orderNumber\", \"SPRT-\" + Math.floor(now.getTime() / 1000))\n\n// ---- обращение к API ----\nasync function call(path, body, auth = true) {\n  const headers = { \"Content-Type\": \"application/json\" }\n  if (auth) headers.Authorization = \"Bearer \" + get(\"token\")\n  const res = await fetch(base + path, { method: \"POST\", headers, body: JSON.stringify(body || {}) })\n  let data = null\n  try { data = await res.json() } catch (_) { /* пустой ответ */ }\n  if (!res.ok) {\n    const why = (data && (data.errorDescription || data.message || data.error)) || \"\"\n    throw new Error(`iiko ${path}: ${res.status} ${why}`)\n  }\n  return data\n}\n\nif (!isAuthCall) {\n  // 1. токен (живёт ~1 час, обновляем за 10 минут до конца)\n  const age = Date.now() - Number(get(\"tokenTime\") || 0)\n  if (!get(\"token\") || age > 50 * 60 * 1000) {\n    const login = get(\"apiLogin\")\n    if (!login) {\n      throw new Error(\"СПРТ: впишите apiLogin в окружении «iiko Cloud API» (значок окружений справа вверху). Больше ничего вручную делать не нужно.\")\n    }\n    const t = await call(\"/api/1/access_token\", { apiLogin: login }, false)\n    set(\"token\", t.token)\n    set(\"tokenTime\", Date.now())\n  }\n\n  // 2. организация — если запрос на неё ссылается, а она ещё не выбрана\n  const needs = (k) => used(k) && !get(k)\n  const dependent = [\"terminalGroupId\", \"productId\", \"productPrice\", \"paymentTypeId\", \"paymentTypeKind\", \"orderTypeId\", \"employeeId\", \"externalMenuId\", \"tableId\"]\n  if ((needs(\"organizationId\") || dependent.some(needs)) && !get(\"organizationId\")) {\n    const r = await call(\"/api/1/organizations\", { returnAdditionalInfo: false, includeDisabled: false })\n    const orgs = (r && r.organizations) || []\n    if (!orgs.length) throw new Error(\"СПРТ: для этого apiLogin нет доступных организаций\")\n    set(\"organizationId\", orgs[0].id)\n    set(\"organizationName\", orgs[0].name)\n    set(\"organizationsList\", orgs.map((o, i) => `${i + 1}) ${o.name} — ${o.id}`).join(\"\\n\"))\n  }\n\n  // 3. остальные справочные ID — по необходимости (ошибка здесь не должна ломать запрос)\n  const org = get(\"organizationId\")\n  const lazy = async (keys, fn) => {\n    if (!keys.some(needs)) return\n    try { await fn() } catch (e) { console.log(\"СПРТ: не удалось подставить \" + keys.join(\"/\") + \": \" + e.message) }\n  }\n  await lazy([\"terminalGroupId\"], async () => {\n    const r = await call(\"/api/1/terminal_groups\", { organizationIds: [org], includeDisabled: false })\n    const t = r && r.terminalGroups && r.terminalGroups[0] && r.terminalGroups[0].items && r.terminalGroups[0].items[0]\n    if (t) { set(\"terminalGroupId\", t.id); set(\"terminalGroupName\", t.name) }\n  })\n  await lazy([\"productId\", \"productPrice\"], async () => {\n    const r = await call(\"/api/1/nomenclature\", { organizationId: org })\n    const p = (r.products || []).find((x) => x.type === \"Dish\" && !x.isDeleted && x.sizePrices && x.sizePrices[0] && x.sizePrices[0].price && x.sizePrices[0].price.isIncludedInMenu)\n      || (r.products || []).find((x) => x.type === \"Dish\" && !x.isDeleted)\n    if (p) {\n      set(\"productId\", p.id); set(\"productName\", p.name)\n      const price = p.sizePrices && p.sizePrices[0] && p.sizePrices[0].price && p.sizePrices[0].price.currentPrice\n      set(\"productPrice\", price || 0)\n    }\n  })\n  await lazy([\"paymentTypeId\", \"paymentTypeKind\"], async () => {\n    const r = await call(\"/api/1/payment_types\", { organizationIds: [org] })\n    const p = (r.paymentTypes || []).find((x) => x.paymentTypeKind === \"Cash\") || (r.paymentTypes || [])[0]\n    if (p) { set(\"paymentTypeId\", p.id); set(\"paymentTypeKind\", p.paymentTypeKind) }\n  })\n  await lazy([\"orderTypeId\"], async () => {\n    const r = await call(\"/api/1/deliveries/order_types\", { organizationIds: [org] })\n    const items = (r.orderTypes && r.orderTypes[0] && r.orderTypes[0].items) || []\n    const t = items.find((x) => x.orderServiceType === \"DeliveryPickUp\") || items[0]\n    if (t) set(\"orderTypeId\", t.id)\n  })\n  await lazy([\"employeeId\"], async () => {\n    const r = await call(\"/api/1/employees/couriers\", { organizationIds: [org] })\n    const e = r.employees && r.employees[0] && r.employees[0].items && r.employees[0].items[0]\n    if (e) set(\"employeeId\", e.id)\n  })\n  await lazy([\"externalMenuId\"], async () => {\n    const r = await call(\"/api/2/menu\", {})\n    const m = r.externalMenus && r.externalMenus[0]\n    if (m) set(\"externalMenuId\", m.id)\n    const pc = r.priceCategories && r.priceCategories[0]\n    if (pc) set(\"priceCategoryId\", pc.id)\n  })\n  await lazy([\"tableId\"], async () => {\n    if (!get(\"terminalGroupId\")) {\n      const g = await call(\"/api/1/terminal_groups\", { organizationIds: [org], includeDisabled: false })\n      const t = g.terminalGroups && g.terminalGroups[0] && g.terminalGroups[0].items && g.terminalGroups[0].items[0]\n      if (t) set(\"terminalGroupId\", t.id)\n    }\n    const r = await call(\"/api/1/reserve/available_restaurant_sections\", { terminalGroupIds: [get(\"terminalGroupId\")] })\n    const s = r.restaurantSections && r.restaurantSections[0]\n    const tb = s && s.tables && s.tables[0]\n    if (s) set(\"restaurantSectionId\", s.id)\n    if (tb) set(\"tableId\", tb.id)\n  })\n}\n",
+  "description": "Коллекция методов iiko Cloud API (api-ru.iiko.services) с автоматизацией для СПРТ.\n\nЧто нужно сделать один раз: выбрать окружение «iiko Cloud API» (справа вверху) и вписать в нём apiLogin (API-ключ из iikoWeb) и clientSecret (из портала разработчика iiko, public-api.iikoweb.ru/portal).\n\nДальше всё само:\n• токен получается и обновляется перед каждым запросом;\n• organizationId, terminalGroupId, productId, paymentTypeId, tableId и другие ID подставляются в тело запроса автоматически;\n• orderId, correlationId, customerId запоминаются из ответов, и следующие запросы используют их;\n• даты можно писать как <<todayStart>>, <<todayEnd>>, <<weekAgoStart>>, <<now>>, <<nowPlus1h>>; <<guid>> и <<orderNumber>> дают новый GUID и номер заказа;\n• ошибка iiko (errorDescription) показывается во вкладке «Тесты»; просроченный токен обновляется сам.\n\nНачните с папки «⚡ Быстрый старт». Методы, помеченные «(создаёт заказ!)», создают реальные заказы на кассе.\n\nСправка по методам: https://api-ru.iiko.services/docs",
+  "preRequestScript": "// СПРТ • автоматизация iiko Cloud API (v3).\n// Выполняется перед каждым запросом коллекции: сама получает токен и подставляет ID.\n// Вручную нужно вписать apiLogin (API-ключ из iikoWeb) и clientSecret (из портала разработчика iiko) в окружении «iiko Cloud API».\nconst get = (k) => {\n  const v = pw.env.get(k)\n  return v === undefined || v === null ? \"\" : String(v)\n}\nconst set = (k, v) => pw.env.set(k, v === undefined || v === null ? \"\" : String(v))\n\nconst base = (get(\"baseUrl\") || \"https://api-ru.iiko.services\").replace(/\\/+$/, \"\")\nconst url = String(hopp.request.url || \"\")\nconst reqBody = hopp.request.body\nconst raw = url + \" \" + (reqBody && typeof reqBody.body === \"string\" ? reqBody.body : \"\")\nconst used = (name) => raw.includes(\"<<\" + name + \">>\")\nconst isAuthCall = /\\/access_token(\\?|$)/.test(url)\n\n// ---- динамические значения: даты, GUID, номер заказа ----\nconst pad = (n, l = 2) => String(n).padStart(l, \"0\")\nconst fmt = (d) =>\n  `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ` +\n  `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${pad(d.getMilliseconds(), 3)}`\nconst now = new Date()\nconst dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0)\nconst dayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999)\nconst guid = () =>\n  \"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx\".replace(/[xy]/g, (c) => {\n    const r = (Math.random() * 16) | 0\n    return (c === \"x\" ? r : (r & 0x3) | 0x8).toString(16)\n  })\nset(\"todayStart\", fmt(dayStart))\nset(\"todayEnd\", fmt(dayEnd))\nset(\"weekAgoStart\", fmt(new Date(dayStart.getTime() - 7 * 86400000)))\nset(\"now\", fmt(now))\nset(\"nowPlus1h\", fmt(new Date(now.getTime() + 3600000)))\nset(\"guid\", guid())\nset(\"orderNumber\", \"SPRT-\" + Math.floor(now.getTime() / 1000))\n\n// ---- обращение к API ----\nasync function call(path, body, auth = true) {\n  const headers = { \"Content-Type\": \"application/json\" }\n  if (auth) headers.Authorization = \"Bearer \" + get(\"token\")\n  const res = await fetch(base + path, { method: \"POST\", headers, body: JSON.stringify(body || {}) })\n  let data = null\n  try { data = await res.json() } catch (_) { /* пустой ответ */ }\n  if (!res.ok) {\n    const why = (data && (data.errorDescription || data.message || data.error)) || \"\"\n    throw new Error(`iiko ${path}: ${res.status} ${why}`)\n  }\n  return data\n}\n\nif (!isAuthCall) {\n  // 1. токен (живёт ~1 час, обновляем за 10 минут до конца)\n  const age = Date.now() - Number(get(\"tokenTime\") || 0)\n  if (!get(\"token\") || age > 50 * 60 * 1000) {\n    const login = get(\"apiLogin\")\n    const secret = get(\"clientSecret\")\n    if (!login) {\n      throw new Error(\"СПРТ: впишите apiLogin (API-ключ из iikoWeb) в окружении «iiko Cloud API» (значок окружений справа вверху).\")\n    }\n    let t\n    if (secret) {\n      // новая схема iiko: /api/v2/access_token (API-ключ + Client Secret, appId — если выдан)\n      const body = { apiKey: login, clientSecret: secret }\n      if (get(\"appId\")) body.appId = get(\"appId\")\n      t = await call(\"/api/v2/access_token\", body, false)\n    } else {\n      try {\n        t = await call(\"/api/1/access_token\", { apiLogin: login }, false)\n      } catch (e) {\n        if (/v2|does not support/i.test(String(e && e.message))) {\n          throw new Error(\"СПРТ: этот ключ работает только по новой схеме iiko. Впишите clientSecret (и appId, если он у вас есть) в окружении «iiko Cloud API». Секрет выдаётся в портале разработчика: public-api.iikoweb.ru/portal.\")\n        }\n        throw e\n      }\n    }\n    if (t && !t.token) t.token = t.accessToken || t.access_token\n    set(\"token\", t.token)\n    set(\"tokenTime\", Date.now())\n  }\n\n  // 2. организация — если запрос на неё ссылается, а она ещё не выбрана\n  const needs = (k) => used(k) && !get(k)\n  const dependent = [\"terminalGroupId\", \"productId\", \"productPrice\", \"paymentTypeId\", \"paymentTypeKind\", \"orderTypeId\", \"employeeId\", \"externalMenuId\", \"tableId\"]\n  if ((needs(\"organizationId\") || dependent.some(needs)) && !get(\"organizationId\")) {\n    const r = await call(\"/api/1/organizations\", { returnAdditionalInfo: false, includeDisabled: false })\n    const orgs = (r && r.organizations) || []\n    if (!orgs.length) throw new Error(\"СПРТ: для этого apiLogin нет доступных организаций\")\n    set(\"organizationId\", orgs[0].id)\n    set(\"organizationName\", orgs[0].name)\n    set(\"organizationsList\", orgs.map((o, i) => `${i + 1}) ${o.name} — ${o.id}`).join(\"\\n\"))\n  }\n\n  // 3. остальные справочные ID — по необходимости (ошибка здесь не должна ломать запрос)\n  const org = get(\"organizationId\")\n  const lazy = async (keys, fn) => {\n    if (!keys.some(needs)) return\n    try { await fn() } catch (e) { console.log(\"СПРТ: не удалось подставить \" + keys.join(\"/\") + \": \" + e.message) }\n  }\n  await lazy([\"terminalGroupId\"], async () => {\n    const r = await call(\"/api/1/terminal_groups\", { organizationIds: [org], includeDisabled: false })\n    const t = r && r.terminalGroups && r.terminalGroups[0] && r.terminalGroups[0].items && r.terminalGroups[0].items[0]\n    if (t) { set(\"terminalGroupId\", t.id); set(\"terminalGroupName\", t.name) }\n  })\n  await lazy([\"productId\", \"productPrice\"], async () => {\n    const r = await call(\"/api/1/nomenclature\", { organizationId: org })\n    const p = (r.products || []).find((x) => x.type === \"Dish\" && !x.isDeleted && x.sizePrices && x.sizePrices[0] && x.sizePrices[0].price && x.sizePrices[0].price.isIncludedInMenu)\n      || (r.products || []).find((x) => x.type === \"Dish\" && !x.isDeleted)\n    if (p) {\n      set(\"productId\", p.id); set(\"productName\", p.name)\n      const price = p.sizePrices && p.sizePrices[0] && p.sizePrices[0].price && p.sizePrices[0].price.currentPrice\n      set(\"productPrice\", price || 0)\n    }\n  })\n  await lazy([\"paymentTypeId\", \"paymentTypeKind\"], async () => {\n    const r = await call(\"/api/1/payment_types\", { organizationIds: [org] })\n    const p = (r.paymentTypes || []).find((x) => x.paymentTypeKind === \"Cash\") || (r.paymentTypes || [])[0]\n    if (p) { set(\"paymentTypeId\", p.id); set(\"paymentTypeKind\", p.paymentTypeKind) }\n  })\n  await lazy([\"orderTypeId\"], async () => {\n    const r = await call(\"/api/1/deliveries/order_types\", { organizationIds: [org] })\n    const items = (r.orderTypes && r.orderTypes[0] && r.orderTypes[0].items) || []\n    const t = items.find((x) => x.orderServiceType === \"DeliveryPickUp\") || items[0]\n    if (t) set(\"orderTypeId\", t.id)\n  })\n  await lazy([\"employeeId\"], async () => {\n    const r = await call(\"/api/1/employees/couriers\", { organizationIds: [org] })\n    const e = r.employees && r.employees[0] && r.employees[0].items && r.employees[0].items[0]\n    if (e) set(\"employeeId\", e.id)\n  })\n  await lazy([\"externalMenuId\"], async () => {\n    const r = await call(\"/api/2/menu\", {})\n    const m = r.externalMenus && r.externalMenus[0]\n    if (m) set(\"externalMenuId\", m.id)\n    const pc = r.priceCategories && r.priceCategories[0]\n    if (pc) set(\"priceCategoryId\", pc.id)\n  })\n  await lazy([\"tableId\"], async () => {\n    if (!get(\"terminalGroupId\")) {\n      const g = await call(\"/api/1/terminal_groups\", { organizationIds: [org], includeDisabled: false })\n      const t = g.terminalGroups && g.terminalGroups[0] && g.terminalGroups[0].items && g.terminalGroups[0].items[0]\n      if (t) set(\"terminalGroupId\", t.id)\n    }\n    const r = await call(\"/api/1/reserve/available_restaurant_sections\", { terminalGroupIds: [get(\"terminalGroupId\")] })\n    const s = r.restaurantSections && r.restaurantSections[0]\n    const tb = s && s.tables && s.tables[0]\n    if (s) set(\"restaurantSectionId\", s.id)\n    if (tb) set(\"tableId\", tb.id)\n  })\n}\n",
   "testScript": "// СПРТ • автоматизация iiko Cloud API (после каждого запроса коллекции):\n// запоминает ID из ответов, показывает ошибки iiko в тестах и сбрасывает просроченный токен.\nconst m = String(hopp.request.url || \"\").match(/\\/api\\/\\d\\/[^?\\s#]*/)\nconst p = m ? m[0].replace(/\\/+$/, \"\") : \"\"\nconst status = pw.response.status\nconst b = pw.response.body && typeof pw.response.body === \"object\" ? pw.response.body : {}\n\nconst put = (k, v) => { if (v !== undefined && v !== null && v !== \"\") pw.env.set(k, String(v)) }\nconst fill = (k, v) => { const cur = pw.env.get(k); if (!cur && v !== undefined && v !== null && v !== \"\") pw.env.set(k, String(v)) }\nconst first = (a) => (Array.isArray(a) ? a[0] : undefined)\n\n// ---- проверки: HTTP-статус и ошибка iiko ----\npw.test(\"HTTP \" + status, () => { pw.expect(status).toBeLevel2xx() })\nif (b.errorDescription || b.error) {\n  const text = \"Ошибка iiko: \" + (b.errorDescription || b.error)\n  pw.test(text, () => { pw.expect(b.errorDescription || b.error).toBe(\"\") })\n}\nif (status === 401) {\n  // токен просрочен или неверный: следующий запрос получит новый сам\n  pw.env.set(\"token\", \"\")\n  pw.env.set(\"tokenTime\", \"0\")\n}\n\n// ---- запоминаем ID для следующих запросов ----\nif (/\\/access_token$/.test(p)) {\n  put(\"token\", b.token); put(\"tokenTime\", Date.now())\n} else if (/\\/api\\/1\\/organizations$/.test(p)) {\n  const o = first(b.organizations)\n  if (o) { fill(\"organizationId\", o.id); fill(\"organizationName\", o.name) }\n  put(\"organizationsList\", (b.organizations || []).map((x, i) => `${i + 1}) ${x.name} — ${x.id}`).join(\"\\n\"))\n} else if (/\\/terminal_groups$/.test(p)) {\n  const g = first(b.terminalGroups)\n  const t = g && first(g.items)\n  if (t) { fill(\"terminalGroupId\", t.id); fill(\"terminalGroupName\", t.name) }\n} else if (/\\/(deliveries|order)\\/create$/.test(p)) {\n  if (b.orderInfo) put(\"orderId\", b.orderInfo.id)\n  put(\"correlationId\", b.correlationId)\n} else if (/\\/(deliveries\\/(by_|drafts\\/by_)|order\\/by_)/.test(p)) {\n  const g = first(b.ordersByOrganizations)\n  const o = g && first(g.orders)\n  if (o) fill(\"orderId\", o.id)\n} else if (/\\/employees\\/couriers$/.test(p)) {\n  const g = first(b.employees)\n  const e = g && first(g.items)\n  if (e) fill(\"employeeId\", e.id)\n} else if (/\\/loyalty\\/iiko\\/customer\\/(info|create_or_update)$/.test(p)) {\n  put(\"customerId\", b.id)\n} else if (/\\/api\\/2\\/menu$/.test(p)) {\n  const mm = first(b.externalMenus)\n  if (mm) fill(\"externalMenuId\", mm.id)\n  const pc = first(b.priceCategories)\n  if (pc) fill(\"priceCategoryId\", pc.id)\n} else if (/\\/payment_types$/.test(p)) {\n  const t = first(b.paymentTypes)\n  if (t) { fill(\"paymentTypeId\", t.id); fill(\"paymentTypeKind\", t.paymentTypeKind) }\n} else if (/\\/api\\/1\\/nomenclature$/.test(p)) {\n  const d = (b.products || []).find((x) => x.type === \"Dish\" && !x.isDeleted)\n  if (d) { fill(\"productId\", d.id); fill(\"productName\", d.name) }\n} else if (/\\/reserve\\/available_restaurant_sections$/.test(p)) {\n  const s = first(b.restaurantSections)\n  if (s) { fill(\"restaurantSectionId\", s.id); const t = first(s.tables); if (t) fill(\"tableId\", t.id) }\n} else if (/\\/cities$/.test(p)) {\n  const g = first(b.cities)\n  const c = g && first(g.items)\n  if (c) fill(\"cityId\", c.id)\n}\n",
-  "_ref_id": "coll_mwaqz9xp_5214b3c1-a554-4639-a99a-fd0564d321ad"
+  "_ref_id": "coll_mwb4t587_e28f8956-4be5-4282-9921-c928ffa24f26"
 }

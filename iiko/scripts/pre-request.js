@@ -1,6 +1,6 @@
-// СПРТ • автоматизация iiko Cloud API.
+// СПРТ • автоматизация iiko Cloud API (v3).
 // Выполняется перед каждым запросом коллекции: сама получает токен и подставляет ID.
-// Вручную нужно вписать только apiLogin в окружении «iiko Cloud API».
+// Вручную нужно вписать apiLogin (API-ключ из iikoWeb) и clientSecret (из портала разработчика iiko) в окружении «iiko Cloud API».
 const get = (k) => {
   const v = pw.env.get(k)
   return v === undefined || v === null ? "" : String(v)
@@ -54,10 +54,27 @@ if (!isAuthCall) {
   const age = Date.now() - Number(get("tokenTime") || 0)
   if (!get("token") || age > 50 * 60 * 1000) {
     const login = get("apiLogin")
+    const secret = get("clientSecret")
     if (!login) {
-      throw new Error("СПРТ: впишите apiLogin в окружении «iiko Cloud API» (значок окружений справа вверху). Больше ничего вручную делать не нужно.")
+      throw new Error("СПРТ: впишите apiLogin (API-ключ из iikoWeb) в окружении «iiko Cloud API» (значок окружений справа вверху).")
     }
-    const t = await call("/api/1/access_token", { apiLogin: login }, false)
+    let t
+    if (secret) {
+      // новая схема iiko: /api/v2/access_token (API-ключ + Client Secret, appId — если выдан)
+      const body = { apiKey: login, clientSecret: secret }
+      if (get("appId")) body.appId = get("appId")
+      t = await call("/api/v2/access_token", body, false)
+    } else {
+      try {
+        t = await call("/api/1/access_token", { apiLogin: login }, false)
+      } catch (e) {
+        if (/v2|does not support/i.test(String(e && e.message))) {
+          throw new Error("СПРТ: этот ключ работает только по новой схеме iiko. Впишите clientSecret (и appId, если он у вас есть) в окружении «iiko Cloud API». Секрет выдаётся в портале разработчика: public-api.iikoweb.ru/portal.")
+        }
+        throw e
+      }
+    }
+    if (t && !t.token) t.token = t.accessToken || t.access_token
     set("token", t.token)
     set("tokenTime", Date.now())
   }

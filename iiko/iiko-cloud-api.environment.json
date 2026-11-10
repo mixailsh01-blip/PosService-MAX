@@ -16,6 +16,18 @@
       "secret": true
     },
     {
+      "key": "clientSecret",
+      "initialValue": "",
+      "currentValue": "",
+      "secret": true
+    },
+    {
+      "key": "appId",
+      "initialValue": "",
+      "currentValue": "",
+      "secret": false
+    },
+    {
       "key": "token",
       "initialValue": "",
       "currentValue": "",

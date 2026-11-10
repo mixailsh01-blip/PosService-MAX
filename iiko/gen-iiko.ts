@@ -349,11 +349,11 @@ const authReq = (() => {
   const r = getDefaultRESTRequest()
   r.name = "Получить токен вручную (обычно не нужно)"
   r.method = "POST"
-  r.endpoint = "<<baseUrl>>/api/1/access_token"
+  r.endpoint = "<<baseUrl>>/api/v2/access_token"
   r.auth = { authType: "none", authActive: true } as any
   r.headers = [{ key: "Content-Type", value: "application/json", active: true, description: "" }] as any
-  r.body = { contentType: "application/json", body: JSON.stringify({ apiLogin: "<<apiLogin>>" }, null, 2) } as any
-  r.description = "Токен получается и обновляется автоматически перед любым запросом коллекции, нужен только заполненный apiLogin в окружении. Этот запрос полезен, чтобы проверить, что apiLogin рабочий."
+  r.body = { contentType: "application/json", body: JSON.stringify({ apiKey: "<<apiLogin>>", clientSecret: "<<clientSecret>>" }, null, 2) } as any
+  r.description = "Токен получается и обновляется автоматически перед любым запросом коллекции, нужны заполненные apiLogin (API-ключ) и clientSecret в окружении. Этот запрос полезен, чтобы проверить, что ключ и секрет рабочие. Если у вас выдан appId, добавьте в тело поле \"appId\": \"<<appId>>\"."
   return r
 })()
 
@@ -381,7 +381,7 @@ const root = mk("iiko Cloud API (СПРТ)", [], {
   description: [
     "Коллекция методов iiko Cloud API (api-ru.iiko.services) с автоматизацией для СПРТ.",
     "",
-    "Что нужно сделать один раз: выбрать окружение «iiko Cloud API» (справа вверху) и вписать в нём apiLogin.",
+    "Что нужно сделать один раз: выбрать окружение «iiko Cloud API» (справа вверху) и вписать в нём apiLogin (API-ключ из iikoWeb) и clientSecret (из портала разработчика iiko, public-api.iikoweb.ru/portal).",
     "",
     "Дальше всё само:",
     "• токен получается и обновляется перед каждым запросом;",
@@ -405,7 +405,8 @@ const env = {
   v: 2, id: "iiko-cloud-api", name: "iiko Cloud API",
   variables: [
     v("baseUrl", "https://api-ru.iiko.services"),
-    v("apiLogin", "", true), // единственное, что нужно заполнить вручную
+    v("apiLogin", "", true), // API-ключ из iikoWeb
+    v("clientSecret", "", true), v("appId"), // из портала разработчика iiko
     v("token", "", true), v("tokenTime"),
     v("organizationId"), v("organizationName"), v("organizationsList"),
     v("terminalGroupId"), v("terminalGroupName"),

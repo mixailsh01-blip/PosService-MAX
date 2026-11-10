@@ -27,17 +27,18 @@ docker network create yandex-net >/dev/null 2>&1 || true
 echo "== запуск прокси"
 docker rm -f yandex-proxy >/dev/null 2>&1 || true
 docker run -d --name yandex-proxy --restart unless-stopped --network yandex-net \
-  -p 127.0.0.1:8080:8080 -e ALLOWED_ORIGINS="$ORIGINS" yandex-proxy >/dev/null
+  -p 8080:8080 -e ALLOWED_ORIGINS="$ORIGINS" yandex-proxy >/dev/null
 for i in 1 2 3 4 5 6 7 8 9 10; do
   curl -fsS http://127.0.0.1:8080/health >/dev/null 2>&1 && break || sleep 1
 done
 curl -fsS http://127.0.0.1:8080/health && echo "  <- прокси отвечает"
+echo "Для кнопки «Яндекс Еда» в SPRT API этого достаточно: прокси доступен на порту 8080 (http://$(hostname -I | awk '{print $1}'):8080)."
 
 echo "== HTTPS (Caddy)"
 docker rm -f yandex-caddy >/dev/null 2>&1 || true
 if ss -ltnH '( sport = :80 or sport = :443 )' | grep -q .; then
-  echo "Порты 80/443 заняты другим сервисом, Caddy не запущен. Прокси работает только внутри сервера (127.0.0.1:8080)."
-  echo "Пришлите вывод этих двух команд, настрою через имеющийся веб-сервер:"
+  echo "Порты 80/443 заняты другим сервисом, HTTPS-прокси (Caddy) не запускаю. Это нужно, только если приложение открывается по https."
+  echo "Если понадобится HTTPS, пришлите вывод этих двух команд, настрою через имеющийся веб-сервер:"
   echo "  sudo ss -ltnp | grep -E ':(80|443)\\b'"
   echo "  sudo docker ps --format '{{.Names}}  {{.Ports}}'"
   exit 0

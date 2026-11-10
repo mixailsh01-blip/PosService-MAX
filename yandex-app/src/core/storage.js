@@ -1,0 +1,12 @@
+const KEY='iiko_n8n_auth';
+const REST_KEY='iiko_selected_restaurant';
+export const saveAuth=d=>localStorage.setItem(KEY,JSON.stringify(d));
+export const loadAuth=()=>JSON.parse(localStorage.getItem(KEY)||'{}');
+export const clearAuth=()=>localStorage.removeItem(KEY);
+export const saveRestaurant=r=>localStorage.setItem(REST_KEY,JSON.stringify(r));
+export const loadRestaurant=()=>JSON.parse(localStorage.getItem(REST_KEY)||'null');
+export const clearRestaurant=()=>localStorage.removeItem(REST_KEY);
+const CART_KEY='iiko_cart';
+export const saveCart=c=>localStorage.setItem(CART_KEY,JSON.stringify(c));
+export const loadCart=()=>{try{const v=JSON.parse(localStorage.getItem(CART_KEY)||'{"items":[]}');const items=Array.isArray(v?.items)?v.items:[];return {items};}catch(_){return {items:[]};}};
+export const clearCart=()=>localStorage.removeItem(CART_KEY);

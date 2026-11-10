@@ -29477,14 +29477,14 @@ index 27a43da..fcd9b97 100644
              </h4>
 diff --git a/packages/hoppscotch-common/src/pages/yandex.vue b/packages/hoppscotch-common/src/pages/yandex.vue
 new file mode 100644
-index 0000000..caa0a4e
+index 0000000..553927a
 --- /dev/null
 +++ b/packages/hoppscotch-common/src/pages/yandex.vue
-@@ -0,0 +1,16 @@
+@@ -0,0 +1,19 @@
 +<template>
 +  <div class="flex min-h-0 w-full flex-1">
 +    <iframe
-+      src="/yandex-app/index.html"
++      :src="src"
 +      title="Яндекс Еда · iiko"
 +      class="h-full w-full flex-1 border-0"
 +    />
@@ -29494,6 +29494,9 @@ index 0000000..caa0a4e
 +<script setup lang="ts">
 +import { usePageHead } from "@composables/head"
 +import { ref } from "vue"
++
++// метка времени, чтобы после обновления файлов раздел всегда грузился свежим, а не из кеша браузера
++const src = `/yandex-app/index.html?t=${Date.now()}`
 +
 +usePageHead({ title: ref("Яндекс Еда") })
 +</script>

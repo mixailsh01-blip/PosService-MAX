@@ -1,0 +1,37 @@
+{
+  "v": 2,
+  "id": "iiko-cloud-api",
+  "name": "iiko Cloud API",
+  "variables": [
+    {
+      "key": "baseUrl",
+      "initialValue": "https://api-ru.iiko.services",
+      "currentValue": "https://api-ru.iiko.services",
+      "secret": false
+    },
+    {
+      "key": "apiLogin",
+      "initialValue": "",
+      "currentValue": "",
+      "secret": true
+    },
+    {
+      "key": "token",
+      "initialValue": "",
+      "currentValue": "",
+      "secret": true
+    },
+    {
+      "key": "organizationId",
+      "initialValue": "",
+      "currentValue": "",
+      "secret": false
+    },
+    {
+      "key": "terminalGroupId",
+      "initialValue": "",
+      "currentValue": "",
+      "secret": false
+    }
+  ]
+}

@@ -1094,6 +1094,3397 @@ vHGTYtQeSD*Z7MFz)l}pN#|t4r#9qfVWnOP^;?KG~|Js~im7eo&;4}dMEb^A;
 literal 0
 HcmV?d00001
 
+diff --git a/packages/hoppscotch-common/assets/sprt/iiko-cloud-api.collection.json b/packages/hoppscotch-common/assets/sprt/iiko-cloud-api.collection.json
+new file mode 100644
+index 0000000..85c6a10
+--- /dev/null
++++ b/packages/hoppscotch-common/assets/sprt/iiko-cloud-api.collection.json
+@@ -0,0 +1,3340 @@
++{
++  "v": 12,
++  "name": "iiko Cloud API (СПРТ)",
++  "folders": [
++    {
++      "v": 12,
++      "name": "Авторизация",
++      "folders": [],
++      "requests": [
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/access_token",
++          "name": "Получить токен (access_token)",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "none",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "// Сохраняем токен в окружение: он подставится во все запросы коллекции\npw.env.set(\"token\", pw.response.body.token)\npw.test(\"Токен получен\", () => { pw.expect(pw.response.body.token).toBeType(\"string\") })",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"apiLogin\": \"<<apiLogin>>\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4a_e812e707-94f5-4f9c-933a-147dca22ceb4",
++          "description": "Сначала выберите окружение «iiko Cloud API» и впишите свой apiLogin. Токен живёт около часа."
++        }
++      ],
++      "auth": {
++        "authType": "inherit",
++        "authActive": true
++      },
++      "headers": [],
++      "variables": [],
++      "description": null,
++      "preRequestScript": "",
++      "testScript": "",
++      "_ref_id": "coll_mwapxm4b_e23ba742-b760-45d1-ab5e-81d36d1911e1"
++    },
++    {
++      "v": 12,
++      "name": "Адреса и регионы",
++      "folders": [],
++      "requests": [
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/regions",
++          "name": "Regions",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationIds\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4a_ac8d805f-4033-4341-9cbb-30d86cc32d3e",
++          "description": "POST /api/1/regions"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/cities",
++          "name": "Cities",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationIds\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4a_0d1f6d84-fd8f-4c37-908b-9d175f5c10cc",
++          "description": "POST /api/1/cities"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/streets/by_city",
++          "name": "Streets by city",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"cityId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4a_f9e66959-dfd4-4c19-880a-a2d5e0a75cc4",
++          "description": "POST /api/1/streets/by_city"
++        }
++      ],
++      "auth": {
++        "authType": "inherit",
++        "authActive": true
++      },
++      "headers": [],
++      "variables": [],
++      "description": null,
++      "preRequestScript": "",
++      "testScript": "",
++      "_ref_id": "coll_mwapxm4i_f5a7fa33-fc6a-495f-bb1b-1dddee3d6ddc"
++    },
++    {
++      "v": 12,
++      "name": "Вебхуки",
++      "folders": [],
++      "requests": [
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/webhooks/settings",
++          "name": "Get webhooks settings for specified organization and authorized API login",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_15cc1009-501e-4f3e-acf3-d41c5fc30389",
++          "description": "POST /api/1/webhooks/settings"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/webhooks/update_settings",
++          "name": "Update webhooks settings for specified organization and authorized API login",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"webHooksUri\": \"\",\n  \"webHooksFilter\": {\n    \"deliveryOrderFilter\": {},\n    \"tableOrderFilter\": {},\n    \"reserveFilter\": {},\n    \"stopListUpdateFilter\": {},\n    \"personalShiftFilter\": {}\n  }\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_205ace9c-10ae-47e9-a5d9-a84111b7ee2e",
++          "description": "POST /api/1/webhooks/update_settings\n\nНеобязательные поля: authToken, webHooksFilter"
++        }
++      ],
++      "auth": {
++        "authType": "inherit",
++        "authActive": true
++      },
++      "headers": [],
++      "variables": [],
++      "description": null,
++      "preRequestScript": "",
++      "testScript": "",
++      "_ref_id": "coll_mwapxm4i_410b4430-e860-464a-ad97-1e8f62b4886d"
++    },
++    {
++      "v": 12,
++      "name": "Доставка",
++      "folders": [],
++      "requests": [
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/deliveries/create",
++          "name": "Create delivery",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"createOrderSettings\": {},\n  \"order\": {\n    \"completeBefore\": \"2019-08-24 14:15:22.123\",\n    \"phone\": \"\",\n    \"deliveryPoint\": {},\n    \"guests\": {\n      \"count\": 0\n    },\n    \"items\": [\n      {\n        \"type\": \"\",\n        \"amount\": 0\n      }\n    ],\n    \"combos\": [\n      {\n        \"id\": \"\",\n        \"name\": \"\",\n        \"amount\": 0,\n        \"price\": 0,\n        \"sourceId\": \"\"\n      }\n    ],\n    \"payments\": [\n      {\n        \"paymentTypeKind\": \"\",\n        \"sum\": 0,\n        \"paymentTypeId\": \"\"\n      }\n    ],\n    \"tips\": [\n      {\n        \"paymentTypeKind\": \"\",\n        \"sum\": 0,\n        \"paymentTypeId\": \"\"\n      }\n    ],\n    \"discountsInfo\": {},\n    \"loyaltyInfo\": {}\n  }\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4a_734451f9-58b7-463e-b599-3bbf737612ff",
++          "description": "POST /api/1/deliveries/create\n\nНеобязательные поля: terminalGroupId, createOrderSettings"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/deliveries/update_order_problem",
++          "name": "Update order problem",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"orderId\": \"\",\n  \"hasProblem\": true,\n  \"problem\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_fb69083f-0327-4a63-8a97-8820964c1f76",
++          "description": "POST /api/1/deliveries/update_order_problem"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/deliveries/update_order_payments",
++          "name": "Update order payment details",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"orderId\": \"\",\n  \"paymentItems\": [\n    {\n      \"sum\": 0,\n      \"paymentTypeId\": \"\",\n      \"isProcessedExternally\": true\n    }\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_9df6f3a0-2a2f-42ed-b703-8a624d98bfc8",
++          "description": "POST /api/1/deliveries/update_order_payments\n\nНеобязательные поля: paymentItems"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/deliveries/update_order_delivery_status",
++          "name": "Update delivery status",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"orderId\": \"\",\n  \"deliveryStatus\": \"Waiting\",\n  \"deliveryDate\": \"2019-08-24 14:15:22.123\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_eb755db3-511b-4be7-883b-06746bf2eebc",
++          "description": "POST /api/1/deliveries/update_order_delivery_status\n\nНеобязательные поля: deliveryDate"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/deliveries/update_order_courier",
++          "name": "Update order courier",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"orderId\": \"\",\n  \"employeeId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_9a2089df-dd60-45aa-98af-08c677e74ae4",
++          "description": "POST /api/1/deliveries/update_order_courier"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/deliveries/add_items",
++          "name": "Add order items",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"orderId\": \"\",\n  \"items\": [\n    {\n      \"type\": \"\",\n      \"amount\": 0\n    }\n  ],\n  \"combos\": [\n    {\n      \"id\": \"\",\n      \"name\": \"\",\n      \"amount\": 0,\n      \"price\": 0,\n      \"sourceId\": \"\"\n    }\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_8b18fef5-c67b-4291-8eaa-4178ec7f8ad6",
++          "description": "POST /api/1/deliveries/add_items\n\nНеобязательные поля: items, combos"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/deliveries/close",
++          "name": "Close order",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"deliveryDate\": \"2019-08-24 14:15:22.123\",\n  \"organizationId\": \"\",\n  \"orderId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_812afff6-c5d4-42ac-a0f9-f5f6d5c43667",
++          "description": "POST /api/1/deliveries/close\n\nНеобязательные поля: deliveryDate"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/deliveries/cancel",
++          "name": "Cancel delivery order",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"orderId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_b636c325-2f08-4489-bd56-fe30649b585c",
++          "description": "POST /api/1/deliveries/cancel\n\nНеобязательные поля: movedOrderId, cancelCauseId, removalTypeId, userIdForWriteoff"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/deliveries/change_complete_before",
++          "name": "Change time when client wants the order to be delivered",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"orderId\": \"\",\n  \"newCompleteBefore\": \"2019-08-24 14:15:22.123\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_1ea5cdca-20e9-4365-b4c2-6a84a410c519",
++          "description": "POST /api/1/deliveries/change_complete_before"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/deliveries/change_delivery_point",
++          "name": "Change order's delivery point information",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"orderId\": \"\",\n  \"newDeliveryPoint\": {\n    \"coordinates\": {\n      \"latitude\": 0,\n      \"longitude\": 0\n    },\n    \"address\": {\n      \"street\": {},\n      \"house\": \"\"\n    }\n  }\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_2a593d05-025e-4cf6-938c-5cf2b23cf3cc",
++          "description": "POST /api/1/deliveries/change_delivery_point"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/deliveries/change_service_type",
++          "name": "Change order's delivery type",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"newServiceType\": \"\",\n  \"organizationId\": \"\",\n  \"orderId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_e1b55f19-094a-4873-8127-2ca838b7674f",
++          "description": "POST /api/1/deliveries/change_service_type"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/deliveries/change_payments",
++          "name": "Change order's payments",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"orderId\": \"\",\n  \"payments\": [\n    {\n      \"paymentTypeKind\": \"\",\n      \"sum\": 0,\n      \"paymentTypeId\": \"\"\n    }\n  ],\n  \"tips\": [\n    {\n      \"paymentTypeKind\": \"\",\n      \"sum\": 0,\n      \"paymentTypeId\": \"\"\n    }\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_de5168dc-656a-4705-972d-be9f4de12dbf",
++          "description": "POST /api/1/deliveries/change_payments\n\nНеобязательные поля: tips"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/deliveries/change_comment",
++          "name": "Change delivery comment",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"orderId\": \"\",\n  \"comment\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_6bc5faf6-f29a-42b0-9299-c083e970d1aa",
++          "description": "POST /api/1/deliveries/change_comment"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/deliveries/print_delivery_bill",
++          "name": "Print delivery bill",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"orderId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_c7d889c3-9374-4e52-9b9f-e1901e7577fd",
++          "description": "POST /api/1/deliveries/print_delivery_bill"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/deliveries/confirm",
++          "name": "Confirm delivery",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"orderId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_d14177d1-44f1-48e2-a115-22496b91d5ea",
++          "description": "POST /api/1/deliveries/confirm"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/deliveries/cancel_confirmation",
++          "name": "Cancel delivery confirmation",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"orderId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_915c8295-c0f2-41ee-96fb-fbe3e8a9c75b",
++          "description": "POST /api/1/deliveries/cancel_confirmation"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/deliveries/change_operator",
++          "name": "Assign/change the order operator",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"orderId\": \"\",\n  \"operatorId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_e3082d67-f254-4aa6-a725-a4e9d44e4edb",
++          "description": "POST /api/1/deliveries/change_operator"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/deliveries/by_id",
++          "name": "Retrieve orders by IDs",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"orderIds\": [\n    \"\"\n  ],\n  \"sourceKeys\": [\n    \"\"\n  ],\n  \"posOrderIds\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_30d9af97-b90a-407e-9d9e-b4e4327c7ea7",
++          "description": "POST /api/1/deliveries/by_id\n\nНеобязательные поля: orderIds, sourceKeys, posOrderIds"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/deliveries/by_delivery_date_and_status",
++          "name": "Retrieve list of orders by statuses and dates",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationIds\": [\n    \"\"\n  ],\n  \"deliveryDateFrom\": \"2019-08-24 14:15:22.123\",\n  \"deliveryDateTo\": \"2019-08-24 14:15:22.123\",\n  \"statuses\": [\n    \"Waiting\"\n  ],\n  \"sourceKeys\": [\n    \"\"\n  ],\n  \"courierIds\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_d52ff648-362a-45ee-ad3b-7de3961f19e1",
++          "description": "POST /api/1/deliveries/by_delivery_date_and_status\n\nНеобязательные поля: deliveryDateTo, statuses, sourceKeys, courierIds"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/deliveries/by_revision",
++          "name": "Retrieve list of orders changed from the time revision was passed",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"startRevision\": 0,\n  \"organizationIds\": [\n    \"\"\n  ],\n  \"sourceKeys\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_ecb87df1-b76d-4098-b98d-2f81e5a5d7dd",
++          "description": "POST /api/1/deliveries/by_revision\n\nНеобязательные поля: sourceKeys"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/deliveries/by_delivery_date_and_phone",
++          "name": "Retrieve list of orders by telephone number, dates and revision",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"phone\": \"\",\n  \"deliveryDateFrom\": \"2019-08-24 14:15:22.123\",\n  \"deliveryDateTo\": \"2019-08-24 14:15:22.123\",\n  \"organizationIds\": [\n    \"\"\n  ],\n  \"sourceKeys\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_29c9c4c2-df15-42c1-a16a-b27d2a1481fd",
++          "description": "POST /api/1/deliveries/by_delivery_date_and_phone\n\nНеобязательные поля: deliveryDateFrom, deliveryDateTo, startRevision, sourceKeys, rowsCount"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/deliveries/by_delivery_date_and_source_key_and_filter",
++          "name": "Search orders by search text and additional filters (date, problem, statuses and other)",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationIds\": [\n    \"\"\n  ],\n  \"terminalGroupIds\": [\n    \"\"\n  ],\n  \"deliveryDateFrom\": \"2019-08-24 14:15:22.123\",\n  \"deliveryDateTo\": \"2019-08-24 14:15:22.123\",\n  \"statuses\": [\n    \"Waiting\"\n  ],\n  \"sourceKeys\": [\n    \"\"\n  ],\n  \"orderIds\": [\n    \"\"\n  ],\n  \"posOrderIds\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_d0c6673a-8bd2-45bb-b462-aeae2d66c68e",
++          "description": "POST /api/1/deliveries/by_delivery_date_and_source_key_and_filter\n\nНеобязательные поля: terminalGroupIds, deliveryDateFrom, deliveryDateTo, statuses, hasProblem, orderServiceType, searchText, timeToCookingErrorTimeout, cookingTimeout, sortProperty, sortDirection, rowsCount, sourceKeys, orderIds, posOrderIds"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/deliveries/check_create",
++          "name": "Check create delivery",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"createOrderSettings\": {},\n  \"order\": {\n    \"completeBefore\": \"2019-08-24 14:15:22.123\",\n    \"phone\": \"\",\n    \"deliveryPoint\": {},\n    \"guests\": {\n      \"count\": 0\n    },\n    \"items\": [\n      {\n        \"type\": \"\",\n        \"amount\": 0\n      }\n    ],\n    \"combos\": [\n      {\n        \"id\": \"\",\n        \"name\": \"\",\n        \"amount\": 0,\n        \"price\": 0,\n        \"sourceId\": \"\"\n      }\n    ],\n    \"payments\": [\n      {\n        \"paymentTypeKind\": \"\",\n        \"sum\": 0,\n        \"paymentTypeId\": \"\"\n      }\n    ],\n    \"tips\": [\n      {\n        \"paymentTypeKind\": \"\",\n        \"sum\": 0,\n        \"paymentTypeId\": \"\"\n      }\n    ],\n    \"discountsInfo\": {},\n    \"loyaltyInfo\": {}\n  }\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_e0144b16-425a-49fa-9a84-a6b028c68579",
++          "description": "POST /api/1/deliveries/check_create\n\nНеобязательные поля: terminalGroupId, createOrderSettings"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/deliveries/order_types",
++          "name": "Order types",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationIds\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_34a21460-9031-47f3-94cb-d59daeef5112",
++          "description": "POST /api/1/deliveries/order_types"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/deliveries/drafts/by_id",
++          "name": "Retrieve order draft by ID",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"orderId\": \"\",\n  \"employeeId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_07619282-553c-4270-b269-4c14f2ee1e24",
++          "description": "POST /api/1/deliveries/drafts/by_id"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/deliveries/drafts/by_filter",
++          "name": "Retrieve order drafts list by parameters",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationIds\": [\n    \"\"\n  ],\n  \"deliveryDateFrom\": \"2019-08-24 14:15:22.123\",\n  \"deliveryDateTo\": \"2019-08-24 14:15:22.123\",\n  \"sourceKeys\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_7e175f7c-2071-481e-9e2d-1119ef34ab60",
++          "description": "POST /api/1/deliveries/drafts/by_filter\n\nНеобязательные поля: deliveryDateFrom, deliveryDateTo, phone, limit, offset, sourceKeys"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/deliveries/drafts/save",
++          "name": "Store order draft changes to DB",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"order\": {\n    \"completeBefore\": \"2019-08-24 14:15:22.123\",\n    \"phone\": \"\",\n    \"deliveryPoint\": {},\n    \"guests\": {\n      \"count\": 0\n    },\n    \"items\": [\n      {\n        \"type\": \"\",\n        \"amount\": 0\n      }\n    ],\n    \"combos\": [\n      {\n        \"id\": \"\",\n        \"name\": \"\",\n        \"amount\": 0,\n        \"price\": 0,\n        \"sourceId\": \"\"\n      }\n    ],\n    \"payments\": [\n      {\n        \"paymentTypeKind\": \"\",\n        \"sum\": 0,\n        \"paymentTypeId\": \"\"\n      }\n    ],\n    \"tips\": [\n      {\n        \"paymentTypeKind\": \"\",\n        \"sum\": 0,\n        \"paymentTypeId\": \"\"\n      }\n    ],\n    \"discountsInfo\": {},\n    \"loyaltyInfo\": {}\n  },\n  \"employeeId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_ee2639e2-a6ea-4e5c-8c57-d6d1cea69117",
++          "description": "POST /api/1/deliveries/drafts/save\n\nНеобязательные поля: terminalGroupId"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/deliveries/drafts/commit",
++          "name": "Admit order draft changes and send them to Front",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"createOrderSettings\": {},\n  \"orderId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_c2b22a23-7d83-4a9e-9697-b7bc98a6e15a",
++          "description": "POST /api/1/deliveries/drafts/commit\n\nНеобязательные поля: terminalGroupId, createOrderSettings"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/deliveries/drafts/delete",
++          "name": "Delete order draft",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"orderId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_4e358ddd-bca4-4b4e-a9fc-1fdc8e831069",
++          "description": "POST /api/1/deliveries/drafts/delete"
++        }
++      ],
++      "auth": {
++        "authType": "inherit",
++        "authActive": true
++      },
++      "headers": [],
++      "variables": [],
++      "description": null,
++      "preRequestScript": "",
++      "testScript": "",
++      "_ref_id": "coll_mwapxm4i_adc85794-dad1-4cc6-a8a7-98cd87134465"
++    },
++    {
++      "v": 12,
++      "name": "Заказы в зале",
++      "folders": [],
++      "requests": [
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/order/create",
++          "name": "Create order",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"terminalGroupId\": \"\",\n  \"order\": {\n    \"tableIds\": [\n      \"\"\n    ],\n    \"guests\": {\n      \"count\": 0\n    },\n    \"items\": [\n      {\n        \"type\": \"\",\n        \"amount\": 0\n      }\n    ],\n    \"combos\": [\n      {\n        \"id\": \"\",\n        \"name\": \"\",\n        \"amount\": 0,\n        \"price\": 0,\n        \"sourceId\": \"\"\n      }\n    ],\n    \"payments\": [\n      {\n        \"paymentTypeKind\": \"\",\n        \"sum\": 0,\n        \"paymentTypeId\": \"\"\n      }\n    ],\n    \"tips\": [\n      {\n        \"paymentTypeKind\": \"\",\n        \"sum\": 0,\n        \"paymentTypeId\": \"\"\n      }\n    ],\n    \"discountsInfo\": {},\n    \"loyaltyInfo\": {}\n  },\n  \"createOrderSettings\": {}\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_6b005e6d-d3a3-4805-875f-6247c6d6a833",
++          "description": "POST /api/1/order/create\n\nНеобязательные поля: order, createOrderSettings"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/order/by_id",
++          "name": "Retrieve orders by IDs",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"sourceKeys\": [\n    \"\"\n  ],\n  \"organizationIds\": [\n    \"\"\n  ],\n  \"orderIds\": [\n    \"\"\n  ],\n  \"posOrderIds\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_373ae553-6a91-4f9f-aa18-3770183a2579",
++          "description": "POST /api/1/order/by_id\n\nНеобязательные поля: sourceKeys, orderIds, posOrderIds"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/order/by_table",
++          "name": "Retrieve orders by tables",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"sourceKeys\": [\n    \"\"\n  ],\n  \"organizationIds\": [\n    \"\"\n  ],\n  \"tableIds\": [\n    \"\"\n  ],\n  \"statuses\": [\n    \"Closed\"\n  ],\n  \"dateFrom\": \"2019-08-24 14:15:22.123\",\n  \"dateTo\": \"2019-08-24 14:15:22.123\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_6ea24ce7-194a-4d71-aea0-b8a7c07b626c",
++          "description": "POST /api/1/order/by_table\n\nНеобязательные поля: sourceKeys, statuses, dateFrom, dateTo"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/order/update_payments",
++          "name": "Update order payment details",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"orderId\": \"\",\n  \"paymentItems\": [\n    {\n      \"sum\": 0,\n      \"paymentTypeId\": \"\",\n      \"isProcessedExternally\": true\n    }\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_85b878b2-efee-44ab-afeb-4cad0f3d0047",
++          "description": "POST /api/1/order/update_payments\n\nНеобязательные поля: paymentItems"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/order/add_items",
++          "name": "Add order items",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"orderId\": \"\",\n  \"items\": [\n    {\n      \"type\": \"\",\n      \"amount\": 0\n    }\n  ],\n  \"combos\": [\n    {\n      \"id\": \"\",\n      \"name\": \"\",\n      \"amount\": 0,\n      \"price\": 0,\n      \"sourceId\": \"\"\n    }\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_d4e47b8b-6af4-4bf1-adba-c037adc2a6ca",
++          "description": "POST /api/1/order/add_items\n\nНеобязательные поля: items, combos"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/order/close",
++          "name": "Close order",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"chequeAdditionalInfo\": {\n    \"needReceipt\": true\n  },\n  \"organizationId\": \"\",\n  \"orderId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_268e9b3d-9b50-4e9a-a0a8-b8e064aa1acb",
++          "description": "POST /api/1/order/close\n\nНеобязательные поля: chequeAdditionalInfo"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/order/change_payments",
++          "name": "Change table order's payments",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"orderId\": \"\",\n  \"payments\": [\n    {\n      \"paymentTypeKind\": \"\",\n      \"sum\": 0,\n      \"paymentTypeId\": \"\"\n    }\n  ],\n  \"tips\": [\n    {\n      \"paymentTypeKind\": \"\",\n      \"sum\": 0,\n      \"paymentTypeId\": \"\"\n    }\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_b8182a16-48c7-4e0d-bc10-ca2746b4822b",
++          "description": "POST /api/1/order/change_payments\n\nНеобязательные поля: tips"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/order/init_by_table",
++          "name": "Init orders, created on POS, by tables",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"terminalGroupId\": \"\",\n  \"tableIds\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_cd6cae3b-c4fe-455f-b2ba-19b85855e228",
++          "description": "POST /api/1/order/init_by_table"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/order/init_by_posOrder",
++          "name": "Init orders, created on POS, by POS orders",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"terminalGroupId\": \"\",\n  \"posOrderIds\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_ca5132e0-41b9-489b-9075-39433d1e81a4",
++          "description": "POST /api/1/order/init_by_posOrder"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/order/add_customer",
++          "name": "Add customer to order",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"orderId\": \"\",\n  \"customer\": {\n    \"birthdate\": \"2019-08-24 14:15:22.123\"\n  }\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_25c12206-f853-4d45-8c47-584372912507",
++          "description": "POST /api/1/order/add_customer"
++        }
++      ],
++      "auth": {
++        "authType": "inherit",
++        "authActive": true
++      },
++      "headers": [],
++      "variables": [],
++      "description": null,
++      "preRequestScript": "",
++      "testScript": "",
++      "_ref_id": "coll_mwapxm4i_a09234d1-5cdf-49e8-b088-5b5b8c8a18d8"
++    },
++    {
++      "v": 12,
++      "name": "Комбо",
++      "folders": [],
++      "requests": [
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/combo",
++          "name": "Get combos info",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_a30aa8df-49c4-40ec-afe4-265c07b00f54",
++          "description": "POST /api/1/combo\n\nНеобязательные поля: extraData"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/combo/calculate",
++          "name": "Calculate combo price",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"items\": [\n    {\n      \"type\": \"\",\n      \"amount\": 0\n    }\n  ],\n  \"organizationId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_999ae003-be0d-41a6-9ffd-55ffeaded542",
++          "description": "POST /api/1/combo/calculate"
++        }
++      ],
++      "auth": {
++        "authType": "inherit",
++        "authActive": true
++      },
++      "headers": [],
++      "variables": [],
++      "description": null,
++      "preRequestScript": "",
++      "testScript": "",
++      "_ref_id": "coll_mwapxm4i_2c0f86b5-cfdb-409b-99ca-51adedc2b75c"
++    },
++    {
++      "v": 12,
++      "name": "Лояльность (iikoCard)",
++      "folders": [],
++      "requests": [
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/loyalty/iiko/customer/info",
++          "name": "Get customer info",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"type\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_03fc4626-ba94-4865-bfb2-66f1598d7251",
++          "description": "POST /api/1/loyalty/iiko/customer/info\n\nНеобязательные поля: organizationId"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/loyalty/iiko/calculate",
++          "name": "Calculate checkin",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"order\": {\n    \"completeBefore\": \"2019-08-24 14:15:22.123\",\n    \"phone\": \"\",\n    \"deliveryPoint\": {},\n    \"guests\": {\n      \"count\": 0\n    },\n    \"items\": [\n      {\n        \"type\": \"\",\n        \"amount\": 0\n      }\n    ],\n    \"combos\": [\n      {\n        \"id\": \"\",\n        \"name\": \"\",\n        \"amount\": 0,\n        \"price\": 0,\n        \"sourceId\": \"\"\n      }\n    ],\n    \"payments\": [\n      {\n        \"paymentTypeKind\": \"\",\n        \"sum\": 0,\n        \"paymentTypeId\": \"\"\n      }\n    ],\n    \"tips\": [\n      {\n        \"paymentTypeKind\": \"\",\n        \"sum\": 0,\n        \"paymentTypeId\": \"\"\n      }\n    ],\n    \"discountsInfo\": {},\n    \"loyaltyInfo\": {}\n  },\n  \"availablePaymentMarketingCampaignIds\": [\n    \"\"\n  ],\n  \"applicableManualConditions\": [\n    \"\"\n  ],\n  \"dynamicDiscounts\": [\n    {}\n  ],\n  \"organizationId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_33b59dcd-9a3b-406e-9294-438f4240e67a",
++          "description": "POST /api/1/loyalty/iiko/calculate\n\nНеобязательные поля: coupon, referrerId, terminalGroupId, availablePaymentMarketingCampaignIds, applicableManualConditions, dynamicDiscounts"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/loyalty/iiko/manual_condition",
++          "name": "Get manual conditions",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_90b49d7f-c329-40cc-8c75-098b9f72e148",
++          "description": "POST /api/1/loyalty/iiko/manual_condition\n\nНеобязательные поля: organizationId"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/loyalty/iiko/customer_category",
++          "name": "Get customer categories",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_acfa5b48-d80e-4eaf-b08f-4816ee5b628d",
++          "description": "POST /api/1/loyalty/iiko/customer_category"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/loyalty/iiko/customer/create_or_update",
++          "name": "Create or update customer",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"birthday\": \"2019-08-24 14:15:22.123\",\n  \"organizationId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_bfd7421d-6436-4f53-b3b4-63a9e01324b4",
++          "description": "POST /api/1/loyalty/iiko/customer/create_or_update\n\nНеобязательные поля: id, phone, cardTrack, cardNumber, name, middleName, surName, birthday, email, sex, consentStatus, shouldReceivePromoActionsInfo, referrerId, userData"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/loyalty/iiko/customer_category/add",
++          "name": "Add category for customer",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"customerId\": \"\",\n  \"categoryId\": \"\",\n  \"organizationId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_f4ba0269-ad44-4cf2-bd4e-9c2b73b99f05",
++          "description": "POST /api/1/loyalty/iiko/customer_category/add"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/loyalty/iiko/customer_category/remove",
++          "name": "Remove category for customer",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"customerId\": \"\",\n  \"categoryId\": \"\",\n  \"organizationId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_390ea6f6-4806-47cd-ae6b-254b982fb8ca",
++          "description": "POST /api/1/loyalty/iiko/customer_category/remove"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/loyalty/iiko/message/send_sms",
++          "name": "Send sms",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"phone\": \"\",\n  \"text\": \"\",\n  \"organizationId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_cb035e07-6d68-47ff-998b-75069a4f8914",
++          "description": "POST /api/1/loyalty/iiko/message/send_sms"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/loyalty/iiko/message/send_email",
++          "name": "Send email",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"receiver\": \"\",\n  \"subject\": \"\",\n  \"body\": \"\",\n  \"organizationId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_e0a1fe16-26e4-4d30-9294-42cd74bea3ef",
++          "description": "POST /api/1/loyalty/iiko/message/send_email"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/loyalty/iiko/program",
++          "name": "Get programs",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_0239053c-78ad-4283-9631-bce90e49571c",
++          "description": "POST /api/1/loyalty/iiko/program\n\nНеобязательные поля: WithoutMarketingCampaigns"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/loyalty/iiko/customer/program/add",
++          "name": "Add customer to program",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_91f7a2b7-3d50-42c9-8244-b9fc9cb84704",
++          "description": "POST /api/1/loyalty/iiko/customer/program/add\n\nНеобязательные поля: customerId, programId"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/loyalty/iiko/customer/card/add",
++          "name": "Add card",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"customerId\": \"\",\n  \"cardTrack\": \"\",\n  \"cardNumber\": \"\",\n  \"organizationId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_92f498b2-a14a-4cb5-99ad-d8948ed6ab7c",
++          "description": "POST /api/1/loyalty/iiko/customer/card/add"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/loyalty/iiko/customer/card/remove",
++          "name": "Delete card",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"customerId\": \"\",\n  \"cardTrack\": \"\",\n  \"organizationId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_88174eaa-715c-4dbb-90f4-8cf2078c3198",
++          "description": "POST /api/1/loyalty/iiko/customer/card/remove"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/loyalty/iiko/customer/wallet/hold",
++          "name": "Hold money",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"customerId\": \"\",\n  \"walletId\": \"\",\n  \"sum\": 0,\n  \"organizationId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_fffdd404-2e71-4c12-82f5-9dbbbafca9d2",
++          "description": "POST /api/1/loyalty/iiko/customer/wallet/hold\n\nНеобязательные поля: transactionId, comment"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/loyalty/iiko/customer/wallet/cancel_hold",
++          "name": "Cancel hold money",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"transactionId\": \"\",\n  \"organizationId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_f10a5310-e281-4d9c-9f41-5ccb79892e22",
++          "description": "POST /api/1/loyalty/iiko/customer/wallet/cancel_hold"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/loyalty/iiko/customer/wallet/topup",
++          "name": "Refill balance",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_f5edf5f8-54f0-45cd-916a-1a5bd1b05f65",
++          "description": "POST /api/1/loyalty/iiko/customer/wallet/topup\n\nНеобязательные поля: customerId, walletId, sum, comment"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/loyalty/iiko/customer/wallet/chargeoff",
++          "name": "Withdraw balance",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_2852e2cc-031c-47a5-9b75-f86039678774",
++          "description": "POST /api/1/loyalty/iiko/customer/wallet/chargeoff\n\nНеобязательные поля: customerId, walletId, sum, comment"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/loyalty/iiko/coupons/info",
++          "name": "Get coupon info",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"number\": \"\",\n  \"organizationId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_198d1615-f59d-4f10-b4c4-4007bfa98e18",
++          "description": "POST /api/1/loyalty/iiko/coupons/info\n\nНеобязательные поля: series"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/loyalty/iiko/coupons/series",
++          "name": "Get coupon series with non-activated coupons",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_46289908-ed9e-4d4d-be28-08bed1768469",
++          "description": "POST /api/1/loyalty/iiko/coupons/series"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/loyalty/iiko/coupons/by_series",
++          "name": "Get non-activated coupons",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"series\": \"\",\n  \"organizationId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_43a41ccf-b564-47a4-a0ce-447bfa70986b",
++          "description": "POST /api/1/loyalty/iiko/coupons/by_series\n\nНеобязательные поля: pageSize, page"
++        }
++      ],
++      "auth": {
++        "authType": "inherit",
++        "authActive": true
++      },
++      "headers": [],
++      "variables": [],
++      "description": null,
++      "preRequestScript": "",
++      "testScript": "",
++      "_ref_id": "coll_mwapxm4i_b8796caf-e39e-497e-b012-cc007db448ad"
++    },
++    {
++      "v": 12,
++      "name": "Номенклатура и меню",
++      "folders": [],
++      "requests": [
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/nomenclature",
++          "name": "Menu",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_c1d3fcf0-48a7-44cf-92dd-ef7283524e46",
++          "description": "POST /api/1/nomenclature\n\nНеобязательные поля: startRevision"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/2/menu",
++          "name": "External menus with price categories",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": null,
++            "body": null
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_1b8e4ec7-4278-4afa-b133-96c6c6baca8c",
++          "description": "POST /api/2/menu"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/2/menu/by_id",
++          "name": "Retrieve external menu by ID",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"externalMenuId\": \"\",\n  \"organizationIds\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_82cccb38-4e82-468b-a8df-4721ba47729a",
++          "description": "POST /api/2/menu/by_id\n\nНеобязательные поля: priceCategoryId, version"
++        }
++      ],
++      "auth": {
++        "authType": "inherit",
++        "authActive": true
++      },
++      "headers": [],
++      "variables": [],
++      "description": null,
++      "preRequestScript": "",
++      "testScript": "",
++      "_ref_id": "coll_mwapxm4i_321cead0-2e8b-4893-9a31-f4d3f68d61a3"
++    },
++    {
++      "v": 12,
++      "name": "Ограничения доставки",
++      "folders": [],
++      "requests": [
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/delivery_restrictions",
++          "name": "Retrieve list of delivery restrictions",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationIds\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_b1ab355e-60ea-4ee8-abd9-97dea18e0eea",
++          "description": "POST /api/1/delivery_restrictions"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/delivery_restrictions/update",
++          "name": "Update delivery restrictions",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"deliveryGeocodeServiceType\": 1,\n  \"deliveryRegionsMapUrl\": \"\",\n  \"defaultDeliveryDurationInMinutes\": 0,\n  \"defaultSelfServiceDurationInMinutes\": 0,\n  \"useSameDeliveryDuration\": true,\n  \"useSameMinSum\": true,\n  \"defaultMinSum\": 0,\n  \"useSameWorkTimeInterval\": true,\n  \"defaultFrom\": 0,\n  \"defaultTo\": 0,\n  \"useSameRestrictionsOnAllWeek\": true,\n  \"restrictions\": [\n    {\n      \"minSum\": 0,\n      \"terminalGroupId\": \"\",\n      \"organizationId\": \"\",\n      \"zone\": \"\",\n      \"weekMap\": 0,\n      \"from\": 0,\n      \"to\": 0,\n      \"priority\": 0,\n      \"deliveryDurationInMinutes\": 0,\n      \"deliveryServiceProductId\": \"\"\n    }\n  ],\n  \"deliveryZones\": [\n    {\n      \"name\": \"\",\n      \"coordinates\": [\n        {\n          \"latitude\": 0,\n          \"longitude\": 0\n        }\n      ],\n      \"addresses\": [\n        {\n          \"streetId\": \"\",\n          \"postcode\": \"\",\n          \"houses\": {\n            \"type\": 0,\n            \"startingNumber\": 0,\n            \"maxNumber\": 0,\n            \"isUnlimitedRange\": true,\n            \"specificNumbers\": []\n          }\n        }\n      ]\n    }\n  ],\n  \"rejectOnGeocodingError\": true,\n  \"addDeliveryServiceCost\": true,\n  \"useSameDeliveryServiceProduct\": true,\n  \"defaultDeliveryServiceProductId\": \"\",\n  \"useExternalAssignationService\": true,\n  \"frontTrustsCallCenterCheck\": true,\n  \"externalAssignationServiceUrl\": \"\",\n  \"requireExactAddressForGeocoding\": true,\n  \"zonesMode\": 0,\n  \"autoAssignExternalDeliveries\": true,\n  \"actionOnValidationRejection\": 1\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_2bd4a434-10e2-4437-8c4e-3376c74c9026",
++          "description": "POST /api/1/delivery_restrictions/update"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/delivery_restrictions/allowed",
++          "name": "Get suitable terminal groups for delivery restrictions",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationIds\": [\n    \"\"\n  ],\n  \"deliveryAddress\": {},\n  \"orderLocation\": {\n    \"latitude\": 0,\n    \"longitude\": 0\n  },\n  \"orderItems\": [\n    {\n      \"id\": \"\",\n      \"product\": \"\",\n      \"amount\": 0\n    }\n  ],\n  \"isCourierDelivery\": true,\n  \"deliveryDate\": \"2019-08-24 14:15:22.123\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_c9b9580b-9c1f-4526-ba4a-a2bbaca44efb",
++          "description": "POST /api/1/delivery_restrictions/allowed\n\nНеобязательные поля: organizationId, organizationIds, deliveryAddress, orderLocation, orderItems, deliveryDate, deliverySum, discountSum"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/2/delivery_restrictions",
++          "name": "Get delivery restrictions (v2)",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationIds\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_d857c978-ee1e-4bab-927a-54047156f667",
++          "description": "POST /api/2/delivery_restrictions\n\nНеобязательные поля: organizationIds"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/2/delivery_restrictions/allowed",
++          "name": "Get suitable terminal groups for delivery restrictions (v2)",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationIds\": [\n    \"\"\n  ],\n  \"orderDate\": \"2019-08-24 14:15:22.123\",\n  \"orderLocation\": {\n    \"latitude\": 0,\n    \"longitude\": 0\n  },\n  \"deliveryAddress\": {},\n  \"orderServiceType\": \"DeliveryByCourier\",\n  \"deliverySum\": 0,\n  \"discountSum\": 0\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_0ea993fc-2c74-4bdf-b6eb-97736f96de55",
++          "description": "POST /api/2/delivery_restrictions/allowed\n\nНеобязательные поля: organizationIds, orderDate, orderLocation, deliveryAddress, returnRejected"
++        }
++      ],
++      "auth": {
++        "authType": "inherit",
++        "authActive": true
++      },
++      "headers": [],
++      "variables": [],
++      "description": null,
++      "preRequestScript": "",
++      "testScript": "",
++      "_ref_id": "coll_mwapxm4i_c0070eb8-9674-4b7c-9362-1d889d6bac8d"
++    },
++    {
++      "v": 12,
++      "name": "Организации",
++      "folders": [],
++      "requests": [
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/organizations",
++          "name": "Returns organizations available to api-login user",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "GET",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": null,
++            "body": null
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_0d925df8-61c2-4d11-beb7-e51c6fab2821",
++          "description": "GET /api/1/organizations"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/organizations",
++          "name": "Returns organizations available to api-login user",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationIds\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_ebadd2ae-7d4a-46a2-9795-7fa64241ed43",
++          "description": "POST /api/1/organizations\n\nНеобязательные поля: organizationIds, returnAdditionalInfo, includeDisabled"
++        }
++      ],
++      "auth": {
++        "authType": "inherit",
++        "authActive": true
++      },
++      "headers": [],
++      "variables": [],
++      "description": null,
++      "preRequestScript": "",
++      "testScript": "",
++      "_ref_id": "coll_mwapxm4i_7b011e2c-fc88-442e-8819-f922f9e6c5d5"
++    },
++    {
++      "v": 12,
++      "name": "Резервы и столы",
++      "folders": [],
++      "requests": [
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/reserve/available_organizations",
++          "name": "Returns all organizations of current account (determined by Authorization request header) for which banquet/reserve booking are available",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationIds\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4a_a2d992a0-15e5-4c4f-aae7-884a8015c99e",
++          "description": "POST /api/1/reserve/available_organizations\n\nНеобязательные поля: organizationIds, returnAdditionalInfo, includeDisabled"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/reserve/available_terminal_groups",
++          "name": "Returns all terminal groups of specified organizations, for which banquet/reserve booking are available",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationIds\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4a_11038363-a366-41ac-b341-a37008d4107a",
++          "description": "POST /api/1/reserve/available_terminal_groups"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/reserve/available_restaurant_sections",
++          "name": "Returns all restaurant sections of specified terminal groups, for which banquet/reserve booking are available",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"terminalGroupIds\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4a_0d0b583c-3c51-46b7-ad83-7a85967ead69",
++          "description": "POST /api/1/reserve/available_restaurant_sections\n\nНеобязательные поля: returnSchema, revision"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/reserve/restaurant_sections_workload",
++          "name": "Returns all banquets/reserves for passed restaurant sections",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"restaurantSectionIds\": [\n    \"\"\n  ],\n  \"dateFrom\": \"2019-08-24 14:15:22.123\",\n  \"dateTo\": \"2019-08-24 14:15:22.123\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4a_52d483a2-e5bb-4ac0-8033-315071340290",
++          "description": "POST /api/1/reserve/restaurant_sections_workload\n\nНеобязательные поля: dateTo"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/reserve/create",
++          "name": "Create banquet/reserve",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"order\": {\n    \"items\": [\n      {\n        \"type\": \"\",\n        \"amount\": 0\n      }\n    ],\n    \"combos\": [\n      {\n        \"id\": \"\",\n        \"name\": \"\",\n        \"amount\": 0,\n        \"price\": 0,\n        \"sourceId\": \"\"\n      }\n    ],\n    \"payments\": [\n      {\n        \"paymentTypeKind\": \"\",\n        \"sum\": 0,\n        \"paymentTypeId\": \"\"\n      }\n    ],\n    \"tips\": [\n      {\n        \"paymentTypeKind\": \"\",\n        \"sum\": 0,\n        \"paymentTypeId\": \"\"\n      }\n    ],\n    \"discountsInfo\": {},\n    \"loyaltyInfo\": {}\n  },\n  \"customer\": null,\n  \"phone\": \"\",\n  \"durationInMinutes\": 0,\n  \"shouldRemind\": true,\n  \"tableIds\": [\n    \"\"\n  ],\n  \"estimatedStartTime\": \"2019-08-24 14:15:22.123\",\n  \"guests\": {\n    \"count\": 0\n  }\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4a_e418139d-e10e-44a4-9b42-8e4b452313bc",
++          "description": "POST /api/1/reserve/create\n\nНеобязательные поля: terminalGroupId, id, externalNumber, order, guestsCount, comment, transportToFrontTimeout, guests"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/reserve/status_by_id",
++          "name": "Retrieve banquets/reserves statuses by IDs",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"reserveIds\": [\n    \"\"\n  ],\n  \"sourceKeys\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4a_2723eea0-f7f1-4722-90b8-bbfa0a9c9767",
++          "description": "POST /api/1/reserve/status_by_id\n\nНеобязательные поля: sourceKeys"
++        }
++      ],
++      "auth": {
++        "authType": "inherit",
++        "authActive": true
++      },
++      "headers": [],
++      "variables": [],
++      "description": null,
++      "preRequestScript": "",
++      "testScript": "",
++      "_ref_id": "coll_mwapxm4i_85cd820c-ac28-4280-9f70-742f71ec8b9e"
++    },
++    {
++      "v": 12,
++      "name": "Скидки и акции",
++      "folders": [],
++      "requests": [
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/discounts",
++          "name": "Discounts / surcharges",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationIds\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_adaf6f62-1007-4e40-acac-a5bc4f5e5153",
++          "description": "POST /api/1/discounts"
++        }
++      ],
++      "auth": {
++        "authType": "inherit",
++        "authActive": true
++      },
++      "headers": [],
++      "variables": [],
++      "description": null,
++      "preRequestScript": "",
++      "testScript": "",
++      "_ref_id": "coll_mwapxm4i_28a97954-ab3f-4583-9b7b-27876447d8f3"
++    },
++    {
++      "v": 12,
++      "name": "Сотрудники и курьеры",
++      "folders": [],
++      "requests": [
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/employees/couriers/locations/by_time_offset",
++          "name": "Method of obtaining drivers' coordinates history",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationIds\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_515d9fdb-d302-4e0d-aebb-921e6b12d9bb",
++          "description": "POST /api/1/employees/couriers/locations/by_time_offset\n\nНеобязательные поля: offsetInSeconds"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/employees/couriers",
++          "name": "Returns list of all employees which are delivery drivers in specified restaurants",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationIds\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_6f345dfc-b54f-4bf5-992f-49790a5c9880",
++          "description": "POST /api/1/employees/couriers"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/employees/couriers/by_role",
++          "name": "Returns list of all employees which are delivery drivers in specified restaurants, \nand checks whether each employee has passed role",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationIds\": [\n    \"\"\n  ],\n  \"rolesToCheck\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_5a3fbc92-c0bb-471a-bdf1-94a4ba64706b",
++          "description": "POST /api/1/employees/couriers/by_role"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/employees/couriers/active_location/by_terminal",
++          "name": "Returns list of all active (courier session is opened) courier's locations which are delivery drivers in specified \nrestaurant and are clocked in on specified delivery terminal",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"terminalGroupId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_1cc9cfcc-a682-439f-a107-9a9721630890",
++          "description": "POST /api/1/employees/couriers/active_location/by_terminal"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/employees/couriers/active_location",
++          "name": "Returns list of all active (courier session is opened) courier's locations which are delivery drivers \nin specified restaurants",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationIds\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_870f80e7-acb8-410a-b35c-5e7303aa62a3",
++          "description": "POST /api/1/employees/couriers/active_location"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/employees/info",
++          "name": "Returns employee info",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"id\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_f5c2fdaf-c1c2-457f-8ed4-c5fb9645dd2f",
++          "description": "POST /api/1/employees/info"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/employees/shift/clockin",
++          "name": "Open personal session",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"terminalGroupId\": \"\",\n  \"employeeId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_28ea591b-37e6-44ea-8f78-6208f9cf6cf3",
++          "description": "POST /api/1/employees/shift/clockin\n\nНеобязательные поля: roleId"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/employees/shift/clockout",
++          "name": "Close personal session",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"terminalGroupId\": \"\",\n  \"employeeId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_a11e5965-a9a7-4ccc-9fee-8fac884966db",
++          "description": "POST /api/1/employees/shift/clockout"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/employees/shift/is_open",
++          "name": "Check if personal session is open",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"terminalGroupId\": \"\",\n  \"employeeId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_be830c14-d325-4c0e-a78d-72a26b9c4000",
++          "description": "POST /api/1/employees/shift/is_open"
++        }
++      ],
++      "auth": {
++        "authType": "inherit",
++        "authActive": true
++      },
++      "headers": [],
++      "variables": [],
++      "description": null,
++      "preRequestScript": "",
++      "testScript": "",
++      "_ref_id": "coll_mwapxm4i_4df5f4e2-6a0d-42eb-b3d8-c420fe960981"
++    },
++    {
++      "v": 12,
++      "name": "Справочники",
++      "folders": [],
++      "requests": [
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/cancel_causes",
++          "name": "Delivery cancel causes",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationIds\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_ed6ebb5e-74e0-4474-8f11-259e133360e3",
++          "description": "POST /api/1/cancel_causes"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/payment_types",
++          "name": "Payment types",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationIds\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_04f30692-2eff-48f9-bd02-a2590e7a360c",
++          "description": "POST /api/1/payment_types"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/removal_types",
++          "name": "Removal types (reasons for deletion)",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationIds\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_fb3d56bb-1343-4e5a-a8d5-ca374c438800",
++          "description": "POST /api/1/removal_types"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/tips_types",
++          "name": "Get tips tipes for api-login`s rms group",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": null,
++            "body": null
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_b88370e5-b51b-46bc-a040-44ef5dac6c7e",
++          "description": "POST /api/1/tips_types"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/marketing_sources",
++          "name": "Marketing sources",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationIds\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_45e4392a-39e5-40f1-8903-6ba70e6a3fcb",
++          "description": "POST /api/1/marketing_sources"
++        }
++      ],
++      "auth": {
++        "authType": "inherit",
++        "authActive": true
++      },
++      "headers": [],
++      "variables": [],
++      "description": null,
++      "preRequestScript": "",
++      "testScript": "",
++      "_ref_id": "coll_mwapxm4i_b12f2d50-e75a-40e2-b8f2-3f194d5d0a99"
++    },
++    {
++      "v": 12,
++      "name": "Статусы команд",
++      "folders": [],
++      "requests": [
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/commands/status",
++          "name": "Get status of command",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationId\": \"\",\n  \"correlationId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_246f8e6e-8ff8-41f6-ad38-25903caca5cd",
++          "description": "POST /api/1/commands/status"
++        }
++      ],
++      "auth": {
++        "authType": "inherit",
++        "authActive": true
++      },
++      "headers": [],
++      "variables": [],
++      "description": null,
++      "preRequestScript": "",
++      "testScript": "",
++      "_ref_id": "coll_mwapxm4i_a1ab53a3-469c-4e53-abad-a84580fa8d16"
++    },
++    {
++      "v": 12,
++      "name": "Стоп-листы",
++      "folders": [],
++      "requests": [
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/stop_lists",
++          "name": "Out-of-stock items",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationIds\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_615e4506-a902-4d31-ade3-6e9ba6a1021a",
++          "description": "POST /api/1/stop_lists"
++        }
++      ],
++      "auth": {
++        "authType": "inherit",
++        "authActive": true
++      },
++      "headers": [],
++      "variables": [],
++      "description": null,
++      "preRequestScript": "",
++      "testScript": "",
++      "_ref_id": "coll_mwapxm4i_201636f0-0a53-4179-915c-6fb4b312ed66"
++    },
++    {
++      "v": 12,
++      "name": "Терминалы",
++      "folders": [],
++      "requests": [
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/terminal_groups",
++          "name": "Method that returns information on groups of delivery terminals",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationIds\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_ec4cc860-1253-483a-b532-0d3c2bee9c09",
++          "description": "POST /api/1/terminal_groups\n\nНеобязательные поля: includeDisabled"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/terminal_groups/is_alive",
++          "name": "Returns information on availability of group of terminals",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationIds\": [\n    \"\"\n  ],\n  \"terminalGroupIds\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_ca9fa2bc-2d4e-43a9-a243-2cea40268c5a",
++          "description": "POST /api/1/terminal_groups/is_alive\n\nНеобязательные поля: organizationId, organizationIds"
++        },
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/terminal_groups/awake",
++          "name": "Awake terminal groups from sleep mode",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"organizationIds\": [\n    \"\"\n  ],\n  \"terminalGroupIds\": [\n    \"\"\n  ]\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_c5c27459-b2ae-4866-b45d-20fcfcae4919",
++          "description": "POST /api/1/terminal_groups/awake"
++        }
++      ],
++      "auth": {
++        "authType": "inherit",
++        "authActive": true
++      },
++      "headers": [],
++      "variables": [],
++      "description": null,
++      "preRequestScript": "",
++      "testScript": "",
++      "_ref_id": "coll_mwapxm4i_9ae6233f-95ca-4a7e-a3bd-fac21509f21d"
++    },
++    {
++      "v": 12,
++      "name": "Уведомления",
++      "folders": [],
++      "requests": [
++        {
++          "v": "17",
++          "endpoint": "<<baseUrl>>/api/1/notifications/send",
++          "name": "Send notification to external systems (iikoFront and iikoWeb)",
++          "params": [],
++          "headers": [
++            {
++              "key": "Content-Type",
++              "value": "application/json",
++              "active": true,
++              "description": ""
++            }
++          ],
++          "method": "POST",
++          "auth": {
++            "authType": "inherit",
++            "authActive": true
++          },
++          "preRequestScript": "",
++          "testScript": "",
++          "body": {
++            "contentType": "application/json",
++            "body": "{\n  \"messageType\": \"\",\n  \"organizationId\": \"\"\n}"
++          },
++          "requestVariables": [],
++          "responses": {},
++          "_ref_id": "req_mwapxm4b_b77901f3-572a-4293-8bce-679d7e6f7f9b",
++          "description": "POST /api/1/notifications/send"
++        }
++      ],
++      "auth": {
++        "authType": "inherit",
++        "authActive": true
++      },
++      "headers": [],
++      "variables": [],
++      "description": null,
++      "preRequestScript": "",
++      "testScript": "",
++      "_ref_id": "coll_mwapxm4i_f68718dc-e9f4-449a-9f98-842e55f841c1"
++    }
++  ],
++  "requests": [],
++  "auth": {
++    "authType": "bearer",
++    "authActive": true,
++    "token": "<<token>>"
++  },
++  "headers": [],
++  "variables": [],
++  "description": "Коллекция методов iiko Cloud API (api-ru.iiko.services). Выберите окружение «iiko Cloud API», впишите apiLogin и выполните «Получить токен»: он подставится во все остальные запросы.",
++  "preRequestScript": "",
++  "testScript": "",
++  "_ref_id": "coll_mwapxm4i_cba9a296-a308-4f20-9c9f-37849a130ec1"
++}
+\ No newline at end of file
+diff --git a/packages/hoppscotch-common/assets/sprt/iiko-cloud-api.environment.json b/packages/hoppscotch-common/assets/sprt/iiko-cloud-api.environment.json
+new file mode 100644
+index 0000000..0aacdb2
+--- /dev/null
++++ b/packages/hoppscotch-common/assets/sprt/iiko-cloud-api.environment.json
+@@ -0,0 +1,37 @@
++{
++  "v": 2,
++  "id": "iiko-cloud-api",
++  "name": "iiko Cloud API",
++  "variables": [
++    {
++      "key": "baseUrl",
++      "initialValue": "https://api-ru.iiko.services",
++      "currentValue": "https://api-ru.iiko.services",
++      "secret": false
++    },
++    {
++      "key": "apiLogin",
++      "initialValue": "",
++      "currentValue": "",
++      "secret": true
++    },
++    {
++      "key": "token",
++      "initialValue": "",
++      "currentValue": "",
++      "secret": true
++    },
++    {
++      "key": "organizationId",
++      "initialValue": "",
++      "currentValue": "",
++      "secret": false
++    },
++    {
++      "key": "terminalGroupId",
++      "initialValue": "",
++      "currentValue": "",
++      "secret": false
++    }
++  ]
++}
+\ No newline at end of file
 diff --git a/packages/hoppscotch-common/assets/themes/accent-themes.scss b/packages/hoppscotch-common/assets/themes/accent-themes.scss
 index 69b01a4..f976474 100644
 --- a/packages/hoppscotch-common/assets/themes/accent-themes.scss
@@ -4826,8 +8217,88 @@ index 0000000..70baf43
 +  }
 +}
 +</style>
+diff --git a/packages/hoppscotch-common/src/helpers/sprt-seed.ts b/packages/hoppscotch-common/src/helpers/sprt-seed.ts
+new file mode 100644
+index 0000000..57bc0ae
+--- /dev/null
++++ b/packages/hoppscotch-common/src/helpers/sprt-seed.ts
+@@ -0,0 +1,74 @@
++// СПРТ: on the first sign-in every employee gets the iiko Cloud API
++// collection and environment in their personal workspace.
++import { HoppCollection } from "@hoppscotch/data"
++import * as E from "fp-ts/Either"
++import { restCollectionStore, appendRESTCollections } from "~/newstore/collections"
++import { environmentsStore, createEnvironment } from "~/newstore/environments"
++import {
++  ensureRefIds,
++  populateLocalStoresFromCollectionTree,
++  stripCollectionTreeForStore,
++} from "~/helpers/clientLocalVariables"
++import { sanitizeCollection } from "~/helpers/import-export/import"
++import { sync } from "~/lib/sync/defs"
++import { ReqType } from "~/helpers/backend/graphql"
++
++const SEED_VERSION = "v1"
++const COLLECTION_NAME = "iiko Cloud API (СПРТ)"
++const ENV_NAME = "iiko Cloud API"
++
++const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
++
++export async function seedSprtDefaults(uid: string) {
++  const flag = `sprt_seed_${SEED_VERSION}_${uid}`
++  try {
++    if (localStorage.getItem(flag)) return
++  } catch {
++    return
++  }
++
++  // give workspace sync a moment to load what is already on the server
++  await sleep(5000)
++
++  try {
++    const hasCollection = restCollectionStore.value.state.some(
++      (c: { name: string }) => c.name === COLLECTION_NAME
++    )
++    const hasEnv = environmentsStore.value.environments.some(
++      (e: { name: string }) => e.name === ENV_NAME
++    )
++
++    if (!hasCollection) {
++      const raw = (await import("../../assets/sprt/iiko-cloud-api.collection.json"))
++        .default
++      const parsed = HoppCollection.safeParse(raw)
++      if (parsed.type === "ok") {
++        const sanitized = [parsed.value]
++          .map(sanitizeCollection)
++          .map(ensureRefIds)
++        sanitized.forEach(populateLocalStoresFromCollectionTree)
++        if (sync.collections.importToPersonalWorkspace) {
++          const res = await sync.collections.importToPersonalWorkspace(
++            sanitized,
++            ReqType.Rest
++          )
++          if (!E.isRight(res)) {
++            appendRESTCollections(sanitized.map(stripCollectionTreeForStore))
++          }
++        } else {
++          appendRESTCollections(sanitized.map(stripCollectionTreeForStore))
++        }
++      }
++    }
++
++    if (!hasEnv) {
++      const env = (await import("../../assets/sprt/iiko-cloud-api.environment.json"))
++        .default
++      createEnvironment(env.name, env.variables)
++    }
++
++    localStorage.setItem(flag, "1")
++  } catch (e) {
++    console.error("[sprt-seed] failed", e)
++  }
++}
 diff --git a/packages/hoppscotch-common/src/layouts/default.vue b/packages/hoppscotch-common/src/layouts/default.vue
-index 326768d..5581fe5 100644
+index 326768d..9b8fb5d 100644
 --- a/packages/hoppscotch-common/src/layouts/default.vue
 +++ b/packages/hoppscotch-common/src/layouts/default.vue
 @@ -1,5 +1,6 @@
@@ -4838,16 +8309,17 @@ index 326768d..5581fe5 100644
      <Splitpanes class="no-splitter" :dbl-click-splitter="false" horizontal>
        <Pane style="height: auto">
          <AppHeader />
-@@ -77,6 +78,8 @@ import { Pane, Splitpanes } from "splitpanes"
+@@ -77,6 +78,9 @@ import { Pane, Splitpanes } from "splitpanes"
  import "splitpanes/dist/splitpanes.css"
  import { computed, onBeforeMount, onMounted, ref, watch } from "vue"
  import { RouterView, useRouter } from "vue-router"
 +import { useReadonlyStream } from "@composables/stream"
 +import SprtLoginGate from "~/components/sprt/LoginGate.vue"
++import { seedSprtDefaults } from "~/helpers/sprt-seed"
  
  import { useI18n } from "~/composables/i18n"
  import { useToast } from "~/composables/toast"
-@@ -222,6 +225,26 @@ defineActionHandler("settings.theme.black", () => {
+@@ -222,6 +226,34 @@ defineActionHandler("settings.theme.black", () => {
  })
  
  hookKeybindingsListener()
@@ -4867,6 +8339,14 @@ index 326768d..5581fe5 100644
 +const currentUser = useReadonlyStream(
 +  platform.auth.getCurrentUserStream(),
 +  platform.auth.getCurrentUser()
++)
++// first sign-in: preload the iiko collection and environment
++watch(
++  currentUser,
++  (u) => {
++    if (u?.uid) void seedSprtDefaults(u.uid)
++  },
++  { immediate: true }
 +)
 +const loginRequired = computed(
 +  () => authSettled.value && currentUser.value === null

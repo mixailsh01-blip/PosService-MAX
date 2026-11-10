@@ -148,10 +148,10 @@ index 58a904b..ccc5a76 100644
        user.refreshToken,
 diff --git a/packages/hoppscotch-backend/src/auth/pyrus-allowlist.service.ts b/packages/hoppscotch-backend/src/auth/pyrus-allowlist.service.ts
 new file mode 100644
-index 0000000..ed5a382
+index 0000000..22420d4
 --- /dev/null
 +++ b/packages/hoppscotch-backend/src/auth/pyrus-allowlist.service.ts
-@@ -0,0 +1,154 @@
+@@ -0,0 +1,155 @@
 +import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 +import * as https from 'https';
 +
@@ -293,9 +293,10 @@ index 0000000..ed5a382
 +        body: JSON.stringify({
 +          subject: 'Вход в API-клиент СПРТ',
 +          text:
-+            `Ссылка для входа в API-клиент СПРТ:\n${link}\n\n` +
-+            'Откройте её в том же браузере, где запрашивали вход. ' +
-+            'Если это были не вы, просто завершите задачу.',
++            'Вход в API-клиент СПРТ. Откройте ссылку в том же браузере, ' +
++            'где запрашивали вход. Если это были не вы, просто завершите задачу.\n\n' +
++            'Ссылка для входа:\n' +
++            link,
 +          responsible: { id },
 +        }),
 +      });
@@ -1530,3 +1531,18 @@ index 326768d..5581fe5 100644
  </script>
  
  <style lang="scss" scoped>
+diff --git a/packages/hoppscotch-selfhost-web/src/platform/auth/web/index.ts b/packages/hoppscotch-selfhost-web/src/platform/auth/web/index.ts
+index a65d75d..272d52b 100644
+--- a/packages/hoppscotch-selfhost-web/src/platform/auth/web/index.ts
++++ b/packages/hoppscotch-selfhost-web/src/platform/auth/web/index.ts
+@@ -300,7 +300,9 @@ export const def: AuthPlatformDef = {
+     const urlObject = new URL(url)
+     const searchParams = new URLSearchParams(urlObject.search)
+ 
+-    const token = searchParams.get("token")
++    // Pyrus may glue the following text to the link - keep only token chars
++    const rawToken = searchParams.get("token") ?? ""
++    const token = rawToken.match(/^[A-Za-z0-9_-]+/)?.[0] ?? rawToken
+ 
+     const deviceIdentifier =
+       await persistenceService.getLocalConfig("deviceIdentifier")

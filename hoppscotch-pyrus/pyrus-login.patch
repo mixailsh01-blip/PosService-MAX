@@ -27992,16 +27992,17 @@ index 0000000..9e71ab9
 +};
 diff --git a/packages/hoppscotch-common/public/yandex-app/src/core/n8nClient.js b/packages/hoppscotch-common/public/yandex-app/src/core/n8nClient.js
 new file mode 100644
-index 0000000..ee79512
+index 0000000..e8d2c76
 --- /dev/null
 +++ b/packages/hoppscotch-common/public/yandex-app/src/core/n8nClient.js
-@@ -0,0 +1,45 @@
+@@ -0,0 +1,46 @@
 +// Клиент к прокси. Раньше адрес вёл на n8n-вебхук, теперь — на свой сервис (yandex-proxy).
 +// Контракт тот же, меняется только PROXY_URL и добавлена проверка, что токен реально получен.
-+// Адрес прокси yandex-proxy: по умолчанию на том же сервере, что и SPRT API (порт 8080).
++// Адрес прокси yandex-proxy. На домене (https) — тот же адрес, что у SPRT API, путь /yandex/devOps
++// (его направляет на прокси Traefik). По IP без https — порт 8080 того же сервера.
 +// Можно переопределить: window.SPRT_YANDEX_PROXY = 'https://.../yandex/devOps'
 +const PROXY_URL = window.SPRT_YANDEX_PROXY || (location.protocol === 'https:'
-+  ? 'https://91-210-170-56.sslip.io/yandex/devOps'
++  ? `${location.origin}/yandex/devOps`
 +  : `http://${location.hostname}:8080/yandex/devOps`);
 +import {saveAuth,loadAuth,clearAuth} from './storage.js';
 +

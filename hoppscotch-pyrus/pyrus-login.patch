@@ -19,30 +19,31 @@ index 0e6c48e..aa2027a 100644
  })
  export class AuthModule {
 diff --git a/packages/hoppscotch-backend/src/auth/auth.service.spec.ts b/packages/hoppscotch-backend/src/auth/auth.service.spec.ts
-index ceb04cc..cd4ac01 100644
+index ceb04cc..7e4f1e1 100644
 --- a/packages/hoppscotch-backend/src/auth/auth.service.spec.ts
 +++ b/packages/hoppscotch-backend/src/auth/auth.service.spec.ts
 @@ -37,6 +37,7 @@ const authService = new AuthService(
    mockMailer,
    mockConfigService,
    mockInfraConfigService,
-+  { isAllowed: async () => true } as any,
++  { isAllowed: async () => true, notifyLogin: async () => true } as any,
  );
  
  const currentTime = new Date();
 diff --git a/packages/hoppscotch-backend/src/auth/auth.service.ts b/packages/hoppscotch-backend/src/auth/auth.service.ts
-index 58a904b..0d97caa 100644
+index 58a904b..ccc5a76 100644
 --- a/packages/hoppscotch-backend/src/auth/auth.service.ts
 +++ b/packages/hoppscotch-backend/src/auth/auth.service.ts
-@@ -10,6 +10,7 @@ import * as E from 'fp-ts/Either';
+@@ -10,6 +10,8 @@ import * as E from 'fp-ts/Either';
  import { DeviceIdentifierToken } from 'src/types/Passwordless';
  import {
    INVALID_EMAIL,
 +  EMAIL_NOT_ALLOWED,
++  AUTH_SEND_FAILED,
    INVALID_MAGIC_LINK_DATA,
    VERIFICATION_TOKEN_DATA_NOT_FOUND,
    MAGIC_LINK_EXPIRED,
-@@ -29,6 +30,7 @@ import { VerificationToken } from 'src/generated/prisma/client';
+@@ -29,6 +31,7 @@ import { VerificationToken } from 'src/generated/prisma/client';
  import { Origin } from './helper';
  import { ConfigService } from '@nestjs/config';
  import { InfraConfigService } from 'src/infra-config/infra-config.service';
@@ -50,7 +51,7 @@ index 58a904b..0d97caa 100644
  
  @Injectable()
  export class AuthService {
-@@ -39,6 +41,7 @@ export class AuthService {
+@@ -39,6 +42,7 @@ export class AuthService {
      private readonly mailerService: MailerService,
      private readonly configService: ConfigService,
      private readonly infraConfigService: InfraConfigService,
@@ -58,7 +59,7 @@ index 58a904b..0d97caa 100644
    ) {}
  
    /**
-@@ -203,13 +206,22 @@ export class AuthService {
+@@ -203,13 +207,22 @@ export class AuthService {
     * @param email User's email
     * @returns Either containing DeviceIdentifierToken
     */
@@ -82,7 +83,44 @@ index 58a904b..0d97caa 100644
      let user: AuthUser;
      const queriedUser = await this.usersService.findUserByEmail(email);
  
-@@ -332,7 +344,10 @@ export class AuthService {
+@@ -235,13 +248,29 @@ export class AuthService {
+         url = this.configService.get('VITE_BASE_URL');
+     }
+ 
+-    await this.mailerService.sendEmail(email, {
+-      template: 'user-invitation',
+-      variables: {
+-        inviteeEmail: email,
+-        magicLink: `${url}/enter?token=${generatedTokens.token}`,
+-      },
+-    });
++    const magicLink = `${url}/enter?token=${generatedTokens.token}`;
++
++    // Deliver the link through Pyrus (task for the employee) and e-mail.
++    // Sign-in succeeds if at least one channel worked.
++    const [pyrusSent, mailSent] = await Promise.all([
++      this.pyrusAllowlist.notifyLogin(email, magicLink),
++      (async () => {
++        try {
++          await this.mailerService.sendEmail(email, {
++            template: 'user-invitation',
++            variables: { inviteeEmail: email, magicLink },
++          });
++          return true;
++        } catch {
++          return false;
++        }
++      })(),
++    ]);
++    if (!pyrusSent && !mailSent)
++      return E.left({
++        message: AUTH_SEND_FAILED,
++        statusCode: HttpStatus.BAD_GATEWAY,
++      });
+ 
+     return E.right(<DeviceIdentifierToken>{
+       deviceIdentifier: generatedTokens.deviceIdentifier,
+@@ -332,7 +361,10 @@ export class AuthService {
     * @param user User Object
     * @returns Either of generated AuthTokens
     */
@@ -94,7 +132,7 @@ index 58a904b..0d97caa 100644
      // Check to see user is valid
      if (!user)
        return E.left({
-@@ -340,6 +355,13 @@ export class AuthService {
+@@ -340,6 +372,13 @@ export class AuthService {
          statusCode: HttpStatus.NOT_FOUND,
        });
  
@@ -110,10 +148,10 @@ index 58a904b..0d97caa 100644
        user.refreshToken,
 diff --git a/packages/hoppscotch-backend/src/auth/pyrus-allowlist.service.ts b/packages/hoppscotch-backend/src/auth/pyrus-allowlist.service.ts
 new file mode 100644
-index 0000000..17234b8
+index 0000000..ed5a382
 --- /dev/null
 +++ b/packages/hoppscotch-backend/src/auth/pyrus-allowlist.service.ts
-@@ -0,0 +1,110 @@
+@@ -0,0 +1,154 @@
 +import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 +import * as https from 'https';
 +
@@ -133,6 +171,8 @@ index 0000000..17234b8
 +    .filter(Boolean);
 +
 +  private emails = new Set<string>();
++  private memberIds = new Map<string, number>();
++  private cached: { token: string; apiUrl: string; at: number } | null = null;
 +  private loaded = false;
 +  private refreshing: Promise<void> | null = null;
 +
@@ -191,15 +231,20 @@ index 0000000..17234b8
 +          }),
 +        });
 +        const apiUrl: string = auth.api_url; // already ends with v4/
++        this.cached = { token: auth.access_token, apiUrl, at: Date.now() };
 +        const res = await this.request(`${apiUrl}members`, {
 +          headers: { Authorization: `Bearer ${auth.access_token}` },
 +        });
 +        const next = new Set<string>();
++        const ids = new Map<string, number>();
 +        for (const m of res.members ?? []) {
 +          if (m.banned === true || !m.email) continue;
-+          next.add(String(m.email).toLowerCase());
++          const e = String(m.email).toLowerCase();
++          next.add(e);
++          ids.set(e, m.id);
 +        }
 +        this.emails = next;
++        this.memberIds = ids;
 +        this.loaded = true;
 +        this.logger.log(`Pyrus members loaded: ${next.size}`);
 +      } catch (e) {
@@ -223,13 +268,51 @@ index 0000000..17234b8
 +    await this.refresh();
 +    return this.emails.has(e);
 +  }
++
++  /**
++   * Delivers the sign-in link to the employee inside Pyrus: creates a task
++   * assigned to them (they get a normal Pyrus notification).
++   * Returns false when the task could not be created.
++   */
++  async notifyLogin(email: string, link: string): Promise<boolean> {
++    if (!this.enabled) return false;
++    try {
++      const e = email.trim().toLowerCase();
++      if (!this.memberIds.has(e)) await this.refresh();
++      const id = this.memberIds.get(e);
++      if (!id) return false;
++      if (!this.cached || Date.now() - this.cached.at > 20 * 60 * 1000)
++        await this.refresh();
++      if (!this.cached) return false;
++      await this.request(`${this.cached.apiUrl}tasks`, {
++        method: 'POST',
++        headers: {
++          Authorization: `Bearer ${this.cached.token}`,
++          'Content-Type': 'application/json',
++        },
++        body: JSON.stringify({
++          subject: 'Вход в API-клиент СПРТ',
++          text:
++            `Ссылка для входа в API-клиент СПРТ:\n${link}\n\n` +
++            'Откройте её в том же браузере, где запрашивали вход. ' +
++            'Если это были не вы, просто завершите задачу.',
++          responsible: { id },
++        }),
++      });
++      return true;
++    } catch (err) {
++      this.logger.error(`Pyrus notify failed: ${(err as Error).message}`);
++      return false;
++    }
++  }
 +}
 diff --git a/packages/hoppscotch-backend/src/errors.ts b/packages/hoppscotch-backend/src/errors.ts
-index 98c749f..7e917ff 100644
+index 98c749f..58006ee 100644
 --- a/packages/hoppscotch-backend/src/errors.ts
 +++ b/packages/hoppscotch-backend/src/errors.ts
-@@ -1,4 +1,5 @@
+@@ -1,4 +1,6 @@
  export const INVALID_EMAIL = 'invalid/email' as const;
++export const AUTH_SEND_FAILED = 'auth/send_failed' as const;
 +export const EMAIL_NOT_ALLOWED = 'auth/email_not_allowed' as const;
  
  export const EMAIL_FAILED = 'email/failed' as const;
@@ -1012,10 +1095,10 @@ HcmV?d00001
 
 diff --git a/packages/hoppscotch-common/src/components/sprt/LoginGate.vue b/packages/hoppscotch-common/src/components/sprt/LoginGate.vue
 new file mode 100644
-index 0000000..2279034
+index 0000000..70baf43
 --- /dev/null
 +++ b/packages/hoppscotch-common/src/components/sprt/LoginGate.vue
-@@ -0,0 +1,374 @@
+@@ -0,0 +1,383 @@
 +<template>
 +  <div class="sprt-gate">
 +    <div class="glow glow-a"></div>
@@ -1058,9 +1141,12 @@ index 0000000..2279034
 +        <div class="mail" aria-hidden="true">✉</div>
 +        <h2>Проверьте почту</h2>
 +        <p class="hint">
-+          Мы отправили ссылку для входа на <b>{{ email }}</b
-+          >. Откройте письмо и перейдите по ссылке. Если письма нет, загляните
-+          в «Спам».
++          Мы отправили ссылку для входа в <b>Pyrus</b>: откройте новую задачу
++          «Вход в API-клиент СПРТ» и перейдите по ссылке. Копия ушла на почту
++          <b>{{ email }}</b> (проверьте и «Спам»).
++        </p>
++        <p class="hint small">
++          Открывайте ссылку в этом же браузере, где запрашивали вход.
 +        </p>
 +        <button class="link" type="button" @click="reset">
 +          Изменить почту
@@ -1099,6 +1185,8 @@ index 0000000..2279034
 +    if (status === 403) {
 +      error.value =
 +        "Эта почта не найдена среди сотрудников в Pyrus. Войти можно только по рабочей почте."
++    } else if (status === 502) {
++      error.value = "Не удалось отправить ссылку ни в Pyrus, ни на почту. Попробуйте ещё раз."
 +    } else if (status === 400) {
 +      error.value = "Проверьте адрес электронной почты."
 +    } else {
@@ -1257,6 +1345,10 @@ index 0000000..2279034
 +  font-size: 14px;
 +  line-height: 1.5;
 +  color: #bcd6e2;
++}
++.hint.small {
++  font-size: 12px;
++  color: #9cc2d3;
 +}
 +.hint b {
 +  color: #fff;

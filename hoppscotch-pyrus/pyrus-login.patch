@@ -5022,7 +5022,7 @@ index b5efbce..582f660 100644
    --banner-info-color: theme("colors.stone.800");
    --banner-warning-color: theme("colors.yellow.800");
 diff --git a/packages/hoppscotch-common/locales/en.json b/packages/hoppscotch-common/locales/en.json
-index 92a70b7..a895cac 100644
+index 92a70b7..6aab9e1 100644
 --- a/packages/hoppscotch-common/locales/en.json
 +++ b/packages/hoppscotch-common/locales/en.json
 @@ -151,7 +151,7 @@
@@ -5034,15 +5034,16 @@ index 92a70b7..a895cac 100644
      "new_version_found": "New version found. Refresh to update.",
      "open_in_hoppscotch": "Open in Hoppscotch",
      "options": "Options",
-@@ -1096,6 +1096,7 @@
+@@ -1096,6 +1096,8 @@
    },
    "navigation": {
      "admin_dashboard": "Dashboard",
++    "learn": "Training",
 +    "yandex": "Yandex Eats",
      "doc": "Docs",
      "graphql": "GraphQL",
      "profile": "Profile",
-@@ -1314,7 +1315,7 @@
+@@ -1314,7 +1316,7 @@
      "auto_encode_mode": "Auto",
      "auto_encode_mode_tooltip": "Encode the parameters in the request only if some special characters are present",
      "background": "Background",
@@ -5052,7 +5053,7 @@ index 92a70b7..a895cac 100644
      "dark_mode": "Dark",
      "delete_account": "Delete account",
 diff --git a/packages/hoppscotch-common/locales/ru.json b/packages/hoppscotch-common/locales/ru.json
-index df173dc..d28bc51 100644
+index df173dc..612a4fc 100644
 --- a/packages/hoppscotch-common/locales/ru.json
 +++ b/packages/hoppscotch-common/locales/ru.json
 @@ -80,7 +80,7 @@
@@ -5064,15 +5065,16 @@ index df173dc..d28bc51 100644
      "new_version_found": "Найдена новая версия. Перезагрузите для обновления. Все данные уже сохранены, ничего не потеряется",
      "open_in_hoppscotch": "Открыть в Hoppscotch",
      "options": "Настройки",
-@@ -531,6 +531,7 @@
+@@ -531,6 +531,8 @@
      "url": "URL"
    },
    "navigation": {
++    "learn": "Обучение",
 +    "yandex": "Яндекс Еда",
      "doc": "Документы",
      "graphql": "GraphQL",
      "profile": "Профиль",
-@@ -643,7 +644,7 @@
+@@ -643,7 +645,7 @@
      "account_name_description": "Это ваше отображаемое имя.",
      "additional": "Additional Settings",
      "background": "Задний фон",
@@ -22543,6 +22545,379 @@ ziL{U#pEDS89kQ$~7Vn~?%<}3r6*fb^SJL8PHl)w?vEs;kM#ZM>@Yz3F{Axh~)l;b)
 zLXn2gL5I@tFT#yO&V!#gx5#%6DoT3h=FKTOQb7Y18Rtp$re=M2(_c7?|FrdAV4g7*
 mx{sj!fBx?nK*l3KsGThle~PCmNW#Iv!70h9%Qi_{ME(!OL?iS7
 
+diff --git a/packages/hoppscotch-common/public/learn-app/app.js b/packages/hoppscotch-common/public/learn-app/app.js
+new file mode 100644
+index 0000000..673516a
+--- /dev/null
++++ b/packages/hoppscotch-common/public/learn-app/app.js
+@@ -0,0 +1,93 @@
++(function () {
++  var L = window.LESSONS;
++  var app = document.getElementById("app");
++
++  // Связь с SPRT API (родительское окно). Если страницу открыли отдельно, прогресс хранится локально.
++  var bridge = null;
++  try { if (parent !== window && parent.__sprtLearn) bridge = parent.__sprtLearn; } catch (e) {}
++  var LS = "sprt_learn_progress";
++  var local = (function () { try { return JSON.parse(localStorage.getItem(LS) || "{}"); } catch (e) { return {}; } })();
++  function getProgress() { return bridge ? (bridge.getProgress() || {}) : local; }
++  function setDone(id, v) {
++    if (bridge) bridge.setProgress(id, v);
++    else { local[id] = v; try { localStorage.setItem(LS, JSON.stringify(local)); } catch (e) {} }
++  }
++  function getEnv() { return bridge && bridge.getEnv ? (bridge.getEnv() || {}) : {}; }
++  function go(path) { if (bridge && bridge.go) bridge.go(path); }
++
++  var cur = 0;
++  var mem = {}; // промежуточное состояние урока: {envOk, quizPick}
++  (function pickFirst() { var p = getProgress(); for (var i = 0; i < L.length; i++) if (!p[L[i].id]) { cur = i; return; } cur = L.length - 1; })();
++
++  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]; }); }
++  function doneCount() { var p = getProgress(); return L.filter(function (l) { return p[l.id]; }).length; }
++  function state(l) { return mem[l.id] || (mem[l.id] = { envOk: false, pick: null, envMsg: "" }); }
++
++  function lessonReady(l) {
++    var s = state(l), p = getProgress();
++    if (p[l.id]) return true;
++    var envOk = !l.check || s.envOk;
++    var quizOk = !l.quiz || s.pick === l.quiz.correct;
++    return envOk && quizOk;
++  }
++  function maybeFinish(l) {
++    if (!getProgress()[l.id] && lessonReady(l)) setDone(l.id, true);
++  }
++
++  function render() {
++    var p = getProgress(), n = doneCount(), l = L[cur], s = state(l), isDone = !!p[l.id];
++    var h = '<div class="topbar"><h1 class="ttl">Обучение: iiko Cloud API</h1></div>' +
++      '<p class="sub">Пройдите все шесть уроков, и откроются остальные разделы SPRT API.</p>' +
++      '<div class="prog"><div class="bar"><i style="width:' + Math.round(n / L.length * 100) + '%"></i></div><span>Пройдено ' + n + ' из ' + L.length + '</span></div>';
++    if (n === L.length) {
++      h += '<div class="pass"><b>Обучение пройдено, доступ открыт</b>Теперь вам доступны «Яндекс Еда» и остальные функции SPRT API.' +
++        '<div class="row"><button class="primary" data-go="/yandex">Открыть «Яндекс Еду»</button><button data-go="/">Открыть REST-клиент</button></div></div>';
++    }
++    h += '<div class="layout"><div class="steps">';
++    L.forEach(function (x, i) {
++      h += '<button class="step' + (i === cur ? " cur" : "") + (p[x.id] ? " done" : "") + '" data-i="' + i + '"><span class="n"><span>' + (i + 1) + '</span></span><span>' + esc(x.title) + '</span></button>';
++    });
++    h += '</div><div class="card"><h2>' + (cur + 1) + '. ' + esc(l.title) + '</h2><p class="goal">' + esc(l.goal) + '</p>' + l.html;
++    if (l.task) h += '<div class="task"><b>Практика</b>' + l.task + '</div>';
++    if (l.check) {
++      h += '<div class="check"><button data-check="1"' + (isDone ? " disabled" : "") + '>Проверить</button><span class="res ' + ((s.envOk || isDone) ? "ok" : (s.envMsg ? "bad" : "")) + '">' +
++        (s.envOk || isDone ? "Готово: " + esc(l.check.label) : esc(s.envMsg)) + '</span></div>';
++    }
++    if (l.quiz) {
++      var q = l.quiz, answered = s.pick !== null || isDone;
++      h += '<h3>Контрольный вопрос</h3><div class="quiz"><p class="q">' + esc(q.q) + '</p>';
++      q.options.forEach(function (o, i) {
++        var cls = "opt";
++        if (isDone && i === q.correct) cls += " ok";
++        else if (s.pick === i) cls += i === q.correct ? " ok" : " bad";
++        h += '<button class="' + cls + '" data-opt="' + i + '"' + ((isDone || s.pick === q.correct) ? " disabled" : "") + '>' + esc(o) + '</button>';
++      });
++      if (s.pick !== null) h += '<p class="expl">' + (s.pick === q.correct ? "Верно. " + esc(q.explain) : "Не совсем. Подумайте ещё и выберите другой вариант.") + '</p>';
++      h += '</div>';
++    }
++    h += '<div class="nav"><button data-prev="1"' + (cur === 0 ? " disabled" : "") + '>Назад</button>' +
++      '<button class="primary" data-next="1"' + (cur === L.length - 1 || !(isDone || lessonReady(l)) ? " disabled" : "") + '>Дальше</button></div>';
++    h += '</div></div>';
++    app.innerHTML = h;
++  }
++
++  app.addEventListener("click", function (e) {
++    var t = e.target.closest("button"); if (!t) return;
++    var l = L[cur], s = state(l);
++    if (t.dataset.i !== undefined) { cur = +t.dataset.i; }
++    else if (t.dataset.go) { go(t.dataset.go); return; }
++    else if (t.dataset.prev) { cur = Math.max(0, cur - 1); }
++    else if (t.dataset.next) { cur = Math.min(L.length - 1, cur + 1); }
++    else if (t.dataset.check) {
++      var v = String(getEnv()[l.check.env] || "").trim();
++      s.envOk = !!v;
++      s.envMsg = s.envOk ? "" : "Пока не вижу: заполните окружение «iiko Cloud API», выполните запрос и проверьте снова.";
++      maybeFinish(l);
++    } else if (t.dataset.opt !== undefined) {
++      s.pick = +t.dataset.opt;
++      maybeFinish(l);
++    }
++    render();
++  });
++  render();
++})();
+diff --git a/packages/hoppscotch-common/public/learn-app/index.html b/packages/hoppscotch-common/public/learn-app/index.html
+new file mode 100644
+index 0000000..03f8c21
+--- /dev/null
++++ b/packages/hoppscotch-common/public/learn-app/index.html
+@@ -0,0 +1,105 @@
++<!DOCTYPE html>
++<html lang="ru">
++<head>
++<meta charset="UTF-8"/>
++<meta name="viewport" content="width=device-width, initial-scale=1"/>
++<title>Обучение · iiko</title>
++<script>
++  // Оформление берём у SPRT API (родительское окно): цвета темы, акцент, шрифт.
++  // Если страница открыта отдельно, остаются значения по умолчанию из :root ниже.
++  (function(){
++    var MAP={'--bg':'--primary-color','--bg-1':'--primary-light-color','--bg-2':'--primary-dark-color',
++      '--fg':'--secondary-dark-color','--fg-1':'--secondary-color','--fg-2':'--secondary-light-color',
++      '--line':'--divider-dark-color','--line-2':'--divider-dark-color',
++      '--accent':'--accent-color','--accent-2':'--accent-dark-color','--accent-fg':'--accent-contrast-color'};
++    function apply(){
++      try{
++        var pd=parent.document; if(pd===document) return;
++        var cs=parent.getComputedStyle(pd.documentElement), r=document.documentElement;
++        for(var k in MAP){var v=cs.getPropertyValue(MAP[k]).trim(); if(v) r.style.setProperty(k,v);}
++        var c=pd.documentElement.classList;
++        r.classList.toggle('dark',c.contains('dark')||c.contains('black'));
++        var ff=parent.getComputedStyle(pd.body).fontFamily; if(ff) r.style.setProperty('--font',ff);
++      }catch(e){}
++    }
++    function fonts(){
++      try{
++        var css='';
++        Array.prototype.forEach.call(parent.document.styleSheets,function(sh){
++          try{Array.prototype.forEach.call(sh.cssRules,function(rule){ if(rule.type===5) css+=rule.cssText+'\n'; });}catch(e){}
++        });
++        if(css){var st=document.createElement('style'); st.textContent=css; document.head.appendChild(st);}
++      }catch(e){}
++    }
++    apply(); fonts();
++    try{new MutationObserver(apply).observe(parent.document.documentElement,{attributes:true,attributeFilter:['class','data-accent','style']});}catch(e){}
++  })();
++</script>
++<style>
++  :root{--bg:#0f0f0f;--bg-1:#171717;--bg-2:#1f1f1f;--fg:#fafafa;--fg-1:#a3a3a3;--fg-2:#737373;--line:#262626;--line-2:#3a3a3a;
++    --accent:#ef4444;--accent-2:#dc2626;--accent-fg:#fff;--ok:#22c55e;--err:#f87171;
++    --font:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color-scheme:light}
++  html.dark{color-scheme:dark}
++  html:not(.dark){--err:#dc2626;--ok:#16a34a}
++  *{box-sizing:border-box}
++  body{margin:0;font-family:var(--font)!important;font-size:13px;line-height:1.55;background:var(--bg);color:var(--fg);-webkit-font-smoothing:antialiased}
++  #app{max-width:1040px;margin:0 auto;padding:20px 28px 56px}
++  code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;background:var(--bg-2);border:1px solid var(--line);border-radius:5px;padding:1px 5px}
++  pre{margin:10px 0;padding:12px 14px;background:var(--bg);border:1px solid var(--line);border-radius:8px;overflow:auto;font-size:12px;line-height:1.5}
++  pre code{background:none;border:0;padding:0}
++  button{font:inherit;font-weight:600;font-size:13px;padding:8px 14px;border:1px solid var(--line-2);border-radius:8px;background:var(--bg-1);color:var(--fg);cursor:pointer;transition:border-color .12s,background .12s,color .12s}
++  button:hover:not([disabled]){border-color:var(--accent);color:var(--accent)}
++  button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
++  button.primary:hover:not([disabled]){background:var(--accent-2);border-color:var(--accent-2);color:var(--accent-fg)}
++  button[disabled]{opacity:.4;cursor:not-allowed}
++  button:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent)}
++
++  .topbar{display:flex;align-items:center;gap:14px;margin:0 0 6px}
++  .ttl{margin:0;font-size:20px;font-weight:700;letter-spacing:-.01em}
++  .sub{color:var(--fg-1);margin:0 0 18px}
++  .prog{display:flex;align-items:center;gap:12px;margin:0 0 20px}
++  .bar{flex:1;height:8px;border-radius:999px;background:var(--bg-2);overflow:hidden}
++  .bar>i{display:block;height:100%;background:var(--accent);border-radius:999px;transition:width .3s}
++  .prog span{color:var(--fg-1);font-size:12px;white-space:nowrap}
++
++  .layout{display:grid;grid-template-columns:270px 1fr;gap:18px;align-items:start}
++  @media(max-width:760px){.layout{grid-template-columns:1fr}}
++  .steps{display:flex;flex-direction:column;gap:6px;position:sticky;top:12px}
++  .step{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:center;text-align:left;padding:10px 12px;border-radius:10px;background:var(--bg-1);border:1px solid var(--line);color:var(--fg);font-weight:600}
++  .step small{display:block;font-weight:400;color:var(--fg-2);font-size:11px}
++  .step .n{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--bg-2);color:var(--fg-1);font-size:12px}
++  .step.cur{border-color:var(--accent)}
++  .step.done .n{background:var(--ok);color:#fff}
++  .step.done .n:before{content:"✓"}
++  .step.done .n span{display:none}
++
++  .card{background:var(--bg-1);border:1px solid var(--line);border-radius:12px;padding:22px}
++  .card h2{margin:0 0 4px;font-size:18px;letter-spacing:-.01em}
++  .goal{margin:0 0 16px;color:var(--fg-1)}
++  .card h3{margin:20px 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--fg-1)}
++  .card p{margin:8px 0}
++  .card ul,.card ol{margin:8px 0;padding-left:20px}
++  .card li{margin:4px 0}
++  .task{border:1px solid color-mix(in srgb,var(--accent) 45%,var(--line));background:color-mix(in srgb,var(--accent) 7%,transparent);border-radius:10px;padding:12px 14px;margin:14px 0}
++  .task>b:first-child{display:block;margin-bottom:4px}
++  .quiz .q{font-weight:650;margin:0 0 10px}
++  .opt{display:block;width:100%;text-align:left;margin:6px 0;font-weight:500}
++  .opt[disabled]{opacity:.8}
++  .opt.ok{border-color:var(--ok);color:var(--ok)}
++  .opt.bad{border-color:var(--err);color:var(--err)}
++  .expl{margin:10px 0 0;color:var(--fg-1)}
++  .check{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
++  .res{font-size:12px}
++  .res.ok{color:var(--ok)}.res.bad{color:var(--err)}
++  .nav{display:flex;justify-content:space-between;gap:10px;margin-top:22px}
++  .pass{border:1px solid var(--ok);background:color-mix(in srgb,var(--ok) 10%,transparent);border-radius:12px;padding:16px 18px;margin:0 0 18px}
++  .pass b{display:block;font-size:15px;margin-bottom:2px}
++  .pass .row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
++</style>
++</head>
++<body>
++<div id="app"></div>
++<script src="lessons.js"></script>
++<script src="app.js"></script>
++</body>
++</html>
+diff --git a/packages/hoppscotch-common/public/learn-app/lessons.js b/packages/hoppscotch-common/public/learn-app/lessons.js
+new file mode 100644
+index 0000000..409f4cc
+--- /dev/null
++++ b/packages/hoppscotch-common/public/learn-app/lessons.js
+@@ -0,0 +1,157 @@
++// Содержимое уроков. Правится прямо здесь и на сервере подхватывается командой sprt-learn-update.
++// check: {env:"имя переменной окружения iiko Cloud API"} — проверяется автоматически.
++// quiz: один вопрос, правильный ответ — индекс из options (с нуля).
++window.LESSONS = [
++  {
++    id: "l1",
++    title: "Как устроен iiko Cloud API",
++    goal: "Понять общую схему: адрес, формат запросов и как приложение доказывает, что ему можно.",
++    html: `
++      <h3>Главное</h3>
++      <ul>
++        <li>Адрес API: <code>https://api-ru.iiko.services</code>. В пути указана версия метода: <code>/api/1/…</code> или <code>/api/2/…</code>.</li>
++        <li>Почти все методы вызываются как <b>POST</b> с JSON в теле и возвращают JSON.</li>
++        <li>Перед работой нужно получить <b>токен</b> и передавать его в каждом запросе заголовком <code>Authorization: Bearer &lt;токен&gt;</code>.</li>
++        <li>Токен живёт ограниченное время (порядка часа). Когда он истёк, API отвечает ошибкой авторизации, и нужно получить новый.</li>
++        <li>Для получения токена нужны <b>ключ API</b> и <b>Client Secret</b>. Их выдаёт администратор сети.</li>
++      </ul>`,
++    quiz: {
++      q: "Как токен передаётся в обычных запросах к iiko Cloud API?",
++      options: [
++        "В теле запроса, в поле apiLogin",
++        "Заголовком Authorization: Bearer <токен>",
++        "Параметром в адресе ?key=<токен>",
++        "Токен не нужен, достаточно знать адрес"
++      ],
++      correct: 1,
++      explain: "Токен получают один раз и затем добавляют в заголовок Authorization с префиксом Bearer."
++    }
++  },
++  {
++    id: "l2",
++    title: "Получаем токен",
++    goal: "Настроить окружение и получить рабочий токен.",
++    html: `
++      <h3>Как это делается</h3>
++      <p>Запрос токена (схема v2, действующая):</p>
++      <pre><code>POST https://api-ru.iiko.services/api/v2/access_token
++{
++  "apiKey": "ваш ключ API",
++  "clientSecret": "ваш Client Secret"
++}</code></pre>
++      <p>В ответе приходит <code>token</code>. Старый метод <code>/api/1/access_token</code> с одним <code>apiLogin</code> устарел и отвечает ошибкой.</p>
++      <p>В нашей коллекции токен запрашивается <b>автоматически</b> перед первым запросом и обновляется по истечении срока: скрипт коллекции сам кладёт его в переменную <code>token</code>.</p>`,
++    task: `Выберите окружение <b>«iiko Cloud API»</b> в правом верхнем углу, откройте его настройки и заполните <code>apiLogin</code> (это ваш ключ API) и <code>clientSecret</code>.
++      Затем откройте коллекцию <b>«iiko Cloud API (СПРТ)» → «⚡ Быстрый старт» → «Организации»</b> и нажмите <b>Send</b>.
++      После этого нажмите «Проверить» ниже.`,
++    check: { env: "token", label: "токен получен и сохранён в окружении" },
++    quiz: {
++      q: "Запрос вернул ошибку авторизации. Что делать в первую очередь?",
++      options: [
++        "Ждать: ошибка пройдёт сама",
++        "Получить новый токен: прежний, скорее всего, истёк",
++        "Сменить адрес API",
++        "Отправить тот же запрос ещё 100 раз"
++      ],
++      correct: 1,
++      explain: "Токен живёт недолго. В нашей коллекции новый токен запрашивается автоматически; при работе вручную его нужно получить снова."
++    }
++  },
++  {
++    id: "l3",
++    title: "Организации",
++    goal: "Научиться получать идентификатор организации, он нужен почти каждому запросу.",
++    html: `
++      <h3>Что нужно знать</h3>
++      <pre><code>POST /api/1/organizations
++{}</code></pre>
++      <p>Ответ содержит список <code>organizations</code>, у каждой есть <code>id</code> и <code>name</code>. Этот <code>id</code> передаётся в остальные методы как <code>organizationId</code> (или в массиве <code>organizationIds</code>).</p>
++      <p>Коллекция запоминает первую организацию в переменной <code>organizationId</code>, поэтому остальные запросы подставляют её сами.</p>`,
++    task: `Запустите запрос <b>«Организации»</b> из «⚡ Быстрого старта» и убедитесь, что в ответе есть ваша организация. Затем нажмите «Проверить».`,
++    check: { env: "organizationId", label: "идентификатор организации сохранён" },
++    quiz: {
++      q: "Зачем нужен идентификатор организации?",
++      options: [
++        "Это пароль для получения токена",
++        "Он передаётся в большинство методов, чтобы API понимал, о каком ресторане речь",
++        "Он нужен только для вебхуков",
++        "Он не нужен: API сам определяет организацию"
++      ],
++      correct: 1,
++      explain: "Один ключ API может видеть несколько организаций, поэтому в запросах указывают, с какой именно мы работаем."
++    }
++  },
++  {
++    id: "l4",
++    title: "Группы терминалов",
++    goal: "Найти терминальную группу (кассу ресторана) и проверить, что она на связи.",
++    html: `
++      <h3>Что нужно знать</h3>
++      <pre><code>POST /api/1/terminal_groups
++{ "organizationIds": ["<id организации>"] }</code></pre>
++      <p>Терминальная группа соответствует кассе (или группе касс) ресторана. Её <code>id</code> нужен, например, для создания заказов. Метод <code>terminal_groups/is_alive</code> показывает, на связи ли терминал: если нет, заказы до кассы не дойдут.</p>`,
++    task: `Запустите «Группы терминалов», затем «Терминал на связи?». После этого нажмите «Проверить».`,
++    check: { env: "terminalGroupId", label: "терминальная группа сохранена" },
++    quiz: {
++      q: "Для чего нужен метод terminal_groups/is_alive?",
++      options: [
++        "Чтобы создать новую группу терминалов",
++        "Чтобы узнать, на связи ли терминал ресторана",
++        "Чтобы получить токен",
++        "Чтобы удалить заказ"
++      ],
++      correct: 1,
++      explain: "Если терминал не на связи, заказ, отправленный в iiko, не дойдёт до кассы. Поэтому связь проверяют заранее."
++    }
++  },
++  {
++    id: "l5",
++    title: "Меню и стоп-листы",
++    goal: "Получить меню ресторана и понять, что сейчас недоступно.",
++    html: `
++      <h3>Что нужно знать</h3>
++      <ul>
++        <li><code>/api/1/nomenclature</code> возвращает меню: группы, категории и товары (с размерами и ценами).</li>
++        <li><code>/api/1/stop_lists</code> возвращает позиции, которые сейчас недоступны для заказа.</li>
++        <li>Для внешних меню и ценовых категорий есть методы <code>/api/2/menu</code> и <code>/api/2/menu/by_id</code>.</li>
++      </ul>
++      <p>Меню большое, поэтому его обычно запрашивают редко и кешируют, а стоп-листы обновляют чаще.</p>`,
++    task: `Запустите «Номенклатура» и «Стоп-листы» из «⚡ Быстрого старта» и посмотрите на структуру ответа.`,
++    quiz: {
++      q: "Какой метод вернёт товары и группы меню?",
++      options: [
++        "/api/1/nomenclature",
++        "/api/1/stop_lists",
++        "/api/1/terminal_groups",
++        "/api/1/commands/status"
++      ],
++      correct: 0,
++      explain: "Номенклатура — это меню. Стоп-листы показывают только то, что временно недоступно."
++    }
++  },
++  {
++    id: "l6",
++    title: "Заказы и ошибки",
++    goal: "Понять, как создаются заказы, и не наломать дров на боевой организации.",
++    html: `
++      <h3>Что нужно знать</h3>
++      <ul>
++        <li>Создание заказа в iiko <b>асинхронное</b>: метод <code>deliveries/create</code> не возвращает готовый заказ, а принимает команду и отдаёт <code>correlationId</code>.</li>
++        <li>Статус команды смотрят методом <code>commands/status</code> (<code>organizationId</code> и <code>correlationId</code>): выполняется, успешно или с ошибкой.</li>
++        <li>Перед созданием полезно проверить заказ методом <code>deliveries/check_create</code>: он ничего не создаёт, а только сообщает, примет ли iiko такой заказ.</li>
++        <li>В коллекции методы, которые реально создают заказ, помечены <b>«(создаёт заказ!)»</b>. На рабочей организации их запускают только осознанно.</li>
++      </ul>`,
++    task: `Найдите в коллекции запрос <b>«Проверить заказ без создания (check_create)»</b> и откройте его: посмотрите, какие поля нужны заказу. Отправлять его не нужно.`,
++    quiz: {
++      q: "Что возвращает deliveries/create сразу после вызова?",
++      options: [
++        "Готовый закрытый заказ",
++        "correlationId, по которому статус команды проверяют отдельным запросом",
++        "Новый токен",
++        "Ничего: метод работает только через вебхуки"
++      ],
++      correct: 1,
++      explain: "Создание асинхронное: результат нужно проверить через commands/status по correlationId."
++    }
++  }
++];
 diff --git a/packages/hoppscotch-common/public/logo.png b/packages/hoppscotch-common/public/logo.png
 index 787c4b6dd58dc43e9dbf4ef1a0dd7c70fa0de756..6451ed6eeff5817a3a10ee41457987bae8d80bfb 100644
 GIT binary patch
@@ -28652,10 +29027,10 @@ index 9bcd074..a9d4c5e 100644
    </svg>
  </template>
 diff --git a/packages/hoppscotch-common/src/components/app/Sidenav.vue b/packages/hoppscotch-common/src/components/app/Sidenav.vue
-index e325ae2..9afa254 100644
+index e325ae2..6233fcf 100644
 --- a/packages/hoppscotch-common/src/components/app/Sidenav.vue
 +++ b/packages/hoppscotch-common/src/components/app/Sidenav.vue
-@@ -29,9 +29,8 @@
+@@ -29,9 +29,9 @@
  <script setup lang="ts">
  import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
  import IconLink2 from "~icons/lucide/link-2"
@@ -28663,19 +29038,23 @@ index e325ae2..9afa254 100644
 -import IconGlobe from "~icons/lucide/globe"
  import IconSettings from "~icons/lucide/settings"
 +import IconUtensils from "~icons/lucide/utensils"
++import IconGraduationCap from "~icons/lucide/graduation-cap"
  import { useSetting } from "@composables/settings"
  import { useI18n } from "@composables/i18n"
  
-@@ -50,15 +49,9 @@ const primaryNavigation = [
+@@ -50,15 +50,15 @@ const primaryNavigation = [
      exact: true,
    },
    {
 -    target: "/graphql",
 -    svg: IconGraphql,
 -    title: "navigation.graphql",
--    exact: false,
--  },
--  {
++    target: "/learn",
++    svg: IconGraduationCap,
++    title: "navigation.learn",
+     exact: false,
+   },
+   {
 -    target: "/realtime",
 -    svg: IconGlobe,
 -    title: "navigation.realtime",
@@ -29174,6 +29553,25 @@ index 0000000..70baf43
 +  }
 +}
 +</style>
+diff --git a/packages/hoppscotch-common/src/helpers/sprt-learn.ts b/packages/hoppscotch-common/src/helpers/sprt-learn.ts
+new file mode 100644
+index 0000000..a1eb82d
+--- /dev/null
++++ b/packages/hoppscotch-common/src/helpers/sprt-learn.ts
+@@ -0,0 +1,13 @@
++import { computed } from "vue"
++import { useSetting } from "@composables/settings"
++
++// Должен совпадать с id уроков в public/learn-app/lessons.js
++export const SPRT_LESSON_IDS = ["l1", "l2", "l3", "l4", "l5", "l6"]
++
++/** true, когда сотрудник прошёл все уроки обучения */
++export function useLearnPassed() {
++  const learn = useSetting("SPRT_LEARN")
++  return computed(() =>
++    SPRT_LESSON_IDS.every((id) => !!(learn.value as Record<string, boolean> | undefined)?.[id])
++  )
++}
 diff --git a/packages/hoppscotch-common/src/helpers/sprt-seed.ts b/packages/hoppscotch-common/src/helpers/sprt-seed.ts
 new file mode 100644
 index 0000000..2e27eb8
@@ -29439,10 +29837,20 @@ index 64d8fa4..08bed0d 100644
      { immediate: true }
    )
 diff --git a/packages/hoppscotch-common/src/newstore/settings.ts b/packages/hoppscotch-common/src/newstore/settings.ts
-index c00b253..ab5e38c 100644
+index c00b253..6b298c6 100644
 --- a/packages/hoppscotch-common/src/newstore/settings.ts
 +++ b/packages/hoppscotch-common/src/newstore/settings.ts
-@@ -128,8 +128,8 @@ export const getDefaultSettings = (): SettingsDef => {
+@@ -86,6 +86,9 @@ export type SettingsDef = {
+   ENABLE_EXPERIMENTAL_MOCK_SERVERS: boolean
+   ENABLE_EXPERIMENTAL_DOCUMENTATION: boolean
+   ENABLE_GQL_IN_REST_WORKSPACE: boolean
++
++  // прогресс обучения iiko: id пройденных уроков
++  SPRT_LEARN: Record<string, boolean>
+ }
+ 
+ export const getDefaultSettings = (): SettingsDef => {
+@@ -128,8 +131,8 @@ export const getDefaultSettings = (): SettingsDef => {
        bearerToken: true,
        oauth2Token: true,
      },
@@ -29453,6 +29861,73 @@ index c00b253..ab5e38c 100644
      ENCODE_MODE: "enable",
      TELEMETRY_ENABLED: true,
      EXPAND_NAVIGATION: false,
+@@ -146,6 +149,8 @@ export const getDefaultSettings = (): SettingsDef => {
+     ENABLE_EXPERIMENTAL_MOCK_SERVERS: true,
+     ENABLE_EXPERIMENTAL_DOCUMENTATION: true,
+     ENABLE_GQL_IN_REST_WORKSPACE: true,
++
++    SPRT_LEARN: {},
+   }
+ }
+ 
+diff --git a/packages/hoppscotch-common/src/pages/learn.vue b/packages/hoppscotch-common/src/pages/learn.vue
+new file mode 100644
+index 0000000..3f14c3c
+--- /dev/null
++++ b/packages/hoppscotch-common/src/pages/learn.vue
+@@ -0,0 +1,52 @@
++<template>
++  <div class="flex min-h-0 w-full flex-1">
++    <iframe
++      :src="src"
++      title="Обучение · iiko"
++      class="h-full w-full flex-1 border-0"
++    />
++  </div>
++</template>
++
++<script setup lang="ts">
++import { usePageHead } from "@composables/head"
++import { onBeforeUnmount, ref } from "vue"
++import { useRouter } from "vue-router"
++import { applySetting, settingsStore } from "~/newstore/settings"
++import { getAggregateEnvsWithCurrentValue } from "~/newstore/environments"
++
++const router = useRouter()
++
++// метка времени, чтобы после обновления файлов раздел всегда грузился свежим, а не из кеша браузера
++const src = `/learn-app/index.html?t=${Date.now()}`
++
++// Мост для мини-приложения в iframe (тот же адрес, поэтому оно видит parent.__sprtLearn)
++;(window as any).__sprtLearn = {
++  getProgress: () => ({ ...(settingsStore.value.SPRT_LEARN ?? {}) }),
++  setProgress: (id: string, done: boolean) =>
++    applySetting("SPRT_LEARN", {
++      ...(settingsStore.value.SPRT_LEARN ?? {}),
++      [id]: !!done,
++    }),
++  // значения переменных выбранного окружения и глобальных (включая секретные)
++  getEnv: () => {
++    const out: Record<string, string> = {}
++    try {
++      for (const v of getAggregateEnvsWithCurrentValue()) {
++        const val = String(v.currentValue || "").trim()
++        if (val && !out[v.key]) out[v.key] = val
++      }
++    } catch (e) {
++      console.error("[sprt-learn] env read failed", e)
++    }
++    return out
++  },
++  go: (path: string) => router.push(path),
++}
++
++onBeforeUnmount(() => {
++  delete (window as any).__sprtLearn
++})
++
++usePageHead({ title: ref("Обучение") })
++</script>
 diff --git a/packages/hoppscotch-common/src/pages/settings.vue b/packages/hoppscotch-common/src/pages/settings.vue
 index 27a43da..fcd9b97 100644
 --- a/packages/hoppscotch-common/src/pages/settings.vue
@@ -29477,10 +29952,10 @@ index 27a43da..fcd9b97 100644
              </h4>
 diff --git a/packages/hoppscotch-common/src/pages/yandex.vue b/packages/hoppscotch-common/src/pages/yandex.vue
 new file mode 100644
-index 0000000..553927a
+index 0000000..6afc288
 --- /dev/null
 +++ b/packages/hoppscotch-common/src/pages/yandex.vue
-@@ -0,0 +1,19 @@
+@@ -0,0 +1,28 @@
 +<template>
 +  <div class="flex min-h-0 w-full flex-1">
 +    <iframe
@@ -29493,7 +29968,16 @@ index 0000000..553927a
 +
 +<script setup lang="ts">
 +import { usePageHead } from "@composables/head"
-+import { ref } from "vue"
++import { ref, watchEffect } from "vue"
++import { useRouter } from "vue-router"
++import { useLearnPassed } from "~/helpers/sprt-learn"
++
++// раздел открывается после прохождения обучения
++const router = useRouter()
++const passed = useLearnPassed()
++watchEffect(() => {
++  if (!passed.value) router.replace("/learn")
++})
 +
 +// метка времени, чтобы после обновления файлов раздел всегда грузился свежим, а не из кеша браузера
 +const src = `/yandex-app/index.html?t=${Date.now()}`
@@ -29567,7 +30051,7 @@ index a65d75d..272d52b 100644
      const deviceIdentifier =
        await persistenceService.getLocalConfig("deviceIdentifier")
 diff --git a/packages/hoppscotch-selfhost-web/vite.config.ts b/packages/hoppscotch-selfhost-web/vite.config.ts
-index 21df330..f79d406 100644
+index 21df330..6f249ef 100644
 --- a/packages/hoppscotch-selfhost-web/vite.config.ts
 +++ b/packages/hoppscotch-selfhost-web/vite.config.ts
 @@ -228,6 +228,8 @@ export default defineConfig({
@@ -29575,15 +30059,16 @@ index 21df330..f79d406 100644
        workbox: {
          cleanupOutdatedCaches: true,
 +        // мини-приложение «Яндекс Еда» всегда берём с сервера, без кеша service worker
-+        globIgnores: ["**/yandex-app/**"],
++        globIgnores: ["**/yandex-app/**", "**/learn-app/**"],
          maximumFileSizeToCacheInBytes: 15728640, // 15 MB
          navigateFallbackDenylist: [
            /robots.txt/,
-@@ -242,6 +244,7 @@ export default defineConfig({
+@@ -242,6 +244,8 @@ export default defineConfig({
            /announcements/,
            /admin/,
            /backend/,
 +          /yandex-app/,
++          /learn-app/,
          ],
        },
      }),

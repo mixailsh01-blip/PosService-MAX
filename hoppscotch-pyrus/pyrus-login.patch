@@ -5022,7 +5022,7 @@ index b5efbce..582f660 100644
    --banner-info-color: theme("colors.stone.800");
    --banner-warning-color: theme("colors.yellow.800");
 diff --git a/packages/hoppscotch-common/locales/en.json b/packages/hoppscotch-common/locales/en.json
-index 92a70b7..1159e24 100644
+index 92a70b7..a895cac 100644
 --- a/packages/hoppscotch-common/locales/en.json
 +++ b/packages/hoppscotch-common/locales/en.json
 @@ -151,7 +151,7 @@
@@ -5034,7 +5034,15 @@ index 92a70b7..1159e24 100644
      "new_version_found": "New version found. Refresh to update.",
      "open_in_hoppscotch": "Open in Hoppscotch",
      "options": "Options",
-@@ -1314,7 +1314,7 @@
+@@ -1096,6 +1096,7 @@
+   },
+   "navigation": {
+     "admin_dashboard": "Dashboard",
++    "yandex": "Yandex Eats",
+     "doc": "Docs",
+     "graphql": "GraphQL",
+     "profile": "Profile",
+@@ -1314,7 +1315,7 @@
      "auto_encode_mode": "Auto",
      "auto_encode_mode_tooltip": "Encode the parameters in the request only if some special characters are present",
      "background": "Background",
@@ -5044,7 +5052,7 @@ index 92a70b7..1159e24 100644
      "dark_mode": "Dark",
      "delete_account": "Delete account",
 diff --git a/packages/hoppscotch-common/locales/ru.json b/packages/hoppscotch-common/locales/ru.json
-index df173dc..7d703b0 100644
+index df173dc..d28bc51 100644
 --- a/packages/hoppscotch-common/locales/ru.json
 +++ b/packages/hoppscotch-common/locales/ru.json
 @@ -80,7 +80,7 @@
@@ -5056,7 +5064,15 @@ index df173dc..7d703b0 100644
      "new_version_found": "Найдена новая версия. Перезагрузите для обновления. Все данные уже сохранены, ничего не потеряется",
      "open_in_hoppscotch": "Открыть в Hoppscotch",
      "options": "Настройки",
-@@ -643,7 +643,7 @@
+@@ -531,6 +531,7 @@
+     "url": "URL"
+   },
+   "navigation": {
++    "yandex": "Яндекс Еда",
+     "doc": "Документы",
+     "graphql": "GraphQL",
+     "profile": "Профиль",
+@@ -643,7 +644,7 @@
      "account_name_description": "Это ваше отображаемое имя.",
      "additional": "Additional Settings",
      "background": "Задний фон",
@@ -26486,52 +26502,99 @@ index d78a86b..9cf7537 100644
  </svg>
 diff --git a/packages/hoppscotch-common/public/yandex-app/index.html b/packages/hoppscotch-common/public/yandex-app/index.html
 new file mode 100644
-index 0000000..a7550b7
+index 0000000..67ad106
 --- /dev/null
 +++ b/packages/hoppscotch-common/public/yandex-app/index.html
-@@ -0,0 +1,39 @@
+@@ -0,0 +1,86 @@
 +<!DOCTYPE html>
 +<html lang="ru">
 +<head>
 +<meta charset="UTF-8"/>
 +<meta name="viewport" content="width=device-width, initial-scale=1"/>
 +<title>Яндекс Еда · iiko</title>
++<script>
++  // Оформление берём у SPRT API (родительское окно): цвета темы, акцент, шрифт.
++  // Если страница открыта отдельно, остаются значения по умолчанию из :root ниже.
++  (function(){
++    var MAP={'--bg':'--primary-color','--bg-1':'--primary-light-color','--bg-2':'--primary-dark-color',
++      '--fg':'--secondary-dark-color','--fg-1':'--secondary-color','--fg-2':'--secondary-light-color',
++      '--line':'--divider-color','--line-2':'--divider-dark-color',
++      '--accent':'--accent-color','--accent-2':'--accent-dark-color','--accent-fg':'--accent-contrast-color'};
++    function apply(){
++      try{
++        var pd=parent.document; if(pd===document) return;
++        var cs=parent.getComputedStyle(pd.documentElement), r=document.documentElement;
++        for(var k in MAP){var v=cs.getPropertyValue(MAP[k]).trim(); if(v) r.style.setProperty(k,v);}
++        var c=pd.documentElement.classList;
++        r.classList.toggle('dark',c.contains('dark')||c.contains('black'));
++        var ff=parent.getComputedStyle(pd.body).fontFamily; if(ff) r.style.setProperty('--font',ff);
++      }catch(e){}
++    }
++    function fonts(){
++      try{
++        var css='';
++        Array.prototype.forEach.call(parent.document.styleSheets,function(sh){
++          try{Array.prototype.forEach.call(sh.cssRules,function(rule){ if(rule.type===5) css+=rule.cssText+'\n'; });}catch(e){}
++        });
++        if(css){var st=document.createElement('style'); st.textContent=css; document.head.appendChild(st);}
++      }catch(e){}
++    }
++    apply(); fonts();
++    try{new MutationObserver(apply).observe(parent.document.documentElement,{attributes:true,attributeFilter:['class','data-accent','style']});}catch(e){}
++  })();
++</script>
 +<style>
-+  /* тёмная тема, когда SPRT API включён в тёмной (класс ставит скрипт ниже) */
++  :root{--bg:#0a0a0a;--bg-1:#141414;--bg-2:#1c1c1c;--fg:#fafafa;--fg-1:#a3a3a3;--fg-2:#737373;--line:#262626;--line-2:#404040;
++    --accent:#ef4444;--accent-2:#dc2626;--accent-fg:#fff;--err:#f87171;--err-bg:rgba(239,68,68,.12);
++    --font:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color-scheme:light}
 +  html.dark{color-scheme:dark}
-+  html.dark body{background:#0e0e0e!important;color:#e8e8e8!important}
-+  html.dark .card,html.dark .menu-card,html.dark .modRow,html.dark dialog,html.dark button,html.dark input,html.dark textarea{background:#171717!important;color:#e8e8e8!important;border-color:#2c2c2c!important}
-+  html.dark button:hover:not([disabled]){border-color:#e0484d!important}
-+  html.dark .badge,html.dark .rest-badge{background:#232323!important;color:#bbb!important}
-+  html.dark .menu-img,html.dark .modThumb,html.dark .itemDlgImg{background:#232323!important}
-+  html.dark .hr{background:#2c2c2c!important}
-+  html.dark .totalRow{border-color:#2c2c2c!important}
-+  html.dark .dlgActions{background:linear-gradient(to top,#171717 75%,rgba(23,23,23,0))!important}
-+  html.dark #err{color:#ff7b7b!important}
-+  html.dark dialog::backdrop{background:rgba(0,0,0,.6)}
++  html:not(.dark){--err:#dc2626;--err-bg:#fee2e2}
++  /* !important: перекрываем стили, которые приложение вставляет само */
++  html body{font-family:var(--font)!important;font-size:13px;line-height:1.45;background:var(--bg)!important;color:var(--fg)!important;-webkit-font-smoothing:antialiased}
++  #app{max-width:920px!important;padding:16px 20px 40px!important}
++  code{font-size:11px;color:var(--fg-2)}
++  .muted{opacity:1!important;color:var(--fg-1)!important;font-size:12px;margin-bottom:4px}
++  .hr{background:var(--line)!important}
++  button{font:inherit;font-weight:600;padding:8px 14px!important;border:1px solid var(--line-2)!important;border-radius:6px!important;background:var(--bg)!important;color:var(--fg)!important;transition:border-color .12s,background .12s,color .12s}
++  button:hover:not([disabled]){border-color:var(--accent)!important;color:var(--accent)!important}
++  button:focus-visible,input:focus,textarea:focus{outline:none;border-color:var(--accent)!important;box-shadow:0 0 0 1px var(--accent)}
++  button[disabled]{opacity:.45!important}
++  #go,#addToCartBtn,#checkoutBtn,#sendOrder,#submitOrder{background:var(--accent)!important;border-color:var(--accent)!important;color:var(--accent-fg)!important}
++  #go:hover:not([disabled]),#addToCartBtn:hover:not([disabled]),#checkoutBtn:hover:not([disabled]),#sendOrder:hover:not([disabled]),#submitOrder:hover:not([disabled]){background:var(--accent-2)!important;border-color:var(--accent-2)!important;color:var(--accent-fg)!important}
++  #backBtn,#logout,#changeRest,#closeItemDlg{background:transparent!important;color:var(--fg-1)!important}
++  input,textarea,select{font:inherit;padding:8px 10px!important;border:1px solid var(--line-2)!important;border-radius:6px!important;background:var(--bg-1)!important;color:var(--fg)!important}
++  input::placeholder,textarea::placeholder{color:var(--fg-2)}
++  .card,.menu-card,.modRow{background:var(--bg-1)!important;border:1px solid var(--line)!important;border-radius:8px!important}
++  .card{padding:16px!important}
++  .menu-card:hover,.modRow:hover{border-color:var(--line-2)!important}
++  .list>button{text-align:left;padding:12px 14px!important;background:var(--bg-1)!important;border-color:var(--line)!important;font-weight:500}
++  .list>button:hover:not([disabled]){border-color:var(--accent)!important;color:var(--fg)!important}
++  .menu-img,.modThumb,.itemDlgImg{background:var(--bg-2)!important;border-radius:6px!important}
++  .menu-card .menu-img{border-radius:0!important}
++  .menu-title,.itemDlgTitle,.groupTitle,.modInfo .name{color:var(--fg)}
++  .menu-desc,.itemDlgDesc,.groupHint,.modInfo .sub,.modName span{opacity:1!important;color:var(--fg-1)!important}
++  .menu-cat{font-size:11px!important;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-1)}
++  .badge{background:var(--bg-2)!important;color:var(--fg-1)!important;border-radius:4px!important;padding:3px 7px!important;font-size:11px!important}
++  .rest-badge{background:var(--bg-2)!important;color:var(--fg)!important;border:1px solid var(--line);border-radius:6px!important;box-shadow:none!important}
++  .totalRow{border-color:var(--line)!important}
++  dialog{background:var(--bg-1)!important;color:var(--fg)!important;border:1px solid var(--line-2)!important;border-radius:10px!important}
++  dialog::backdrop{background:rgba(0,0,0,.6)}
++  dialog pre{background:var(--bg)!important;color:var(--fg)!important;border:1px solid var(--line);border-radius:6px!important}
++  .dlgActions{background:linear-gradient(to top,var(--bg-1) 75%,transparent)!important}
++  .dlgActions button{border-radius:6px!important}
++  #err{color:var(--err)!important;font-size:12px}
++  input[type=checkbox],input[type=radio]{accent-color:var(--accent)}
++  ::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:4px}
 +</style>
 +</head>
 +<body>
 +<div id="app"></div>
-+<script>
-+  // подхватываем тему родительского окна (SPRT API): тёмная = класс black/dark на <html>
-+  (function(){
-+    function apply(){
-+      try{
-+        var c=parent.document.documentElement.classList;
-+        document.documentElement.classList.toggle('dark',c.contains('dark')||c.contains('black'));
-+      }catch(e){}
-+    }
-+    apply();
-+    try{new MutationObserver(apply).observe(parent.document.documentElement,{attributes:true,attributeFilter:['class']});}catch(e){}
-+  })();
-+</script>
 +<script type="module" src="./src/app/bootstrap.js"></script>
 +</body>
 +</html>
 diff --git a/packages/hoppscotch-common/public/yandex-app/src/app/bootstrap.js b/packages/hoppscotch-common/public/yandex-app/src/app/bootstrap.js
 new file mode 100644
-index 0000000..66db857
+index 0000000..a7320ed
 --- /dev/null
 +++ b/packages/hoppscotch-common/public/yandex-app/src/app/bootstrap.js
 @@ -0,0 +1,1355 @@
@@ -26927,7 +26990,7 @@ index 0000000..66db857
 +          <input id="clientSecret" type="password" />
 +        </div>
 +        <button id="go">Войти</button>
-+        <div id="err" style="color:#b00;"></div>
++        <div id="err" style="color:var(--err);"></div>
 +      </div>
 +    </div>
 +  `);
@@ -27302,7 +27365,7 @@ index 0000000..66db857
 +
 +            ${errs.length ? `
 +              <div style="margin-top:10px;">
-+                <div class="badge" style="background:#fff4f4;color:#a00;">Проверь выбор</div>
++                <div class="badge" style="background:var(--err-bg);color:var(--err);">Проверь выбор</div>
 +                <div style="font-size:12px;opacity:.8;margin-top:6px;">
 +                  ${errs.map(e => `<div>• ${e}</div>`).join('')}
 +                </div>
@@ -27591,7 +27654,7 @@ index 0000000..66db857
 +          return `
 +            <div class="card">
 +              <div class="row" style="align-items:flex-start;gap:10px;">
-+                <div style="width:64px;height:64px;border-radius:12px;overflow:hidden;background:#f6f6f6;flex:0 0 auto;display:flex;align-items:center;justify-content:center;">
++                <div style="width:64px;height:64px;border-radius:12px;overflow:hidden;background:var(--bg-2);flex:0 0 auto;display:flex;align-items:center;justify-content:center;">
 +                  ${x.imgUrl ? `<img src="${x.imgUrl}" style="width:100%;height:100%;object-fit:cover;" alt="">` : `<div class="muted" style="font-size:11px;">нет фото</div>`}
 +                </div>
 +                <div style="min-width:0;flex:1;">
@@ -28235,23 +28298,24 @@ index 9bcd074..a9d4c5e 100644
    </svg>
  </template>
 diff --git a/packages/hoppscotch-common/src/components/app/Sidenav.vue b/packages/hoppscotch-common/src/components/app/Sidenav.vue
-index e325ae2..816686e 100644
+index e325ae2..9afa254 100644
 --- a/packages/hoppscotch-common/src/components/app/Sidenav.vue
 +++ b/packages/hoppscotch-common/src/components/app/Sidenav.vue
-@@ -29,8 +29,6 @@
+@@ -29,9 +29,8 @@
  <script setup lang="ts">
  import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
  import IconLink2 from "~icons/lucide/link-2"
 -import IconGraphql from "~icons/hopp/graphql"
 -import IconGlobe from "~icons/lucide/globe"
  import IconSettings from "~icons/lucide/settings"
++import IconUtensils from "~icons/lucide/utensils"
  import { useSetting } from "@composables/settings"
  import { useI18n } from "@composables/i18n"
-@@ -49,18 +47,6 @@ const primaryNavigation = [
-     title: "navigation.rest",
+ 
+@@ -50,15 +49,9 @@ const primaryNavigation = [
      exact: true,
    },
--  {
+   {
 -    target: "/graphql",
 -    svg: IconGraphql,
 -    title: "navigation.graphql",
@@ -28261,11 +28325,12 @@ index e325ae2..816686e 100644
 -    target: "/realtime",
 -    svg: IconGlobe,
 -    title: "navigation.realtime",
--    exact: false,
--  },
++    target: "/yandex",
++    svg: IconUtensils,
++    title: "navigation.yandex",
+     exact: false,
+   },
    {
-     target: "/settings",
-     svg: IconSettings,
 diff --git a/packages/hoppscotch-common/src/components/http/Request.vue b/packages/hoppscotch-common/src/components/http/Request.vue
 index 82882fb..bf4e918 100644
 --- a/packages/hoppscotch-common/src/components/http/Request.vue
@@ -28279,7 +28344,7 @@ index 82882fb..bf4e918 100644
                    :label="t('request.share_request')"
                    :icon="IconShare2"
 diff --git a/packages/hoppscotch-common/src/components/http/Sidebar.vue b/packages/hoppscotch-common/src/components/http/Sidebar.vue
-index 13a04d9..07a6a72 100644
+index 13a04d9..547a4f5 100644
 --- a/packages/hoppscotch-common/src/components/http/Sidebar.vue
 +++ b/packages/hoppscotch-common/src/components/http/Sidebar.vue
 @@ -51,7 +51,7 @@
@@ -28291,46 +28356,6 @@ index 13a04d9..07a6a72 100644
        :id="'share-request'"
        :icon="IconShare2"
        :label="`${t('tab.shared_requests')}`"
-@@ -77,6 +77,13 @@
-         class="px-4 mt-4"
-       />
-     </HoppSmartTab>
-+    <HoppSmartTab
-+      :id="'yandex'"
-+      :icon="IconUtensils"
-+      label="Яндекс Еда"
-+    >
-+      <SprtYandexPanel v-if="yandexOpened" />
-+    </HoppSmartTab>
-     <HoppSmartTab
-       v-if="isMockServerVisible"
-       :id="'mock-servers'"
-@@ -110,6 +117,7 @@ import IconFolder from "~icons/lucide/folder"
- import IconShare2 from "~icons/lucide/share-2"
- import IconCode from "~icons/lucide/code"
- import IconServer from "~icons/lucide/server"
-+import IconUtensils from "~icons/lucide/utensils"
- import { computed, ref, watch } from "vue"
- import { useI18n } from "@composables/i18n"
- import { useService } from "dioc/vue"
-@@ -150,9 +158,17 @@ type RequestOptionTabs =
-   | "share-request"
-   | "codegen"
-   | "mock-servers"
-+  | "yandex"
- 
- const selectedNavigationTab = ref<RequestOptionTabs>("collections")
- 
-+// СПРТ: вкладку «Яндекс Еда» монтируем при первом открытии и дальше не выгружаем,
-+// чтобы не терять экран, на котором человек остановился
-+const yandexOpened = ref(false)
-+watch(selectedNavigationTab, (v) => {
-+  if (v === "yandex") yandexOpened.value = true
-+})
-+
- // GQL-only, HTTP-only, and request-only sidebar tab IDs — used to reset when
- // the active tab's document type changes
- const gqlOnlyTabs: RequestOptionTabs[] = ["docs", "schema"]
 diff --git a/packages/hoppscotch-common/src/components/http/TabHead.vue b/packages/hoppscotch-common/src/components/http/TabHead.vue
 index b1ddf3d..d75fccb 100644
 --- a/packages/hoppscotch-common/src/components/http/TabHead.vue
@@ -28795,35 +28820,6 @@ index 0000000..70baf43
 +  }
 +}
 +</style>
-diff --git a/packages/hoppscotch-common/src/components/sprt/YandexPanel.vue b/packages/hoppscotch-common/src/components/sprt/YandexPanel.vue
-new file mode 100644
-index 0000000..a226054
---- /dev/null
-+++ b/packages/hoppscotch-common/src/components/sprt/YandexPanel.vue
-@@ -0,0 +1,23 @@
-+<template>
-+  <div class="flex flex-col" style="height: calc(100vh - 7.5rem)">
-+    <div
-+      class="flex flex-shrink-0 items-center justify-between border-b border-dividerLight px-4 py-2 text-tiny text-secondaryLight"
-+    >
-+      <span class="truncate">Яндекс Еда · iiko</span>
-+      <a
-+        href="/yandex-app/index.html"
-+        target="_blank"
-+        rel="noopener"
-+        class="flex items-center gap-1 hover:text-secondaryDark"
-+      >
-+        В новой вкладке
-+        <icon-lucide-external-link class="svg-icons" />
-+      </a>
-+    </div>
-+    <iframe
-+      src="/yandex-app/index.html"
-+      title="Яндекс Еда · iiko"
-+      class="min-h-0 w-full flex-1 border-0"
-+    />
-+  </div>
-+</template>
 diff --git a/packages/hoppscotch-common/src/helpers/sprt-seed.ts b/packages/hoppscotch-common/src/helpers/sprt-seed.ts
 new file mode 100644
 index 0000000..2e27eb8
@@ -29125,6 +29121,28 @@ index 27a43da..fcd9b97 100644
              <h4 class="font-semibold text-secondaryDark">
                {{ t("settings.accent_color") }}
              </h4>
+diff --git a/packages/hoppscotch-common/src/pages/yandex.vue b/packages/hoppscotch-common/src/pages/yandex.vue
+new file mode 100644
+index 0000000..caa0a4e
+--- /dev/null
++++ b/packages/hoppscotch-common/src/pages/yandex.vue
+@@ -0,0 +1,16 @@
++<template>
++  <div class="flex min-h-0 w-full flex-1">
++    <iframe
++      src="/yandex-app/index.html"
++      title="Яндекс Еда · iiko"
++      class="h-full w-full flex-1 border-0"
++    />
++  </div>
++</template>
++
++<script setup lang="ts">
++import { usePageHead } from "@composables/head"
++import { ref } from "vue"
++
++usePageHead({ title: ref("Яндекс Еда") })
++</script>
 diff --git a/packages/hoppscotch-selfhost-web/index.html b/packages/hoppscotch-selfhost-web/index.html
 index 6d4ee07..8e1b867 100644
 --- a/packages/hoppscotch-selfhost-web/index.html

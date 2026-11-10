@@ -31,7 +31,7 @@ index ceb04cc..cd4ac01 100644
  
  const currentTime = new Date();
 diff --git a/packages/hoppscotch-backend/src/auth/auth.service.ts b/packages/hoppscotch-backend/src/auth/auth.service.ts
-index 58a904b..f3a3845 100644
+index 58a904b..2ef5f3a 100644
 --- a/packages/hoppscotch-backend/src/auth/auth.service.ts
 +++ b/packages/hoppscotch-backend/src/auth/auth.service.ts
 @@ -10,6 +10,7 @@ import * as E from 'fp-ts/Either';
@@ -58,7 +58,18 @@ index 58a904b..f3a3845 100644
    ) {}
  
    /**
-@@ -210,6 +213,12 @@ export class AuthService {
+@@ -203,13 +206,22 @@ export class AuthService {
+    * @param email User's email
+    * @returns Either containing DeviceIdentifierToken
+    */
+-  async signInMagicLink(email: string, origin: string) {
++  async signInMagicLink(
++    email: string,
++    origin: string,
++  ): Promise<E.Right<DeviceIdentifierToken> | E.Left<RESTError>> {
+     if (!validateEmail(email))
+       return E.left({
+         message: INVALID_EMAIL,
          statusCode: HttpStatus.BAD_REQUEST,
        });
  
@@ -71,7 +82,7 @@ index 58a904b..f3a3845 100644
      let user: AuthUser;
      const queriedUser = await this.usersService.findUserByEmail(email);
  
-@@ -340,6 +349,13 @@ export class AuthService {
+@@ -340,6 +352,13 @@ export class AuthService {
          statusCode: HttpStatus.NOT_FOUND,
        });
  

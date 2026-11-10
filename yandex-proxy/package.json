@@ -1,0 +1,12 @@
+{
+  "name": "yandex-proxy",
+  "version": "1.0.0",
+  "description": "Прокси для iiko-интеграции Яндекс Еды (замена n8n-вебхука yandex/devOps)",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/test.mjs"
+  },
+  "engines": { "node": ">=20" }
+}

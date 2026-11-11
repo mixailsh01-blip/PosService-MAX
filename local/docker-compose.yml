@@ -28,7 +28,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    command: ["pnpm", "dlx", "prisma", "migrate", "deploy"]
+    command: ["sh", "-c", "pnpm exec prisma migrate deploy"]
     restart: "no"
 
   hoppscotch:

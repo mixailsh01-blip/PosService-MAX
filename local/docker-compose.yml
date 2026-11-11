@@ -35,6 +35,8 @@ services:
     image: ${SPRT_IMAGE:-ghcr.io/mixailsh01-blip/hoppscotch-pyrus:latest}
     platform: linux/amd64
     env_file: .env
+    # при первом запуске приложение само перезапускается после заполнения настроек в базе
+    restart: unless-stopped
     depends_on:
       migrate:
         condition: service_completed_successfully

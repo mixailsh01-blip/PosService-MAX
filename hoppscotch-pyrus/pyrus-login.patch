@@ -28801,7 +28801,7 @@ index 6676e5d..aa16be5 100644
            trigger="click"
            theme="popover"
 diff --git a/packages/hoppscotch-common/src/components/app/Header.vue b/packages/hoppscotch-common/src/components/app/Header.vue
-index 6bfd22e..fe844b8 100644
+index 6bfd22e..32a9714 100644
 --- a/packages/hoppscotch-common/src/components/app/Header.vue
 +++ b/packages/hoppscotch-common/src/components/app/Header.vue
 @@ -56,12 +56,7 @@
@@ -28842,15 +28842,7 @@ index 6bfd22e..fe844b8 100644
                class="flex h-8 divide-x divide-emerald-600/25 rounded border border-emerald-600/25 bg-emerald-500/10 focus-within:divide-emerald-600/20 focus-within:border-emerald-600/20 focus-within:bg-emerald-600/20 hover:divide-emerald-600/20 hover:border-emerald-600/20 hover:bg-emerald-600/20"
              >
                <HoppButtonSecondary
-@@ -193,6 +191,7 @@
-               />
-             </div>
-             <tippy
-+              v-if="false"
-               interactive
-               trigger="click"
-               theme="popover"
-@@ -364,6 +363,7 @@
+@@ -364,6 +362,7 @@
  </template>
  
  <script setup lang="ts">
@@ -29553,6 +29545,26 @@ index 0000000..70baf43
 +  }
 +}
 +</style>
+diff --git a/packages/hoppscotch-common/src/components/workspace/Selector.vue b/packages/hoppscotch-common/src/components/workspace/Selector.vue
+index 90a4a0c..8321f76 100644
+--- a/packages/hoppscotch-common/src/components/workspace/Selector.vue
++++ b/packages/hoppscotch-common/src/components/workspace/Selector.vue
+@@ -23,6 +23,7 @@
+       >
+         <template #body>
+           <HoppButtonSecondary
++            v-if="false"
+             :label="t('team.create_new')"
+             filled
+             outline
+@@ -39,6 +40,7 @@
+             {{ t("workspace.other_workspaces") }}
+           </div>
+           <HoppButtonSecondary
++            v-if="false"
+             v-tippy="{ theme: 'tooltip' }"
+             :icon="IconPlus"
+             :title="`${t('team.create_new')}`"
 diff --git a/packages/hoppscotch-common/src/helpers/sprt-learn.ts b/packages/hoppscotch-common/src/helpers/sprt-learn.ts
 new file mode 100644
 index 0000000..a1eb82d

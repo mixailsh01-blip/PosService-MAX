@@ -1,0 +1,49 @@
+# Локальный SPRT API на вашем компьютере: для отладки перед выкладкой на сервер.
+# Запуск: ./start.sh   Адрес: http://localhost:3080   Письма со ссылкой для входа: http://localhost:8025
+name: sprt-api-local
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: hoppscotch
+      POSTGRES_PASSWORD: hoppscotch
+      POSTGRES_DB: hoppscotch
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hoppscotch"]
+      interval: 5s
+      retries: 10
+
+  # «Почта»: ловит письма со ссылкой для входа вместо настоящей отправки
+  mailpit:
+    image: axllent/mailpit
+    ports:
+      - "8025:8025"
+
+  migrate:
+    image: ${SPRT_IMAGE:-ghcr.io/mixailsh01-blip/hoppscotch-pyrus:latest}
+    platform: linux/amd64
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["pnpm", "dlx", "prisma", "migrate", "deploy"]
+    restart: "no"
+
+  hoppscotch:
+    image: ${SPRT_IMAGE:-ghcr.io/mixailsh01-blip/hoppscotch-pyrus:latest}
+    platform: linux/amd64
+    env_file: .env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    ports:
+      - "3080:80"
+    volumes:
+      # разделы-мини-приложения берутся прямо из папок репозитория: правка файла, обновить страницу, и всё
+      - ../yandex-app:/site/selfhost-web/yandex-app:ro
+      - ../learn-app:/site/selfhost-web/learn-app:ro
+
+volumes:
+  dbdata:

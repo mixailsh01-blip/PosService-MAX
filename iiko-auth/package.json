@@ -1,0 +1,9 @@
+{
+  "name": "iiko-auth",
+  "version": "1.0.0",
+  "description": "Выдача токена iiko Cloud API по одному apiKey (секрет приложения хранится на сервере)",
+  "type": "module",
+  "private": true,
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=20" }
+}

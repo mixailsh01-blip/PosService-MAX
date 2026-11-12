@@ -46,7 +46,7 @@ for i in $(seq 1 90); do
   [ "${n:-0}" = "1" ] && break
   sleep 2
 done
-if [ "$(SQL "select value from \"InfraConfig\" where name='MAILER_SMTP_ENABLE'" 2>/dev/null)" != "true" ]; then
+if [ "$(SQL "select value from \"InfraConfig\" where name='VITE_ALLOWED_AUTH_PROVIDERS'" 2>/dev/null)" != "EMAIL" ]; then
   SQL "update \"InfraConfig\" set value = case name
     when 'MAILER_SMTP_ENABLE' then 'true'
     when 'MAILER_USE_CUSTOM_CONFIGS' then 'true'
@@ -56,10 +56,12 @@ if [ "$(SQL "select value from \"InfraConfig\" where name='MAILER_SMTP_ENABLE'" 
     when 'MAILER_SMTP_IGNORE_TLS' then 'true'
     when 'MAILER_TLS_REJECT_UNAUTHORIZED' then 'false'
     when 'MAILER_ADDRESS_FROM' then 'SPRT API <noreply@localhost>'
+    when 'VITE_ALLOWED_AUTH_PROVIDERS' then 'EMAIL'
+    when 'ONBOARDING_COMPLETED' then 'true'
     end
-    where name in ('MAILER_SMTP_ENABLE','MAILER_USE_CUSTOM_CONFIGS','MAILER_SMTP_HOST','MAILER_SMTP_PORT','MAILER_SMTP_SECURE','MAILER_SMTP_IGNORE_TLS','MAILER_TLS_REJECT_UNAUTHORIZED','MAILER_ADDRESS_FROM')" >/dev/null
+    where name in ('MAILER_SMTP_ENABLE','MAILER_USE_CUSTOM_CONFIGS','MAILER_SMTP_HOST','MAILER_SMTP_PORT','MAILER_SMTP_SECURE','MAILER_SMTP_IGNORE_TLS','MAILER_TLS_REJECT_UNAUTHORIZED','MAILER_ADDRESS_FROM','VITE_ALLOWED_AUTH_PROVIDERS','ONBOARDING_COMPLETED')" >/dev/null
   docker compose restart hoppscotch >/dev/null
-  echo "Почта настроена, приложение перезапущено."
+  echo "Почта и вход по почте настроены, приложение перезапущено."
 fi
 echo
 echo "Готово. SPRT API:  http://localhost:3080"

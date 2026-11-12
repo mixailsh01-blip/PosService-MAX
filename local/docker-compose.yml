@@ -47,5 +47,25 @@ services:
       - ../yandex-app:/site/selfhost-web/yandex-app:ro
       - ../learn-app:/site/selfhost-web/learn-app:ro
 
+  # Прокси для «Яндекс Еды»: мини-приложение обращается к нему по адресу http://localhost:8080/yandex/devOps
+  yandex-proxy:
+    build: ../yandex-proxy
+    restart: unless-stopped
+    environment:
+      ALLOWED_ORIGINS: "http://localhost:3080"
+      ALLOWED_HOSTS: "*.iikoweb.ru,*.iiko.services"
+    ports:
+      - "8080:8080"
+
+  iiko-auth:
+    build: ../iiko-auth
+    restart: unless-stopped
+    environment:
+      ALLOWED_ORIGINS: "http://localhost:3080"
+      IIKO_APP_ID: "${IIKO_APP_ID:-}"
+      IIKO_CLIENT_SECRET: "${IIKO_CLIENT_SECRET:-}"
+    ports:
+      - "8081:8081"
+
 volumes:
   dbdata:

@@ -28800,6 +28800,15 @@ index 6676e5d..aa16be5 100644
            interactive
            trigger="click"
            theme="popover"
+@@ -151,7 +152,7 @@
+           @click="invokeAction('flyouts.keybinds.toggle')"
+         />
+         <HoppButtonSecondary
+-          v-if="navigatorShare"
++          v-if="false && navigatorShare"
+           v-tippy="{ theme: 'tooltip' }"
+           :icon="IconShare2"
+           :title="t('request.share')"
 diff --git a/packages/hoppscotch-common/src/components/app/Header.vue b/packages/hoppscotch-common/src/components/app/Header.vue
 index 6bfd22e..32a9714 100644
 --- a/packages/hoppscotch-common/src/components/app/Header.vue
@@ -29722,17 +29731,16 @@ index 326768d..9b8fb5d 100644
      <Splitpanes class="no-splitter" :dbl-click-splitter="false" horizontal>
        <Pane style="height: auto">
          <AppHeader />
-@@ -77,6 +78,9 @@ import { Pane, Splitpanes } from "splitpanes"
+@@ -77,6 +78,8 @@ import { Pane, Splitpanes } from "splitpanes"
  import "splitpanes/dist/splitpanes.css"
  import { computed, onBeforeMount, onMounted, ref, watch } from "vue"
  import { RouterView, useRouter } from "vue-router"
 +import { useReadonlyStream } from "@composables/stream"
 +import SprtLoginGate from "~/components/sprt/LoginGate.vue"
-+import { seedSprtDefaults } from "~/helpers/sprt-seed"
  
  import { useI18n } from "~/composables/i18n"
  import { useToast } from "~/composables/toast"
-@@ -222,6 +226,34 @@ defineActionHandler("settings.theme.black", () => {
+@@ -222,6 +225,26 @@ defineActionHandler("settings.theme.black", () => {
  })
  
  hookKeybindingsListener()
@@ -29752,14 +29760,6 @@ index 326768d..9b8fb5d 100644
 +const currentUser = useReadonlyStream(
 +  platform.auth.getCurrentUserStream(),
 +  platform.auth.getCurrentUser()
-+)
-+// first sign-in: preload the iiko collection and environment
-+watch(
-+  currentUser,
-+  (u) => {
-+    if (u?.uid) void seedSprtDefaults(u.uid)
-+  },
-+  { immediate: true }
 +)
 +const loginRequired = computed(
 +  () => authSettled.value && currentUser.value === null

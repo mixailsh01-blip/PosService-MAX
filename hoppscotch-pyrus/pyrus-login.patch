@@ -30018,3 +30018,55 @@ index 21df3308..6f249ef3 100644
          ],
        },
      }),
+diff --git a/packages/hoppscotch-common/src/services/kernel-interceptor.service.ts b/packages/hoppscotch-common/src/services/kernel-interceptor.service.ts
+index 4da8a7ba..f8350b09 100644
+--- a/packages/hoppscotch-common/src/services/kernel-interceptor.service.ts
++++ b/packages/hoppscotch-common/src/services/kernel-interceptor.service.ts
+@@ -154,10 +154,47 @@ export class KernelInterceptorService extends Service {
+   }
+ 
+   public execute(req: RelayRequest): ExecutionResult {
++    const sprtRequest = this.routeSprtIikoRequest(req)
++    if (sprtRequest) {
++      const browser = this.state.interceptors.get("browser")
++      if (browser) return browser.execute(sprtRequest)
++    }
+     const interceptor = this.validateAndGetActiveInterceptor()
+     return interceptor.execute(req)
+   }
+ 
++  private routeSprtIikoRequest(req: RelayRequest): RelayRequest | undefined {
++    if (
++      typeof window === "undefined" ||
++      window.location.origin !== "https://sprtapi.sprt-service.ru" ||
++      (req.method !== "GET" && req.method !== "POST")
++    ) return
++
++    let target: URL
++    try {
++      target = new URL(req.url, window.location.origin)
++    } catch {
++      return
++    }
++    if (target.origin === window.location.origin) {
++      if (
++        target.pathname === "/iiko-auth/token" ||
++        /^\/iiko-api\/api\/\d+\//.test(target.pathname)
++      ) return { ...req, url: target.href }
++      return
++    }
++
++    if (
++      target.origin !== "https://api-ru.iiko.services" ||
++      !/^\/api\/\d+\//.test(target.pathname)
++    ) return
++
++    return {
++      ...req,
++      url: window.location.origin + "/iiko-api" + target.pathname + target.search,
++    }
++  }
++
+   private validateAndGetActiveInterceptor(): KernelInterceptor {
+     if (!this.state.currentId) {
+       throw new Error("No active interceptor")

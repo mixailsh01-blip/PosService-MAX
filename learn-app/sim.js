@@ -45,6 +45,7 @@
 
     var E = { label: label || "" };
     E.apiKey = hex(8) + hex(8) + hex(8);
+    E.appId = "sprt-" + b36(12);
     E.clientSecret = b36(32);
     E.token = "eyJhbGciOiJIUzI1NiJ9." + b36(36) + "." + b36(10);
 
@@ -124,8 +125,8 @@
       return err(403, "Forbidden", "Please use /api/v2/access_token", "Старый метод /api/1/access_token (с apiLogin) больше не работает. Нужен /api/v2/access_token с ключом и Client Secret.");
 
     if (path === "/api/v2/access_token") {
-      if (body.apiKey !== E.apiKey || body.clientSecret !== E.clientSecret)
-        return err(401, "AuthorizationError", "Неверный apiKey или clientSecret", "В теле нужны два поля: apiKey и clientSecret. Ваши значения указаны в задании, копируйте их без пробелов.");
+      if (body.apiKey !== E.apiKey || body.appId !== E.appId || body.clientSecret !== E.clientSecret)
+        return err(401, "AuthorizationError", "Неверный apiKey, appId или clientSecret", "В теле нужны три поля: apiKey, appId и clientSecret. Ваши значения указаны в задании, копируйте их без пробелов.");
       return ok("l1", { token: E.token });
     }
 

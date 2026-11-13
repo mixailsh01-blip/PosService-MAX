@@ -1,4 +1,4 @@
-// СПРТ • автоматизация iiko Cloud API (v3).
+// СПРТ • автоматизация iiko Cloud API (v4, server proxy).
 // Выполняется перед каждым запросом коллекции: сама получает токен и подставляет ID.
 // Вручную нужно вписать только apiLogin (API-ключ из iikoWeb) в окружении «iiko Cloud API».
 // clientSecret приложения хранится на сервере СПРТ (сервис iiko-auth).
@@ -8,7 +8,11 @@ const get = (k) => {
 }
 const set = (k, v) => pw.env.set(k, v === undefined || v === null ? "" : String(v))
 
-const base = (get("baseUrl") || "https://api-ru.iiko.services").replace(/\/+$/, "")
+const here = globalThis.location
+const serviceOrigin = here && (here.hostname === "localhost" || here.hostname === "127.0.0.1")
+  ? "http://localhost:8081"
+  : ((here && here.origin) || "https://sprtapi.sprt-service.ru")
+const base = (get("baseUrl") || serviceOrigin + "/iiko-api").replace(/\/+$/, "")
 const url = String(hopp.request.url || "")
 const reqBody = hopp.request.body
 const raw = url + " " + (reqBody && typeof reqBody.body === "string" ? reqBody.body : "")
@@ -60,7 +64,6 @@ if (!isAuthCall) {
     }
     // clientSecret хранится только на сервере СПРТ и не показывается в окружении.
     // Локальная разработка использует порт 8081, опубликованный сайт — тот же домен.
-    const here = globalThis.location
     const authService = here && (here.hostname === "localhost" || here.hostname === "127.0.0.1")
       ? "http://localhost:8081"
       : ((here && here.origin) || "https://sprtapi.sprt-service.ru") + "/iiko-auth"

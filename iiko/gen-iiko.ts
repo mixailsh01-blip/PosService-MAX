@@ -404,7 +404,7 @@ const v = (key: string, initial = "", secret = false) => ({ key, initialValue: i
 const env = {
   v: 2, id: "iiko-cloud-api", name: "iiko Cloud API",
   variables: [
-    v("baseUrl", "https://api-ru.iiko.services"),
+    v("baseUrl", "https://sprtapi.sprt-service.ru/iiko-api"),
     v("apiLogin", "", true), // API-ключ из iikoWeb
     v("token", "", true), v("tokenTime"),
     v("organizationId"), v("organizationName"), v("organizationsList"),

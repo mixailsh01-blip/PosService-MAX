@@ -39,7 +39,7 @@ docker run -d --name sprt-iiko-auth --restart unless-stopped \
   -e ALLOWED_ORIGINS="https://$DOMAIN" \
   -l traefik.enable=true \
   -l traefik.docker.network="$NET" \
-  -l "traefik.http.routers.sprtapi-iiko-auth.rule=Host(\`$DOMAIN\`) && PathPrefix(\`/iiko-auth\`)" \
+  -l "traefik.http.routers.sprtapi-iiko-auth.rule=Host(\`$DOMAIN\`) && (PathPrefix(\`/iiko-auth\`) || PathPrefix(\`/iiko-api\`))" \
   -l traefik.http.routers.sprtapi-iiko-auth.entrypoints="$ENTRY" \
   -l traefik.http.routers.sprtapi-iiko-auth.tls=true \
   -l traefik.http.routers.sprtapi-iiko-auth.tls.certresolver="$RESOLVER" \

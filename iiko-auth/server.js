@@ -8,7 +8,7 @@ const ORIGINS = (process.env.ALLOWED_ORIGINS || "*").split(",").map((s) => s.tri
 const IIKO_BASE = (process.env.IIKO_BASE || "https://api-ru.iiko.services").replace(/\/+$/, "")
 const APP_ID = process.env.IIKO_APP_ID || ""
 const CLIENT_SECRET = process.env.IIKO_CLIENT_SECRET || ""
-const MAX_BODY = 16 * 1024
+const MAX_BODY = 2 * 1024 * 1024
 
 function corsHeaders(origin) {
   const h = { "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type", "Access-Control-Max-Age": "86400", Vary: "Origin" }
@@ -43,6 +43,38 @@ export const server = http.createServer(async (req, res) => {
 
   if (req.method === "OPTIONS") { res.writeHead(204, cors); return res.end() }
   if (req.method === "GET" && path === "/health") return send(200, { ok: true })
+
+  // Проксируем остальные методы iiko через тот же домен. Hoppscotch в режиме
+  // Browser иначе блокируется CORS ещё до получения ответа от iiko.
+  if (rawPath.startsWith("/iiko-api/")) {
+    if (req.method !== "POST" && req.method !== "GET")
+      return send(405, { error: "METHOD_NOT_ALLOWED", errorDescription: "Method not allowed" })
+    const upstreamPath = rawPath.slice("/iiko-api".length)
+    if (!/^\/api\/\d+\//.test(upstreamPath))
+      return send(404, { error: "NOT_FOUND", errorDescription: "Not found" })
+    let body
+    try { body = req.method === "GET" ? undefined : await readBody(req) }
+    catch { return send(413, { error: "TOO_LARGE", errorDescription: "Слишком большое тело запроса" }) }
+    const headers = { "Content-Type": req.headers["content-type"] || "application/json" }
+    if (typeof req.headers.authorization === "string") headers.Authorization = req.headers.authorization
+    try {
+      const r = await fetch(IIKO_BASE + upstreamPath, {
+        method: req.method,
+        headers,
+        body,
+        signal: AbortSignal.timeout(60000),
+      })
+      const response = Buffer.from(await r.arrayBuffer())
+      res.writeHead(r.status, {
+        "Content-Type": r.headers.get("content-type") || "application/json; charset=utf-8",
+        ...cors,
+      })
+      return res.end(response)
+    } catch (e) {
+      return send(502, { error: "UPSTREAM", errorDescription: "iiko недоступен: " + (e && e.message) })
+    }
+  }
+
   if (req.method !== "POST" || path !== "/token") return send(404, { error: "NOT_FOUND", errorDescription: "Not found" })
   if (!CLIENT_SECRET) return send(503, { error: "NOT_CONFIGURED", errorDescription: "На сервере не задан IIKO_CLIENT_SECRET" })
 

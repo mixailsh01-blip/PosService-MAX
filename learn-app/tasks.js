@@ -11,8 +11,8 @@ window.buildTasks = function () {
     {
       id: "l1",
       title: "Получить токен",
-      text: "Любая работа с iiko Cloud API начинается с токена. Отправьте <b>POST</b>-запрос на <code>/api/v2/access_token</code>: в теле JSON с вашим ключом и секретом. В ответе придёт <code>token</code>: он понадобится во всех следующих заданиях. Ваши персональные данные для входа:",
-      data: [["apiKey", E.apiKey], ["clientSecret", E.clientSecret]]
+      text: "Любая работа с iiko Cloud API начинается с токена. Отправьте <b>POST</b>-запрос на <code>/api/v2/access_token</code>: в теле JSON с вашим ключом, идентификатором приложения и секретом. В ответе придёт <code>token</code>: он понадобится во всех следующих заданиях. Ваши персональные данные для входа:",
+      data: [["apiKey", E.apiKey], ["appId", E.appId], ["clientSecret", E.clientSecret]]
     },
     {
       id: "l2",

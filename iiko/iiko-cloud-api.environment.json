@@ -5,8 +5,8 @@
   "variables": [
     {
       "key": "baseUrl",
-      "initialValue": "https://api-ru.iiko.services",
-      "currentValue": "https://api-ru.iiko.services",
+      "initialValue": "https://sprtapi.sprt-service.ru/iiko-api",
+      "currentValue": "https://sprtapi.sprt-service.ru/iiko-api",
       "secret": false
     },
     {

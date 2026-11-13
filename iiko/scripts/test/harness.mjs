@@ -20,7 +20,7 @@ const routes = {
 globalThis.fetch = async (u, o) => {
   const path = u.includes("/iiko-auth/token")
     ? "/iiko-auth/token"
-    : u.replace("https://api-ru.iiko.services", "")
+    : u.replace("https://sprtapi.sprt-service.ru/iiko-api", "")
   const body = o.body ? JSON.parse(o.body) : {}
   calls.push({ path, auth: o.headers.Authorization, body })
   const h = routes[path]
@@ -53,7 +53,7 @@ const ok = (c, m) => { console.error((c ? "ok   " : "FAIL ") + m); if (!c) fails
 
 // 1. нет apiLogin -> понятная ошибка
 {
-  const env = { baseUrl: "https://api-ru.iiko.services" }
+  const env = { baseUrl: "https://sprtapi.sprt-service.ru/iiko-api" }
   makeCtx(env, "<<baseUrl>>/api/1/organizations", "{}")
   let err = ""
   try { await run(pre) } catch (e) { err = e.message }
@@ -62,7 +62,7 @@ const ok = (c, m) => { console.error((c ? "ok   " : "FAIL ") + m); if (!c) fails
 // 2. запрос с organizationId и terminalGroupId: токен + организация + терминал за один проход
 {
   calls = []
-  const env = { baseUrl: "https://api-ru.iiko.services", apiLogin: "good" }
+  const env = { baseUrl: "https://sprtapi.sprt-service.ru/iiko-api", apiLogin: "good" }
   makeCtx(env, "<<baseUrl>>/api/1/order/create", '{"organizationId":"<<organizationId>>","terminalGroupId":"<<terminalGroupId>>"}')
   await run(pre)
   ok(env.token?.startsWith("TOK"), "токен получен автоматически")
@@ -77,7 +77,7 @@ const ok = (c, m) => { console.error((c ? "ok   " : "FAIL ") + m); if (!c) fails
 // 3. повторный запрос: ничего лишнего не вызывается
 {
   calls = []
-  const env = { baseUrl: "https://api-ru.iiko.services", apiLogin: "good", token: "T", tokenTime: Date.now(), organizationId: "org-1", terminalGroupId: "tg-1" }
+  const env = { baseUrl: "https://sprtapi.sprt-service.ru/iiko-api", apiLogin: "good", token: "T", tokenTime: Date.now(), organizationId: "org-1", terminalGroupId: "tg-1" }
   makeCtx(env, "<<baseUrl>>/api/1/order/create", '{"organizationId":"<<organizationId>>"}')
   await run(pre)
   ok(calls.length === 0, "второй запрос без сетевых вызовов")
@@ -85,7 +85,7 @@ const ok = (c, m) => { console.error((c ? "ok   " : "FAIL ") + m); if (!c) fails
 // 4. просроченный токен обновляется
 {
   calls = []
-  const env = { baseUrl: "https://api-ru.iiko.services", apiLogin: "good", token: "OLD", tokenTime: Date.now() - 55 * 60000, organizationId: "org-1" }
+  const env = { baseUrl: "https://sprtapi.sprt-service.ru/iiko-api", apiLogin: "good", token: "OLD", tokenTime: Date.now() - 55 * 60000, organizationId: "org-1" }
   makeCtx(env, "<<baseUrl>>/api/1/stop_lists", '{"organizationIds":["<<organizationId>>"]}')
   await run(pre)
   ok(env.token !== "OLD" && calls.length === 1, "просроченный токен обновлён")
@@ -93,7 +93,7 @@ const ok = (c, m) => { console.error((c ? "ok   " : "FAIL ") + m); if (!c) fails
 // 5. продукты/оплата/тип заказа/курьер/меню/стол
 {
   calls = []
-  const env = { baseUrl: "https://api-ru.iiko.services", apiLogin: "good" }
+  const env = { baseUrl: "https://sprtapi.sprt-service.ru/iiko-api", apiLogin: "good" }
   const body = '{"a":"<<productId>>","b":<<productPrice>>,"c":"<<paymentTypeId>>","d":"<<paymentTypeKind>>","e":"<<orderTypeId>>","f":"<<employeeId>>","g":"<<externalMenuId>>","h":"<<tableId>>"}'
   makeCtx(env, "<<baseUrl>>/api/1/deliveries/create", body)
   await run(pre)
@@ -106,7 +106,7 @@ const ok = (c, m) => { console.error((c ? "ok   " : "FAIL ") + m); if (!c) fails
 // 6. сам запрос токена пропускается
 {
   calls = []
-  const env = { baseUrl: "https://api-ru.iiko.services", apiLogin: "good" }
+  const env = { baseUrl: "https://sprtapi.sprt-service.ru/iiko-api", apiLogin: "good" }
   makeCtx(env, "<<baseUrl>>/api/1/access_token", '{"apiLogin":"<<apiLogin>>"}')
   await run(pre)
   ok(calls.length === 0, "запрос токена не вызывает авто-логика")
@@ -114,7 +114,7 @@ const ok = (c, m) => { console.error((c ? "ok   " : "FAIL ") + m); if (!c) fails
 // 6b. clientSecret скрыт: браузер отправляет на сервис только apiKey
 {
   calls = []
-  const env = { baseUrl: "https://api-ru.iiko.services", apiLogin: "good" }
+  const env = { baseUrl: "https://sprtapi.sprt-service.ru/iiko-api", apiLogin: "good" }
   makeCtx(env, "<<baseUrl>>/api/1/stop_lists", "{}")
   await run(pre)
   ok(calls[0].path === "/iiko-auth/token" && calls[0].body.apiKey === "good", "сервису передан только apiKey")

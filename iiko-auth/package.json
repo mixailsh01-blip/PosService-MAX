@@ -4,6 +4,9 @@
   "description": "Выдача токена iiko Cloud API по одному apiKey (секрет приложения хранится на сервере)",
   "type": "module",
   "private": true,
-  "scripts": { "start": "node server.js" },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test.mjs"
+  },
   "engines": { "node": ">=20" }
 }

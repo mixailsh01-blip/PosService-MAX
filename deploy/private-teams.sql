@@ -107,6 +107,19 @@ BEGIN
       DELETE FROM "TeamRequest" r WHERE r."collectionID" IN (SELECT id FROM tree) RETURNING 1
     )
     DELETE FROM "TeamCollection" WHERE id IN (SELECT id FROM tree);
+
+    -- Старые сборки ошибочно клали системную коллекцию и окружение в
+    -- «Моё пространство». Удаляем только записи с точными системными именами;
+    -- пользовательские коллекции с другими названиями не затрагиваются.
+    WITH RECURSIVE personal_tree AS (
+      SELECT c.id FROM "UserCollection" c
+      WHERE c."parentID" IS NULL
+        AND c.title IN ('iiko Cloud API (СПРТ)', 'iiko Cloud API (СПРТ) — архив', 'iiko Cloud API (СПРТ) — старая версия, можно удалить')
+      UNION ALL
+      SELECT c.id FROM "UserCollection" c JOIN personal_tree p ON c."parentID" = p.id
+    )
+    DELETE FROM "UserCollection" WHERE id IN (SELECT id FROM personal_tree);
+    DELETE FROM "UserEnvironment" WHERE name = 'iiko Cloud API';
   END IF;
 
   -- по просьбе: добавить окружение и коллекцию и в уже существующие пространства

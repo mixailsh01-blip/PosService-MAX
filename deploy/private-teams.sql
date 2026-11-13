@@ -1,6 +1,6 @@
 -- Два рабочих пространства (команды) на каждого сотрудника, включая администраторов:
--- «SPRT-Service · имя» (рабочее, с окружением и коллекцией iiko) и пустое «Обучение · имя» для практики.
--- Сотрудник видит только своё и редактирует в нём коллекции, администраторы видят все.
+-- «SPRT-Service · имя» — личное рабочее пространство сотрудника с коллекцией iiko.
+-- «Обучение · имя» доступно только администратору обучения.
 -- В новое пространство кладутся окружение «iiko Cloud API» и коллекция «iiko Cloud API (СПРТ)».
 -- Скрипт можно запускать сколько угодно раз: он только добавляет недостающее.
 -- Параметры (через PGOPTIONS): sprt.admins — почты администраторов через запятую,
@@ -52,7 +52,14 @@ DECLARE
   u record;
   tid text;
   adm text[] := string_to_array(lower(coalesce(current_setting('sprt.admins', true), '')), ',');
+  training_admin_email text := lower(coalesce(nullif(current_setting('sprt.training_admin', true), ''), 'm.demetiev@sprt-service.ru'));
+  training_admin_uid text;
 BEGIN
+  SELECT uid INTO training_admin_uid FROM "User" WHERE lower(email) = training_admin_email;
+  IF training_admin_uid IS NULL THEN
+    RAISE EXCEPTION 'Администратор обучения % не найден', training_admin_email;
+  END IF;
+
   FOR u IN
     SELECT uid, email, ("isAdmin" OR lower(email) = ANY (adm)) AS adm
     FROM "User"
@@ -67,13 +74,10 @@ BEGIN
       PERFORM pg_temp.sprt_seed(tid);   -- только для нового пространства: удалённое сотрудником не вернётся
     END IF;
 
-    -- пустое пространство для практики: сотрудник создаёт в нём свои папки, администратор видит все
-    IF NOT EXISTS (SELECT 1 FROM "Team" t JOIN "TeamMember" m ON m."teamID" = t.id
-                   WHERE t.name = 'Обучение · ' || split_part(u.email, '@', 1) AND m."userUid" = u.uid) THEN
+    IF NOT EXISTS (SELECT 1 FROM "Team" t
+                   WHERE t.name = 'Обучение · ' || split_part(u.email, '@', 1)) THEN
       tid := md5(random()::text || clock_timestamp()::text || u.uid || 'learn');
       INSERT INTO "Team"(id, name) VALUES (tid, 'Обучение · ' || split_part(u.email, '@', 1));
-      INSERT INTO "TeamMember"(id, role, "userUid", "teamID")
-      VALUES (gen_random_uuid()::text, CASE WHEN u.adm THEN 'OWNER' ELSE 'EDITOR' END::"TeamAccessRole", u.uid, tid);
     END IF;
   END LOOP;
 
@@ -142,13 +146,27 @@ BEGIN
     WHERE e."teamID" = saved."teamID" AND e.name = 'iiko Cloud API';
   END IF;
 
-  -- администраторы состоят во всех личных пространствах как владельцы
+  -- Сначала назначаем владельца обучения, затем убираем прежние членства.
   INSERT INTO "TeamMember"(id, role, "userUid", "teamID")
-  SELECT gen_random_uuid()::text, 'OWNER', a.uid, t.id
-  FROM "User" a, "Team" t
-  WHERE (t.name LIKE 'SPRT-Service · %' OR t.name LIKE 'Обучение · %')
-    AND (a."isAdmin" OR lower(a.email) = ANY (adm))
-  ON CONFLICT ("teamID", "userUid") DO NOTHING;
+  SELECT gen_random_uuid()::text, 'OWNER', training_admin_uid, t.id
+  FROM "Team" t WHERE t.name LIKE 'Обучение · %'
+  ON CONFLICT ("teamID", "userUid") DO UPDATE SET role = EXCLUDED.role;
+
+  DELETE FROM "TeamMember" m USING "Team" t
+  WHERE m."teamID" = t.id AND t.name LIKE 'Обучение · %'
+    AND m."userUid" <> training_admin_uid;
+
+  -- Убираем доступ администратора к чужим личным рабочим пространствам.
+  DELETE FROM "TeamMember" m USING "Team" t
+  WHERE m."teamID" = t.id AND t.name LIKE 'SPRT-Service · %'
+    AND m."userUid" = training_admin_uid
+    AND t.name <> 'SPRT-Service · ' || split_part(training_admin_email, '@', 1)
+    AND EXISTS (
+      SELECT 1 FROM "TeamMember" owner_member JOIN "User" owner_user
+        ON owner_user.uid = owner_member."userUid"
+      WHERE owner_member."teamID" = t.id
+        AND t.name = 'SPRT-Service · ' || split_part(owner_user.email, '@', 1)
+    );
 END $$;
 
 \echo

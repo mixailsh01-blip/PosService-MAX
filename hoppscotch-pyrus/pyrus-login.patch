@@ -29483,22 +29483,60 @@ index 00000000..4e1af4ed
 +</style>
 diff --git a/packages/hoppscotch-common/src/helpers/sprt-learn.ts b/packages/hoppscotch-common/src/helpers/sprt-learn.ts
 new file mode 100644
-index 00000000..a1eb82d7
+index 00000000..1c1cf5d2
 --- /dev/null
 +++ b/packages/hoppscotch-common/src/helpers/sprt-learn.ts
-@@ -0,0 +1,13 @@
-+import { computed } from "vue"
-+import { useSetting } from "@composables/settings"
+@@ -0,0 +1,51 @@
++import { computed, ref } from "vue"
++import { useReadonlyStream } from "@composables/stream"
++import { platform } from "~/platform"
++import { applySetting } from "~/newstore/settings"
 +
 +// Должен совпадать с id уроков в public/learn-app/lessons.js
 +export const SPRT_LESSON_IDS = ["l1", "l2", "l3", "l4", "l5", "l6"]
 +
-+/** true, когда сотрудник прошёл все уроки обучения */
-+export function useLearnPassed() {
-+  const learn = useSetting("SPRT_LEARN")
-+  return computed(() =>
-+    SPRT_LESSON_IDS.every((id) => !!(learn.value as Record<string, boolean> | undefined)?.[id])
++type Progress = Record<string, boolean>
++const progressByUser = ref<Record<string, Progress>>({})
++const storageKey = (uid: string) => "sprt_learn_progress:" + uid
++
++function readProgress(uid: string): Progress | undefined {
++  if (progressByUser.value[uid]) return progressByUser.value[uid]
++  try {
++    const saved = localStorage.getItem(storageKey(uid))
++    return saved ? JSON.parse(saved) : undefined
++  } catch {
++    return undefined
++  }
++}
++
++export function loadLearnProgress(uid: string, serverProgress: Progress = {}) {
++  progressByUser.value[uid] = readProgress(uid) ?? serverProgress
++}
++
++export function useLearnProgress() {
++  const user = useReadonlyStream(
++    platform.auth.getCurrentUserStream(),
++    platform.auth.getCurrentUser()
 +  )
++  const progress = computed(() => user.value ? readProgress(user.value.uid) : undefined)
++  function setProgress(id: string, done: boolean) {
++    const uid = user.value?.uid
++    if (!uid) return
++    const next = { ...readProgress(uid), [id]: done }
++    progressByUser.value[uid] = next
++    try {
++      localStorage.setItem(storageKey(uid), JSON.stringify(next))
++    } catch {
++      // Server settings are still available if browser storage is disabled.
++    }
++    applySetting("SPRT_LEARN", next)
++  }
++  return { progress, setProgress, user }
++}
++
++export function useLearnPassed() {
++  const { progress } = useLearnProgress()
++  return computed(() => SPRT_LESSON_IDS.every((id) => !!progress.value?.[id]))
 +}
 diff --git a/packages/hoppscotch-common/src/helpers/sprt-seed.ts b/packages/hoppscotch-common/src/helpers/sprt-seed.ts
 new file mode 100644
@@ -29627,7 +29665,7 @@ index 00000000..2e27eb8d
 +  }
 +}
 diff --git a/packages/hoppscotch-common/src/layouts/default.vue b/packages/hoppscotch-common/src/layouts/default.vue
-index 326768de..297dbe3a 100644
+index 326768de..62ad0ffa 100644
 --- a/packages/hoppscotch-common/src/layouts/default.vue
 +++ b/packages/hoppscotch-common/src/layouts/default.vue
 @@ -1,5 +1,6 @@
@@ -29638,7 +29676,15 @@ index 326768de..297dbe3a 100644
      <Splitpanes class="no-splitter" :dbl-click-splitter="false" horizontal>
        <Pane style="height: auto">
          <AppHeader />
-@@ -75,8 +76,11 @@ import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
+@@ -25,6 +26,7 @@
+               <Pane class="flex flex-1 !overflow-hidden">
+                 <main class="flex w-full flex-1 overflow-auto" role="main">
+                   <RouterView
++                    v-if="!isTrainingGatedRoute || (progress !== undefined && learnPassed)"
+                     v-slot="{ Component }"
+                     class="flex min-w-0 flex-1"
+                   >
+@@ -75,8 +77,11 @@ import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
  import { useService } from "dioc/vue"
  import { Pane, Splitpanes } from "splitpanes"
  import "splitpanes/dist/splitpanes.css"
@@ -29648,28 +29694,32 @@ index 326768de..297dbe3a 100644
 +import { RouterView, useRoute, useRouter } from "vue-router"
 +import { useReadonlyStream } from "@composables/stream"
 +import SprtLoginGate from "~/components/sprt/LoginGate.vue"
-+import { useLearnPassed } from "~/helpers/sprt-learn"
++import { useLearnPassed, useLearnProgress } from "~/helpers/sprt-learn"
  
  import { useI18n } from "~/composables/i18n"
  import { useToast } from "~/composables/toast"
-@@ -90,6 +94,16 @@ import { SpotlightService } from "~/services/spotlight"
+@@ -90,6 +95,20 @@ import { SpotlightService } from "~/services/spotlight"
  import { UIExtensionService } from "~/services/ui-extension.service"
  
  const router = useRouter()
 +const route = useRoute()
 +const learnPassed = useLearnPassed()
++const { progress } = useLearnProgress()
++const isTrainingGatedRoute = computed(
++  () => route.path === "/" || route.path === "/yandex"
++)
 +
 +// До завершения обучения REST-клиент и Яндекс Еда недоступны не только
 +// из меню, но и по прямой ссылке.
 +watchEffect(() => {
-+  if (!learnPassed.value && (route.path === "/" || route.path === "/yandex")) {
++  if (progress.value !== undefined && !learnPassed.value && isTrainingGatedRoute.value) {
 +    void router.replace("/learn")
 +  }
 +})
  
  const showSearch = ref(false)
  const showSupport = ref(false)
-@@ -222,6 +236,26 @@ defineActionHandler("settings.theme.black", () => {
+@@ -222,6 +241,26 @@ defineActionHandler("settings.theme.black", () => {
  })
  
  hookKeybindingsListener()
@@ -29696,6 +29746,42 @@ index 326768de..297dbe3a 100644
  </script>
  
  <style lang="scss" scoped>
+diff --git a/packages/hoppscotch-common/src/lib/sync/settings/index.ts b/packages/hoppscotch-common/src/lib/sync/settings/index.ts
+index 785b27af..68126eb9 100644
+--- a/packages/hoppscotch-common/src/lib/sync/settings/index.ts
++++ b/packages/hoppscotch-common/src/lib/sync/settings/index.ts
+@@ -10,6 +10,7 @@ import {
+   runUserSettingsUpdatedSubscription,
+ } from "./api"
+ import { settingsSyncer } from "./sync"
++import { loadLearnProgress } from "~/helpers/sprt-learn"
+ 
+ function initSettingsSync() {
+   const authEvents$ = platform.auth.getAuthEventsStream()
+@@ -20,7 +21,7 @@ function initSettingsSync() {
+   currentUser$.subscribe(async (user) => {
+     if (user) {
+       // load the settings
+-      loadUserSettings()
++      loadUserSettings(user.uid)
+     }
+   })
+ 
+@@ -35,8 +36,13 @@ function initSettingsSync() {
+   })
+ }
+ 
+-async function loadUserSettings() {
++async function loadUserSettings(uid: string) {
+   const res = await getUserSettings()
++  if (platform.auth.getCurrentUser()?.uid !== uid) return
++  loadLearnProgress(
++    uid,
++    E.isRight(res) ? JSON.parse(res.right.me.settings.properties).SPRT_LEARN : undefined
++  )
+ 
+   // create user settings if it doesn't exist
+   if (E.isLeft(res) && res.left.error == "user_settings/not_found") {
 diff --git a/packages/hoppscotch-common/src/modules/head.ts b/packages/hoppscotch-common/src/modules/head.ts
 index eb72032e..a85264b0 100644
 --- a/packages/hoppscotch-common/src/modules/head.ts
@@ -29813,13 +29899,14 @@ index c00b2539..6b298c64 100644
  
 diff --git a/packages/hoppscotch-common/src/pages/learn.vue b/packages/hoppscotch-common/src/pages/learn.vue
 new file mode 100644
-index 00000000..c4ef4a55
+index 00000000..818032cd
 --- /dev/null
 +++ b/packages/hoppscotch-common/src/pages/learn.vue
-@@ -0,0 +1,57 @@
+@@ -0,0 +1,59 @@
 +<template>
 +  <div class="flex min-h-0 w-full flex-1">
 +    <iframe
++      v-if="progress !== undefined"
 +      :src="src"
 +      title="Обучение · iiko"
 +      class="h-full w-full flex-1 border-0"
@@ -29831,22 +29918,23 @@ index 00000000..c4ef4a55
 +import { usePageHead } from "@composables/head"
 +import { onBeforeUnmount, ref } from "vue"
 +import { useRouter } from "vue-router"
-+import { applySetting, settingsStore } from "~/newstore/settings"
++import { useLearnProgress } from "~/helpers/sprt-learn"
 +import { getAggregateEnvsWithCurrentValue } from "~/newstore/environments"
 +
 +const router = useRouter()
++const { progress, setProgress, user } = useLearnProgress()
 +
 +// метка времени, чтобы после обновления файлов раздел всегда грузился свежим, а не из кеша браузера
 +const src = `/learn-app/index.html?t=${Date.now()}`
 +
 +// Мост для мини-приложения в iframe (тот же адрес, поэтому оно видит parent.__sprtLearn)
 +const sprtLearnBridge = {
-+  getProgress: () => ({ ...(settingsStore.value.SPRT_LEARN ?? {}) }),
-+  setProgress: (id: string, done: boolean) =>
-+    applySetting("SPRT_LEARN", {
-+      ...(settingsStore.value.SPRT_LEARN ?? {}),
-+      [id]: !!done,
-+    }),
++  getProgress: () => ({ ...progress.value }),
++  setProgress,
++  getUser: () => ({
++    email: user.value?.email,
++    name: user.value?.displayName,
++  }),
 +  // значения переменных выбранного окружения и глобальных (включая секретные)
 +  getEnv: () => {
 +    const out: Record<string, string> = {}
@@ -29930,6 +30018,58 @@ index 00000000..6afc288e
 +
 +usePageHead({ title: ref("Яндекс Еда") })
 +</script>
+diff --git a/packages/hoppscotch-common/src/services/kernel-interceptor.service.ts b/packages/hoppscotch-common/src/services/kernel-interceptor.service.ts
+index 4da8a7ba..f8350b09 100644
+--- a/packages/hoppscotch-common/src/services/kernel-interceptor.service.ts
++++ b/packages/hoppscotch-common/src/services/kernel-interceptor.service.ts
+@@ -154,10 +154,47 @@ export class KernelInterceptorService extends Service {
+   }
+ 
+   public execute(req: RelayRequest): ExecutionResult {
++    const sprtRequest = this.routeSprtIikoRequest(req)
++    if (sprtRequest) {
++      const browser = this.state.interceptors.get("browser")
++      if (browser) return browser.execute(sprtRequest)
++    }
+     const interceptor = this.validateAndGetActiveInterceptor()
+     return interceptor.execute(req)
+   }
+ 
++  private routeSprtIikoRequest(req: RelayRequest): RelayRequest | undefined {
++    if (
++      typeof window === "undefined" ||
++      window.location.origin !== "https://sprtapi.sprt-service.ru" ||
++      (req.method !== "GET" && req.method !== "POST")
++    ) return
++
++    let target: URL
++    try {
++      target = new URL(req.url, window.location.origin)
++    } catch {
++      return
++    }
++    if (target.origin === window.location.origin) {
++      if (
++        target.pathname === "/iiko-auth/token" ||
++        /^\/iiko-api\/api\/\d+\//.test(target.pathname)
++      ) return { ...req, url: target.href }
++      return
++    }
++
++    if (
++      target.origin !== "https://api-ru.iiko.services" ||
++      !/^\/api\/\d+\//.test(target.pathname)
++    ) return
++
++    return {
++      ...req,
++      url: window.location.origin + "/iiko-api" + target.pathname + target.search,
++    }
++  }
++
+   private validateAndGetActiveInterceptor(): KernelInterceptor {
+     if (!this.state.currentId) {
+       throw new Error("No active interceptor")
 diff --git a/packages/hoppscotch-selfhost-web/index.html b/packages/hoppscotch-selfhost-web/index.html
 index 6d4ee078..3a48de3d 100644
 --- a/packages/hoppscotch-selfhost-web/index.html
@@ -30018,55 +30158,3 @@ index 21df3308..6f249ef3 100644
          ],
        },
      }),
-diff --git a/packages/hoppscotch-common/src/services/kernel-interceptor.service.ts b/packages/hoppscotch-common/src/services/kernel-interceptor.service.ts
-index 4da8a7ba..f8350b09 100644
---- a/packages/hoppscotch-common/src/services/kernel-interceptor.service.ts
-+++ b/packages/hoppscotch-common/src/services/kernel-interceptor.service.ts
-@@ -154,10 +154,47 @@ export class KernelInterceptorService extends Service {
-   }
- 
-   public execute(req: RelayRequest): ExecutionResult {
-+    const sprtRequest = this.routeSprtIikoRequest(req)
-+    if (sprtRequest) {
-+      const browser = this.state.interceptors.get("browser")
-+      if (browser) return browser.execute(sprtRequest)
-+    }
-     const interceptor = this.validateAndGetActiveInterceptor()
-     return interceptor.execute(req)
-   }
- 
-+  private routeSprtIikoRequest(req: RelayRequest): RelayRequest | undefined {
-+    if (
-+      typeof window === "undefined" ||
-+      window.location.origin !== "https://sprtapi.sprt-service.ru" ||
-+      (req.method !== "GET" && req.method !== "POST")
-+    ) return
-+
-+    let target: URL
-+    try {
-+      target = new URL(req.url, window.location.origin)
-+    } catch {
-+      return
-+    }
-+    if (target.origin === window.location.origin) {
-+      if (
-+        target.pathname === "/iiko-auth/token" ||
-+        /^\/iiko-api\/api\/\d+\//.test(target.pathname)
-+      ) return { ...req, url: target.href }
-+      return
-+    }
-+
-+    if (
-+      target.origin !== "https://api-ru.iiko.services" ||
-+      !/^\/api\/\d+\//.test(target.pathname)
-+    ) return
-+
-+    return {
-+      ...req,
-+      url: window.location.origin + "/iiko-api" + target.pathname + target.search,
-+    }
-+  }
-+
-   private validateAndGetActiveInterceptor(): KernelInterceptor {
-     if (!this.state.currentId) {
-       throw new Error("No active interceptor")

@@ -29665,7 +29665,7 @@ index 00000000..2e27eb8d
 +  }
 +}
 diff --git a/packages/hoppscotch-common/src/layouts/default.vue b/packages/hoppscotch-common/src/layouts/default.vue
-index 326768de..62ad0ffa 100644
+index 326768de..783b6f8f 100644
 --- a/packages/hoppscotch-common/src/layouts/default.vue
 +++ b/packages/hoppscotch-common/src/layouts/default.vue
 @@ -1,5 +1,6 @@
@@ -29698,7 +29698,7 @@ index 326768de..62ad0ffa 100644
  
  import { useI18n } from "~/composables/i18n"
  import { useToast } from "~/composables/toast"
-@@ -90,6 +95,20 @@ import { SpotlightService } from "~/services/spotlight"
+@@ -90,6 +95,32 @@ import { SpotlightService } from "~/services/spotlight"
  import { UIExtensionService } from "~/services/ui-extension.service"
  
  const router = useRouter()
@@ -29708,18 +29708,30 @@ index 326768de..62ad0ffa 100644
 +const isTrainingGatedRoute = computed(
 +  () => route.path === "/" || route.path === "/yandex"
 +)
++let openedOnTraining = route.path === "/learn"
 +
 +// До завершения обучения REST-клиент и Яндекс Еда недоступны не только
 +// из меню, но и по прямой ссылке.
 +watchEffect(() => {
-+  if (progress.value !== undefined && !learnPassed.value && isTrainingGatedRoute.value) {
++  if (route.path !== "/learn") openedOnTraining = false
++  if (progress.value === undefined) return
++
++  if (openedOnTraining) {
++    openedOnTraining = false
++    if (learnPassed.value) {
++      void router.replace("/")
++      return
++    }
++  }
++
++  if (!learnPassed.value && isTrainingGatedRoute.value) {
 +    void router.replace("/learn")
 +  }
 +})
  
  const showSearch = ref(false)
  const showSupport = ref(false)
-@@ -222,6 +241,26 @@ defineActionHandler("settings.theme.black", () => {
+@@ -222,6 +253,26 @@ defineActionHandler("settings.theme.black", () => {
  })
  
  hookKeybindingsListener()

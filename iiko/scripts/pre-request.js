@@ -1,6 +1,7 @@
 // СПРТ • автоматизация iiko Cloud API (v3).
 // Выполняется перед каждым запросом коллекции: сама получает токен и подставляет ID.
-// Вручную нужно вписать только apiLogin (API-ключ из iikoWeb) в окружении «iiko Cloud API». appId и clientSecret приложения добавляет сервер СПРТ (сервис iiko-auth).
+// Вручную нужно вписать только apiLogin (API-ключ из iikoWeb) в окружении «iiko Cloud API».
+// clientSecret приложения хранится на сервере СПРТ (сервис iiko-auth).
 const get = (k) => {
   const v = pw.env.get(k)
   return v === undefined || v === null ? "" : String(v)
@@ -54,25 +55,21 @@ if (!isAuthCall) {
   const age = Date.now() - Number(get("tokenTime") || 0)
   if (!get("token") || age > 50 * 60 * 1000) {
     const login = get("apiLogin")
-    const secret = get("clientSecret")
     if (!login) {
       throw new Error("СПРТ: впишите apiLogin (API-ключ из iikoWeb) в окружении «iiko Cloud API» (значок окружений справа вверху).")
     }
+    // clientSecret хранится только на сервере СПРТ и не показывается в окружении.
+    // Локальная разработка использует порт 8081, опубликованный сайт — тот же домен.
+    const here = globalThis.location
+    const authService = here && (here.hostname === "localhost" || here.hostname === "127.0.0.1")
+      ? "http://localhost:8081"
+      : ((here && here.origin) || "https://sprtapi.sprt-service.ru") + "/iiko-auth"
+    const res = await fetch(authService + "/token", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ apiKey: login }) })
     let t
-    if (secret) {
-      // свой clientSecret вписан в окружении — идём в iiko напрямую (/api/v2/access_token)
-      const body = { apiKey: login, clientSecret: secret }
-      if (get("appId")) body.appId = get("appId")
-      t = await call("/api/v2/access_token", body, false)
-    } else {
-      // обычный путь: секрет приложения хранится на сервере СПРТ, сотруднику нужен только apiKey
-      const proxy = (get("authProxy") || "http://localhost:8081").replace(/\/+$/, "")
-      const res = await fetch(proxy + "/token", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ apiKey: login }) })
-      try { t = await res.json() } catch (_) { t = null }
-      if (!res.ok) {
-        const why = (t && (t.errorDescription || t.message || t.error)) || ""
-        throw new Error(`СПРТ: не удалось получить токен (${res.status}) ${why}`)
-      }
+    try { t = await res.json() } catch (_) { t = null }
+    if (!res.ok) {
+      const why = (t && (t.errorDescription || t.message || t.error)) || ""
+      throw new Error(`СПРТ: не удалось получить токен (${res.status}) ${why}`)
     }
     if (t && !t.token) t.token = t.accessToken || t.access_token
     set("token", t.token)

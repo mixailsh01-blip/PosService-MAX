@@ -36,7 +36,10 @@ export const server = http.createServer(async (req, res) => {
     res.writeHead(status, { "Content-Type": "application/json; charset=utf-8", ...cors })
     res.end(JSON.stringify(obj))
   }
-  const path = (req.url || "/").split("?")[0]
+  const rawPath = (req.url || "/").split("?")[0]
+  // На сервере Traefik публикует сервис под тем же доменом с префиксом
+  // /iiko-auth; локально сервис доступен напрямую на :8081.
+  const path = rawPath.replace(/^\/iiko-auth(?=\/|$)/, "") || "/"
 
   if (req.method === "OPTIONS") { res.writeHead(204, cors); return res.end() }
   if (req.method === "GET" && path === "/health") return send(200, { ok: true })

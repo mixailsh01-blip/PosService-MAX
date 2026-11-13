@@ -7,8 +7,7 @@ const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor
 // ---- макет iiko API ----
 let calls = []
 const routes = {
-  "/api/1/access_token": (b) => (b.apiLogin === "good" ? { token: "TOK-" + calls.length } : { __status: 401, errorDescription: "bad login" }),
-  "/api/v2/access_token": (b) => (b.apiKey === "good" && b.clientSecret === "sec" ? { token: "TOK2-" + calls.length } : { __status: 401, errorDescription: "bad key/secret" }),
+  "/iiko-auth/token": (b) => (b.apiKey === "good" ? { token: "TOK-" + calls.length } : { __status: 401, errorDescription: "bad key" }),
   "/api/1/organizations": () => ({ organizations: [{ id: "org-1", name: "Кафе 1" }, { id: "org-2", name: "Кафе 2" }] }),
   "/api/1/terminal_groups": () => ({ terminalGroups: [{ organizationId: "org-1", items: [{ id: "tg-1", name: "Касса" }] }] }),
   "/api/1/nomenclature": () => ({ products: [{ id: "p0", type: "Modifier" }, { id: "p1", name: "Борщ", type: "Dish", sizePrices: [{ price: { currentPrice: 350, isIncludedInMenu: true } }] }] }),
@@ -19,7 +18,9 @@ const routes = {
   "/api/1/reserve/available_restaurant_sections": () => ({ restaurantSections: [{ id: "sec-1", tables: [{ id: "tbl-1" }] }] }),
 }
 globalThis.fetch = async (u, o) => {
-  const path = u.replace("https://api-ru.iiko.services", "")
+  const path = u.includes("/iiko-auth/token")
+    ? "/iiko-auth/token"
+    : u.replace("https://api-ru.iiko.services", "")
   const body = o.body ? JSON.parse(o.body) : {}
   calls.push({ path, auth: o.headers.Authorization, body })
   const h = routes[path]
@@ -68,7 +69,7 @@ const ok = (c, m) => { console.error((c ? "ok   " : "FAIL ") + m); if (!c) fails
   ok(env.organizationId === "org-1" && env.organizationName === "Кафе 1", "организация подставлена")
   ok(env.organizationsList.includes("2) Кафе 2"), "список организаций сохранён")
   ok(env.terminalGroupId === "tg-1", "терминал подставлен")
-  ok(calls.map((c) => c.path).join() === "/api/1/access_token,/api/1/organizations,/api/1/terminal_groups", "порядок вызовов: " + calls.map((c) => c.path).join())
+  ok(calls.map((c) => c.path).join() === "/iiko-auth/token,/api/1/organizations,/api/1/terminal_groups", "порядок вызовов: " + calls.map((c) => c.path).join())
   ok(calls[1].auth === "Bearer " + env.token, "Authorization передан")
   ok(/^\d{4}-\d\d-\d\d 00:00:00\.000$/.test(env.todayStart) && /23:59:59\.999$/.test(env.todayEnd), "даты: " + env.todayStart + " … " + env.todayEnd)
   ok(/^[0-9a-f-]{36}$/.test(env.guid) && env.orderNumber.startsWith("SPRT-"), "guid/номер заказа")
@@ -110,19 +111,14 @@ const ok = (c, m) => { console.error((c ? "ok   " : "FAIL ") + m); if (!c) fails
   await run(pre)
   ok(calls.length === 0, "запрос токена не вызывает авто-логика")
 }
-// 6b. новая схема: clientSecret -> /api/v2/access_token, appId передаётся, если задан
+// 6b. clientSecret скрыт: браузер отправляет на сервис только apiKey
 {
   calls = []
-  const env = { baseUrl: "https://api-ru.iiko.services", apiLogin: "good", clientSecret: "sec", appId: "app-1" }
+  const env = { baseUrl: "https://api-ru.iiko.services", apiLogin: "good" }
   makeCtx(env, "<<baseUrl>>/api/1/stop_lists", "{}")
   await run(pre)
-  ok(calls[0].path === "/api/v2/access_token" && calls[0].body.apiKey === "good" && calls[0].body.appId === "app-1", "v2: токен по apiKey+clientSecret+appId")
-  ok(String(env.token).startsWith("TOK2-"), "v2: токен сохранён")
-  calls = []
-  const env2 = { baseUrl: "https://api-ru.iiko.services", apiLogin: "good", clientSecret: "sec" }
-  makeCtx(env2, "<<baseUrl>>/api/1/stop_lists", "{}")
-  await run(pre)
-  ok(calls[0].path === "/api/v2/access_token" && !("appId" in calls[0].body), "v2: без appId поле не отправляется")
+  ok(calls[0].path === "/iiko-auth/token" && calls[0].body.apiKey === "good", "сервису передан только apiKey")
+  ok(Object.keys(calls[0].body).length === 1, "clientSecret не попал в браузерный запрос")
 }
 // 7. post-request
 {

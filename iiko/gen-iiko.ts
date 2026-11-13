@@ -344,16 +344,16 @@ const mk = (name: string, requests: any[], extra: any = {}) => makeCollection({
   name, folders: [], requests, auth: { authType: "inherit", authActive: true }, headers: [], variables: [],
   description: null, preRequestScript: "", testScript: "", ...extra } as any)
 
-// Токен: теперь получается автоматически, но запрос оставлен для проверки apiLogin
+// Токен получается через сервер СПРТ: clientSecret не попадает в браузер.
 const authReq = (() => {
   const r = getDefaultRESTRequest()
   r.name = "Получить токен вручную (обычно не нужно)"
   r.method = "POST"
-  r.endpoint = "<<baseUrl>>/api/v2/access_token"
+  r.endpoint = "https://sprtapi.sprt-service.ru/iiko-auth/token"
   r.auth = { authType: "none", authActive: true } as any
   r.headers = [{ key: "Content-Type", value: "application/json", active: true, description: "" }] as any
-  r.body = { contentType: "application/json", body: JSON.stringify({ apiKey: "<<apiLogin>>", clientSecret: "<<clientSecret>>" }, null, 2) } as any
-  r.description = "Токен получается и обновляется автоматически перед любым запросом коллекции, нужны заполненные apiLogin (API-ключ) и clientSecret в окружении. Этот запрос полезен, чтобы проверить, что ключ и секрет рабочие. Если у вас выдан appId, добавьте в тело поле \"appId\": \"<<appId>>\"."
+  r.body = { contentType: "application/json", body: JSON.stringify({ apiKey: "<<apiLogin>>" }, null, 2) } as any
+  r.description = "Токен получается и обновляется автоматически перед любым запросом коллекции. Сотруднику нужен только apiLogin (API-ключ); clientSecret приложения хранится на сервере СПРТ."
   return r
 })()
 
@@ -381,7 +381,7 @@ const root = mk("iiko Cloud API (СПРТ)", [], {
   description: [
     "Коллекция методов iiko Cloud API (api-ru.iiko.services) с автоматизацией для СПРТ.",
     "",
-    "Что нужно сделать один раз: выбрать окружение «iiko Cloud API» (справа вверху) и вписать в нём apiLogin (API-ключ из iikoWeb) и clientSecret (из портала разработчика iiko, public-api.iikoweb.ru/portal).",
+    "Что нужно сделать один раз: выбрать окружение «iiko Cloud API» (справа вверху) и вписать apiLogin (API-ключ из iikoWeb).",
     "",
     "Дальше всё само:",
     "• токен получается и обновляется перед каждым запросом;",
@@ -406,7 +406,6 @@ const env = {
   variables: [
     v("baseUrl", "https://api-ru.iiko.services"),
     v("apiLogin", "", true), // API-ключ из iikoWeb
-    v("clientSecret", "", true), v("appId"), // из портала разработчика iiko
     v("token", "", true), v("tokenTime"),
     v("organizationId"), v("organizationName"), v("organizationsList"),
     v("terminalGroupId"), v("terminalGroupName"),

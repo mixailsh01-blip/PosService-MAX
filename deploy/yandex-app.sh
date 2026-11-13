@@ -17,9 +17,9 @@ if [ -d "$SRC/.git" ]; then
   git -C "$SRC" pull -q --ff-only
 else
   git clone -q --depth 1 --filter=blob:none --sparse "$REPO" "$SRC"
-  git -C "$SRC" sparse-checkout set yandex-app learn-app
+  git -C "$SRC" sparse-checkout set yandex-app learn-app iiko-auth
 fi
-git -C "$SRC" sparse-checkout set yandex-app learn-app
+git -C "$SRC" sparse-checkout set yandex-app learn-app iiko-auth
 test -f "$SRC/yandex-app/index.html" || { echo "В репозитории не нашёл yandex-app/index.html"; exit 1; }
 test -f "$SRC/learn-app/index.html" || { echo "В репозитории не нашёл learn-app/index.html"; exit 1; }
 chmod -R a+rX "$SRC"

@@ -1,0 +1,9 @@
+{
+  "name": "sprt-workspaces",
+  "private": true,
+  "type": "module",
+  "scripts": { "start": "node server.mjs", "test": "node --test test/*.test.mjs" },
+  "dependencies": { "pg": "^8.16.3" },
+  "devDependencies": { "@electric-sql/pglite": "^0.3.14" },
+  "engines": { "node": ">=22" }
+}

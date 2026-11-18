@@ -8,6 +8,7 @@
   var local = (function () { try { return JSON.parse(localStorage.getItem(LS) || "{}"); } catch (e) { return {}; } })();
   function progress() { return bridge ? (bridge.getProgress() || {}) : local; }
   function setDone(id, v) {
+    if (v && /^l[1-6]$/.test(id) && window.SPRTTraining) window.SPRTTraining.record("lesson", id, true);
     if (bridge) bridge.setProgress(id, v);
     else { local[id] = v; try { localStorage.setItem(LS, JSON.stringify(local)); } catch (e) {} }
   }
@@ -34,6 +35,7 @@
   var METHODS = ["POST", "GET", "PUT", "DELETE", "PATCH"];
   var ADMINS = ["m.dementiev@sprt-service.ru", "m.demetiev@sprt-service.ru"]; // только у этих адресов есть кнопка «Показать пример»
   var EX = null;
+  var isTrainingAdmin = false;
   var cur = 0, mem = {}, who = "", confirmReset = false, baseSeed = "", baseLabel = "";
   // номер попытки хранится в прогрессе как ключи r1, r2…: после сброса задания генерируются заново
   function attempt() { var p = progress(), n = 0; Object.keys(p).forEach(function (k) { if (/^r\d+$/.test(k) && p[k]) n++; }); return n; }
@@ -51,7 +53,7 @@
 
   function render() {
     var p = progress(), n = count(), t = T[cur], s = st(t), done = !!p[t.id];
-    var h = '<h1 class="ttl">Тренажёр: запросы iiko Cloud API</h1>' +
+    var h = (isTrainingAdmin ? '<p><a href="/sprt/training" target="_top">Обучение сотрудников →</a></p>' : '') + '<h1 class="ttl">Тренажёр: запросы iiko Cloud API</h1>' +
       '<p class="sub">Составьте запрос сами: метод, адрес, заголовки и JSON. Сервер учебный, данные вымышленные, ничего настоящего вы не заденете. Когда пройдёте все задания, откроются остальные разделы.</p>' +
       '<p class="who">Задания персональные: ключи, организация, меню и условия заказа свои у каждого сотрудника. После сброса задания генерируются заново. Вы: <b>' + esc(who) + '</b></p>' +
       '<div class="prog"><div class="bar"><i style="width:' + Math.round(n / T.length * 100) + '%"></i></div><span>Выполнено ' + n + ' из ' + T.length + '</span>' +
@@ -88,7 +90,8 @@
     }
     if (done && cur < T.length - 1) h += '<div class="nav"><button class="primary" data-next="1">Следующее задание</button></div>';
     h += '</div></div>';
-    app.innerHTML = h;
+    app.innerHTML = h + '<p id="sprt-training-status" class="sub" role="status"></p>';
+    if (window.SPRTTraining) window.SPRTTraining.renderStatus();
   }
 
   function readForm() {
@@ -110,6 +113,7 @@
     if (b.dataset.resetall) {
       if (!confirmReset) { confirmReset = true; render(); return; }
       confirmReset = false;
+      if (window.SPRTTraining) window.SPRTTraining.record("reset");
       T.forEach(function (x) { setDone(x.id, false); });
       SIM.reset(); setDone("r" + (attempt() + 1), true);
       mem = {}; start(); render(); window.scrollTo(0, 0); return;
@@ -121,6 +125,7 @@
         render(); return;
       }
       var r = SIM.send(s); s.resp = r;
+      if (window.SPRTTraining) window.SPRTTraining.record("attempt", t.id, r.status === 200 && r.task === t.id);
       if (r.status === 200 && r.task === t.id) {
         setDone(t.id, true);
         s.verdict = { kind: "ok", title: "Задание выполнено", text: cur < T.length - 1 ? "Сохраните нужные значения из ответа: они понадобятся дальше." : "Это было последнее задание." };
@@ -137,7 +142,21 @@
   });
 
   app.innerHTML = '<p class="sub">Загружаю ваши задания…</p>';
-  whoAmI(function (u) {
+  whoAmI(async function (u) {
+    if (u && window.SPRTTraining) {
+      var server = await window.SPRTTraining.init();
+      if (server) {
+        isTrainingAdmin = server.admin === true;
+        Object.keys(server.progress).forEach(function (id) {
+          if (bridge) bridge.setProgress(id, server.progress[id]);
+          else local[id] = server.progress[id];
+        });
+        for (var r = 1; r < server.attempt; r++) {
+          if (bridge) bridge.setProgress("r" + r, true);
+          else local["r" + r] = true;
+        }
+      }
+    }
     var seed, label;
     if (u) { seed = u.email; label = u.name ? u.name + " (" + u.email + ")" : u.email; }
     else { seed = guestSeed(); label = "гость (вход в SPRT API не выполнен)"; }

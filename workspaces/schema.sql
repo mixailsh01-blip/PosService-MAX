@@ -24,3 +24,5 @@ CREATE TABLE IF NOT EXISTS sprt.event (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS sprt_event_user_date ON sprt.event(user_uid, created_at);
+ALTER TABLE sprt.training ADD COLUMN IF NOT EXISTS recovery_checked boolean NOT NULL DEFAULT false;
+ALTER TABLE sprt.training ADD COLUMN IF NOT EXISTS recovered_from text;

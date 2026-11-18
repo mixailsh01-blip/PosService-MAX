@@ -129,3 +129,34 @@ test('a new request does not invent a completion date for an already completed l
   const detail = await service.report('admin', 'alice');
   assert.equal(detail.employee.completed_at, null); assert.equal(detail.employee.legacy, true);
 });
+
+test('migration merges browser progress before server zeros, keeps unknown completion date and does not duplicate recovery', async (t) => {
+  const { service } = await setup(t); await service.reconcile();
+  const snapshot = { progress: Object.fromEntries(LESSONS.map((key) => [key, true])), attempt: 2 };
+  const restored = await service.recover('alice', snapshot);
+  assert.equal(restored.restored, true); assert.equal(restored.progress.l6, true); assert.equal(restored.attempt, 2);
+  await service.recover('alice', snapshot);
+  const detail = await service.report('admin', 'alice');
+  assert.equal(detail.events.length, 1); assert.equal(detail.events[0].kind, 'recovery');
+  assert.equal(detail.employee.completed_at, null);
+});
+
+test('empty browser does not prevent recovering a populated cache; explicit reset blocks stale browser and backup', async (t) => {
+  const { service } = await setup(t); await service.reconcile();
+  await service.recover('alice', { progress: {}, attempt: 1 });
+  assert.equal((await service.recover('alice', { progress: { l1: true }, attempt: 1 })).restored, true);
+  await service.record('alice', { id: randomUUID(), kind: 'reset', attempt: 1 });
+  const stale = { progress: { l1: true, l2: true }, attempt: 1 };
+  assert.equal((await service.recover('alice', stale)).progress.l1, false);
+  assert.equal((await service.recover('alice', stale, 'backup')).progress.l1, false);
+});
+
+test('diagnostics reveal only training metadata and reject another employee', async (t) => {
+  const { pg, service } = await setup(t);
+  await pg.query('INSERT INTO "UserSettings" VALUES ($1,$2,$3,now())', ['settings', 'alice', JSON.stringify({ API_KEY: 'do-not-export', SPRT_LEARN: { l1: true } })]);
+  await service.reconcile();
+  await assert.rejects(service.debug('alice', 'bob'), (e) => e.status === 403);
+  const debug = await service.debug('alice');
+  assert.equal(debug.settingsProgress.l1, true); assert.equal(JSON.stringify(debug).includes('do-not-export'), false);
+  assert.equal((await service.debug('admin', 'alice')).account.uid, 'alice');
+});

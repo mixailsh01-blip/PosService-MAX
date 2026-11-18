@@ -2,6 +2,7 @@ import { randomUUID, createHash } from 'node:crypto';
 
 export const LESSONS = ['l1', 'l2', 'l3', 'l4', 'l5', 'l6'];
 export const LIBRARY = 'sprt-library-v1';
+export const VERSION = '2026.11.18.2';
 export const normalizedEmail = (email) => String(email || '').trim().toLowerCase();
 const id = (prefix, uid) => `sprt-${prefix}-${createHash('sha256').update(uid).digest('hex').slice(0, 24)}`;
 const progressOnly = (value) => Object.fromEntries(LESSONS.map((key) => [key, value?.[key] === true]));
@@ -114,6 +115,60 @@ export class Workspaces {
     if (!rows[0]) throw new HttpError(503, 'Рабочие пространства готовятся. Повторите через минуту.');
     return { uid, email: user.email, admin: this.isAdmin(user), library: LIBRARY, ...rows[0] };
   }
+  async syncSettings(db, uid, progress, attempt) {
+    const { rows } = await db.query('SELECT properties FROM "UserSettings" WHERE "userUid"=$1 FOR UPDATE', [uid]);
+    let properties = rows[0]?.properties || {};
+    if (typeof properties === 'string') { try { properties = JSON.parse(properties); } catch { properties = {}; } }
+    const markers = Object.fromEntries(Array.from({ length: attempt - 1 }, (_, i) => [`r${i + 1}`, true]));
+    properties.SPRT_LEARN = { ...markers, ...progress };
+    await db.query(`INSERT INTO "UserSettings"(id,"userUid",properties,"updatedOn") VALUES ($1,$2,$3,now())
+      ON CONFLICT ("userUid") DO UPDATE SET properties=EXCLUDED.properties,"updatedOn"=now()`, [randomUUID(), uid, JSON.stringify(properties)]);
+  }
+  async recover(uid, input, source = 'browser') {
+    if (!input || typeof input.progress !== 'object' || input.progress === null || Array.isArray(input.progress) ||
+      !Number.isInteger(input.attempt) || input.attempt < 1 || input.attempt > 10000) throw new HttpError(400, 'Неверный сохранённый прогресс');
+    return this.transaction(async (db) => {
+      await this.user(db, uid);
+      const { rows } = await db.query('SELECT * FROM sprt.training WHERE user_uid=$1 FOR UPDATE', [uid]);
+      const state = rows[0];
+      if (!state) throw new HttpError(503, 'Обучение ещё не подготовлено');
+      const { rows: resets } = await db.query("SELECT id FROM sprt.event WHERE user_uid=$1 AND kind='reset' LIMIT 1", [uid]);
+      // Never resurrect an earlier course after an explicit reset, or import a
+      // second browser's cache after this browser migration has been checked.
+      if (resets.length || (source === 'browser' && state.recovery_checked)) return { progress: state.progress, attempt: state.attempt, restored: false };
+      const old = progressOnly(input.progress);
+      // Old exercises are sequential. Reject malformed/non-prefix cached flags.
+      let gap = false;
+      for (const lesson of LESSONS) { if (!old[lesson]) gap = true; else if (gap) throw new HttpError(400, 'Некорректный порядок сохранённых заданий'); }
+      const merged = Object.fromEntries(LESSONS.map((key) => [key, state.progress[key] === true || old[key]]));
+      const restored = LESSONS.some((key) => merged[key] && !state.progress[key]);
+      const attempt = restored ? Math.max(input.attempt, state.attempt) : state.attempt;
+      await db.query(`UPDATE sprt.training SET progress=$2,attempt=$3,
+        recovery_checked=CASE WHEN $4='browser' AND $6 THEN true ELSE recovery_checked END,
+        recovered_from=CASE WHEN $5 THEN $4 ELSE recovered_from END,
+        legacy=CASE WHEN $5 THEN true ELSE legacy END WHERE user_uid=$1`, [uid, JSON.stringify(merged), attempt, source, restored, Object.values(old).some(Boolean)]);
+      if (restored) {
+        await db.query(`INSERT INTO sprt.event(id,user_uid,attempt,kind) VALUES ($1,$2,$3,'recovery')`, [randomUUID(), uid, attempt]);
+        await this.syncSettings(db, uid, merged, attempt);
+      }
+      // A recovery timestamp is not a historical course completion timestamp.
+      return { progress: merged, attempt, restored };
+    });
+  }
+  async debug(uid, target) {
+    const actor = await this.user(this.pool, uid);
+    if (target && target !== uid && !this.isAdmin(actor)) throw new HttpError(403, 'Чужая диагностика недоступна');
+    const selected = target || uid;
+    const account = await this.user(this.pool, selected);
+    const { rows } = await this.pool.query('SELECT * FROM sprt.training WHERE user_uid=$1', [selected]);
+    const { rows: settings } = await this.pool.query('SELECT properties FROM "UserSettings" WHERE "userUid"=$1', [selected]);
+    let properties = settings[0]?.properties;
+    if (typeof properties === 'string') { try { properties = JSON.parse(properties); } catch { properties = {}; } }
+    const { rows: counts } = await this.pool.query(`SELECT kind,count(*)::int AS count FROM sprt.event WHERE user_uid=$1 GROUP BY kind`, [selected]);
+    return { version: VERSION, account: { uid: account.uid, email: account.email },
+      training: rows[0] || null, settingsProgress: progressOnly(properties?.SPRT_LEARN), events: counts,
+      admin: this.isAdmin(actor), note: 'Only training metadata; no credentials or request bodies' };
+  }
   async record(uid, input) {
     if (!input || !['lesson','reset','attempt'].includes(input.kind)) throw new HttpError(400, 'Неверное событие');
     if (input.kind !== 'reset' && !LESSONS.includes(input.lesson)) throw new HttpError(400, 'Неизвестное задание');
@@ -146,14 +201,7 @@ export class Workspaces {
         completed_at=CASE WHEN $4 THEN NULL WHEN $5 THEN coalesce(completed_at,now()) ELSE completed_at END
         WHERE user_uid=$1`, [uid, JSON.stringify(progress), attempt, input.kind === 'reset', input.kind === 'lesson' && !complete(state.progress) && complete(progress)]);
       // Keep the original frontend gate in sync, without replacing any other settings.
-      const { rows: settings } = await db.query('SELECT id,properties FROM "UserSettings" WHERE "userUid"=$1 FOR UPDATE', [uid]);
-      let properties = settings[0]?.properties || {};
-      if (typeof properties === 'string') { try { properties = JSON.parse(properties); } catch { properties = {}; } }
-      const oldProgress = properties.SPRT_LEARN || {};
-      properties.SPRT_LEARN = { ...Object.fromEntries(Object.entries(oldProgress).filter(([key]) => /^r\d+$/.test(key))), ...progress };
-      if (input.kind === 'reset') properties.SPRT_LEARN[`r${attempt - 1}`] = true;
-      await db.query(`INSERT INTO "UserSettings"(id,"userUid",properties,"updatedOn") VALUES ($1,$2,$3,now())
-        ON CONFLICT ("userUid") DO UPDATE SET properties=EXCLUDED.properties,"updatedOn"=now()`, [randomUUID(), uid, JSON.stringify(properties)]);
+      await this.syncSettings(db, uid, progress, attempt);
       return { progress, attempt };
     });
   }

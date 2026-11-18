@@ -28,3 +28,22 @@ test('client serializes reset and later events; transient retries reuse their ev
   assert.equal(status.textContent, 'Прогресс сохранён на сервере');
   assert.ok(calls.every((event) => !('body' in event) && !('headers' in event)));
 });
+
+test('initial migration sends the original browser flags and backs them up before adopting server progress', async () => {
+  const source = await readFile(new URL('../public/training-client.js', import.meta.url), 'utf8');
+  const window = { addEventListener() {} }, stored = new Map();
+  const snapshot = { progress: { l1: true, l2: true }, attempt: 1 };
+  const calls = [];
+  vm.runInNewContext(source, { window, crypto: { randomUUID },
+    localStorage: { getItem: (key) => stored.get(key), setItem: (key, value) => stored.set(key, value) },
+    document: { getElementById: () => null }, setTimeout: (fn) => fn(),
+    fetch: async (path, opts) => {
+      calls.push(path);
+      if (path.endsWith('/me')) return { ok: true, json: async () => ({ uid: 'alice', attempt: 1, progress: { l1: false, l2: false } }) };
+      assert.deepEqual(JSON.parse(opts.body), snapshot);
+      assert.deepEqual(JSON.parse(stored.get('sprt_learn_backup:alice')), snapshot);
+      return { ok: true, json: async () => ({ ...snapshot, restored: true }) };
+    } });
+  const result = await window.SPRTTraining.init(snapshot);
+  assert.equal(result.progress.l2, true); assert.equal(calls.length, 2);
+});

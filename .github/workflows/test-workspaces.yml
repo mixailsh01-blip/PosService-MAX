@@ -1,0 +1,23 @@
+name: Test SPRT workspaces
+on:
+  pull_request:
+    paths: ['workspaces/**', 'learn-app/**', 'hoppscotch-pyrus/**', 'deploy/*workspaces*', '.github/workflows/test-workspaces.yml']
+  push:
+    branches: [main, feat/shared-library-training]
+    paths: ['workspaces/**', 'learn-app/**', 'hoppscotch-pyrus/**', 'deploy/*workspaces*', '.github/workflows/test-workspaces.yml']
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: workspaces/package-lock.json
+      - run: npm ci --prefix workspaces
+      - run: npm test --prefix workspaces
+      - run: bash -n deploy/install-workspaces.sh deploy/update-workspaces.sh
+      - run: node --check learn-app/app.js

@@ -2,12 +2,16 @@ import http from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { Pool } from 'pg';
-import { Workspaces, HttpError } from './service.mjs';
+import { randomUUID } from 'node:crypto';
+import { Workspaces, HttpError, VERSION } from './service.mjs';
+import { Diagnostics } from './diagnostics.mjs';
 
 const assets = new Map([
   ['/sprt/training', ['public/training.html', 'text/html; charset=utf-8']],
   ['/sprt/admin.js', ['public/admin.js', 'text/javascript; charset=utf-8']],
   ['/sprt/training-client.js', ['public/training-client.js', 'text/javascript; charset=utf-8']],
+  ['/sprt/settings', ['public/settings.html', 'text/html; charset=utf-8']],
+  ['/sprt/debug.js', ['public/debug.js', 'text/javascript; charset=utf-8']],
 ]);
 export async function authenticate(req, backend, fetcher = fetch) {
   if (!req.headers.cookie && !req.headers.authorization) throw new HttpError(401, 'Войдите в SPRT API');
@@ -26,27 +30,37 @@ export async function authenticate(req, backend, fetcher = fetch) {
   return body.data.me.uid;
 }
 export function createServer({ service, backend, origin, fetcher = fetch }) {
+  const diagnostics = new Diagnostics();
   return http.createServer(async (req, res) => {
+    const started = performance.now(), requestId = randomUUID();
+    let uid = null, path = 'other';
+    res.on('finish', () => diagnostics.add({ requestId, path, uid,
+      method: req.method, status: res.statusCode, duration: performance.now() - started }));
     const send = (status, value, type = 'application/json; charset=utf-8') => {
       res.writeHead(status, { 'Content-Type': type, 'Cache-Control': 'no-store',
-        'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'same-origin' });
+        'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'same-origin', 'X-SPRT-Request-Id': requestId });
       res.end(type.startsWith('application/json') ? JSON.stringify(value) : value);
     };
     try {
       const url = new URL(req.url, 'http://localhost');
-      if (req.method === 'GET' && url.pathname === '/health') return send(200, { ok: true });
+      path = url.pathname;
+      if (req.method === 'GET' && url.pathname === '/health') return send(200, { ok: true, version: VERSION });
       if (req.method === 'GET' && assets.has(url.pathname)) {
         const [file, type] = assets.get(url.pathname);
         return send(200, await readFile(new URL(file, import.meta.url)), type);
       }
-      if (!['/sprt/me', '/sprt/events', '/sprt/report'].includes(url.pathname)) throw new HttpError(404, 'Не найдено');
+      if (!['/sprt/me', '/sprt/events', '/sprt/report', '/sprt/recover', '/sprt/debug'].includes(url.pathname)) throw new HttpError(404, 'Не найдено');
       // Same-origin custom header prevents cross-site forms from writing events.
       if (req.headers['x-sprt-request'] !== '1' || (req.headers.origin && req.headers.origin !== origin)) throw new HttpError(403, 'Запрос с другого сайта запрещён');
-      const expected = url.pathname === '/sprt/events' ? 'POST' : 'GET';
+      const expected = ['/sprt/events','/sprt/recover'].includes(url.pathname) ? 'POST' : 'GET';
       if (req.method !== expected) throw new HttpError(405, 'Метод не поддерживается');
-      const uid = await authenticate(req, backend, fetcher);
+      uid = await authenticate(req, backend, fetcher);
       if (url.pathname === '/sprt/me') return send(200, await service.me(uid));
       if (url.pathname === '/sprt/report') return send(200, await service.report(uid, url.searchParams.get('uid')));
+      if (url.pathname === '/sprt/debug') {
+        const debug = await service.debug(uid, url.searchParams.get('uid'));
+        return send(200, { ...debug, requests: diagnostics.read(uid, debug.admin) });
+      }
       if (!req.headers['content-type']?.startsWith('application/json')) throw new HttpError(415, 'Нужен JSON');
       let raw = '';
       for await (const chunk of req) {
@@ -55,7 +69,7 @@ export function createServer({ service, backend, origin, fetcher = fetch }) {
       }
       let input;
       try { input = JSON.parse(raw); } catch { throw new HttpError(400, 'Некорректный JSON'); }
-      return send(200, await service.record(uid, input));
+      return send(200, url.pathname === '/sprt/recover' ? await service.recover(uid, input) : await service.record(uid, input));
     } catch (error) {
       if (!error.status) console.error('SPRT request failed:', error.code || error.name);
       return send(error.status || 500, { error: error.status ? error.message : 'Не удалось выполнить запрос' });
@@ -72,6 +86,10 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     environment: JSON.parse(await readFile(new URL('data/environment.json', import.meta.url), 'utf8')),
   });
   await service.reconcile();
+  const recoveryFile = await readFile(new URL('data/recovery.json', import.meta.url), 'utf8').catch((e) => { if (e.code === 'ENOENT') return '[]'; throw e; });
+  for (const snapshot of JSON.parse(recoveryFile)) {
+    await service.recover(snapshot.uid, snapshot, 'backup');
+  }
   let running = false;
   const timer = setInterval(async () => {
     if (running) return;

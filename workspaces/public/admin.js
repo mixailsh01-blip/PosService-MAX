@@ -41,7 +41,7 @@
     content.append(panel);
     var history = el('section', null, 'panel'); history.append(el('h2', 'Последние события'));
     data.events.forEach(function (event) {
-      var name = event.kind === 'reset' ? 'Начата новая попытка' : (event.kind === 'lesson' ? 'Задание выполнено' : 'Учебный запрос: ' + (event.passed ? 'успешно' : 'не выполнено'));
+      var name = event.kind === 'recovery' ? 'Восстановлен прежний прогресс (дата завершения неизвестна)' : (event.kind === 'reset' ? 'Начата новая попытка' : (event.kind === 'lesson' ? 'Задание выполнено' : 'Учебный запрос: ' + (event.passed ? 'успешно' : 'не выполнено')));
       history.append(el('p', date(event.created_at) + ' · Попытка ' + event.attempt + ' · ' + name + (event.lesson_id ? ' · ' + event.lesson_id : '')));
     }); if (!data.events.length) history.append(el('p', 'Новых событий пока нет')); content.append(history);
   }

@@ -86,6 +86,6 @@ echo 'Подключаю обновлённый тренажёр; текущие
 bash "$BASE/app-compose.sh" up -d --no-deps --pull never --wait --wait-timeout 120 hoppscotch
 ln -s "$RELEASE" "$BASE/current"
 echo "Установка завершена. Обновите страницу SPRT API."
-echo "Обучение сотрудников: $PUBLIC_ORIGIN/sprt/training"
+echo "Обучение сотрудников: $PUBLIC_ORIGIN/sprt/training?learn-app=1"
 echo "Для дальнейшего управления приложением: sudo bash $BASE/app-compose.sh <команда>"
 echo "Резервная копия: $BASE/backups/$STAMP.sql.gz"

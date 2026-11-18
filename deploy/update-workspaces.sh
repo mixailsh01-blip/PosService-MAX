@@ -67,5 +67,5 @@ PY
 bash "$BASE/app-compose.sh" up -d --no-deps --pull never --wait --wait-timeout 120 hoppscotch
 ln -sfn "$RELEASE" "$BASE/current"
 echo 'Обновление завершено. Обновите страницу обучения.'
-echo 'Диагностика: https://sprtapi.sprt-service.ru/sprt/settings'
+echo 'Диагностика: https://sprtapi.sprt-service.ru/sprt/settings?learn-app=1'
 echo "Откат этой версии: sudo bash $RELEASE/rollback.sh"

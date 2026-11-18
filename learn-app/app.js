@@ -53,7 +53,7 @@
 
   function render() {
     var p = progress(), n = count(), t = T[cur], s = st(t), done = !!p[t.id];
-    var h = '<p><a href="/sprt/settings" target="_top">Настройки и диагностика</a>' + (isTrainingAdmin ? ' · <a href="/sprt/training" target="_top">Обучение сотрудников →</a>' : '') + '</p>' + '<h1 class="ttl">Тренажёр: запросы iiko Cloud API</h1>' +
+    var h = '<p><a href="/sprt/settings?learn-app=1" target="_top">Настройки и диагностика</a>' + (isTrainingAdmin ? ' · <a href="/sprt/training?learn-app=1" target="_top">Обучение сотрудников →</a>' : '') + '</p>' + '<h1 class="ttl">Тренажёр: запросы iiko Cloud API</h1>' +
       '<p class="sub">Составьте запрос сами: метод, адрес, заголовки и JSON. Сервер учебный, данные вымышленные, ничего настоящего вы не заденете. Когда пройдёте все задания, откроются остальные разделы.</p>' +
       '<p class="who">Задания персональные: ключи, организация, меню и условия заказа свои у каждого сотрудника. После сброса задания генерируются заново. Вы: <b>' + esc(who) + '</b></p>' +
       '<div class="prog"><div class="bar"><i style="width:' + Math.round(n / T.length * 100) + '%"></i></div><span>Выполнено ' + n + ' из ' + T.length + '</span>' +

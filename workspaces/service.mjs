@@ -2,7 +2,7 @@ import { randomUUID, createHash } from 'node:crypto';
 
 export const LESSONS = ['l1', 'l2', 'l3', 'l4', 'l5', 'l6'];
 export const LIBRARY = 'sprt-library-v1';
-export const VERSION = '2026.11.18.2';
+export const VERSION = '2026.11.18.3';
 export const normalizedEmail = (email) => String(email || '').trim().toLowerCase();
 const id = (prefix, uid) => `sprt-${prefix}-${createHash('sha256').update(uid).digest('hex').slice(0, 24)}`;
 const progressOnly = (value) => Object.fromEntries(LESSONS.map((key) => [key, value?.[key] === true]));

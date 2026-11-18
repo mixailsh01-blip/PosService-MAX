@@ -22537,7 +22537,7 @@ A^Z)<=
 
 diff --git a/packages/hoppscotch-common/public/learn-app/app.js b/packages/hoppscotch-common/public/learn-app/app.js
 new file mode 100644
-index 00000000..5a9ebf92
+index 00000000..2f302bbc
 --- /dev/null
 +++ b/packages/hoppscotch-common/public/learn-app/app.js
 @@ -0,0 +1,173 @@
@@ -22596,7 +22596,7 @@ index 00000000..5a9ebf92
 +
 +  function render() {
 +    var p = progress(), n = count(), t = T[cur], s = st(t), done = !!p[t.id];
-+    var h = '<p><a href="/sprt/settings" target="_top">Настройки и диагностика</a>' + (isTrainingAdmin ? ' · <a href="/sprt/training" target="_top">Обучение сотрудников →</a>' : '') + '</p>' + '<h1 class="ttl">Тренажёр: запросы iiko Cloud API</h1>' +
++    var h = '<p><a href="/sprt/settings?learn-app=1" target="_top">Настройки и диагностика</a>' + (isTrainingAdmin ? ' · <a href="/sprt/training?learn-app=1" target="_top">Обучение сотрудников →</a>' : '') + '</p>' + '<h1 class="ttl">Тренажёр: запросы iiko Cloud API</h1>' +
 +      '<p class="sub">Составьте запрос сами: метод, адрес, заголовки и JSON. Сервер учебный, данные вымышленные, ничего настоящего вы не заденете. Когда пройдёте все задания, откроются остальные разделы.</p>' +
 +      '<p class="who">Задания персональные: ключи, организация, меню и условия заказа свои у каждого сотрудника. После сброса задания генерируются заново. Вы: <b>' + esc(who) + '</b></p>' +
 +      '<div class="prog"><div class="bar"><i style="width:' + Math.round(n / T.length * 100) + '%"></i></div><span>Выполнено ' + n + ' из ' + T.length + '</span>' +
@@ -30404,7 +30404,7 @@ index 00000000..818032cd
 +usePageHead({ title: ref("Обучение") })
 +</script>
 diff --git a/packages/hoppscotch-common/src/pages/settings.vue b/packages/hoppscotch-common/src/pages/settings.vue
-index 27a43da0..6e373938 100644
+index 27a43da0..ca14acce 100644
 --- a/packages/hoppscotch-common/src/pages/settings.vue
 +++ b/packages/hoppscotch-common/src/pages/settings.vue
 @@ -11,6 +11,11 @@
@@ -30414,7 +30414,7 @@ index 27a43da0..6e373938 100644
 +          <section>
 +            <h4 class="font-semibold text-secondaryDark">Диагностика СПРТ</h4>
 +            <p class="my-1 text-secondaryLight">Состояние обучения и журнал для разбора ошибок.</p>
-+            <a class="link" href="/sprt/settings" target="_blank" rel="noopener">Настройки и диагностика</a>
++            <a class="link" href="/sprt/settings?learn-app=1" target="_blank" rel="noopener">Настройки и диагностика</a>
 +          </section>
            <section>
              <h4 class="font-semibold text-secondaryDark">
@@ -30590,7 +30590,7 @@ index a65d75df..272d52ba 100644
      const deviceIdentifier =
        await persistenceService.getLocalConfig("deviceIdentifier")
 diff --git a/packages/hoppscotch-selfhost-web/vite.config.ts b/packages/hoppscotch-selfhost-web/vite.config.ts
-index 21df3308..6f249ef3 100644
+index 21df3308..abd968e9 100644
 --- a/packages/hoppscotch-selfhost-web/vite.config.ts
 +++ b/packages/hoppscotch-selfhost-web/vite.config.ts
 @@ -228,6 +228,8 @@ export default defineConfig({
@@ -30602,12 +30602,13 @@ index 21df3308..6f249ef3 100644
          maximumFileSizeToCacheInBytes: 15728640, // 15 MB
          navigateFallbackDenylist: [
            /robots.txt/,
-@@ -242,6 +244,8 @@ export default defineConfig({
+@@ -242,6 +244,9 @@ export default defineConfig({
            /announcements/,
            /admin/,
            /backend/,
 +          /yandex-app/,
 +          /learn-app/,
++          /^\/sprt\//,
          ],
        },
      }),

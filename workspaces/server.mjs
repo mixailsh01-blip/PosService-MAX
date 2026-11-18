@@ -1,5 +1,7 @@
 import http from 'node:http';
-import { readFile } from 'node:fs/promises';
+import { readFile, mkdir, readdir, unlink } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
+import { TrainingStore } from './training-store.mjs';
 import { fileURLToPath } from 'node:url';
 import { Pool } from 'pg';
 import { randomUUID } from 'node:crypto';
@@ -80,7 +82,9 @@ export function createServer({ service, backend, origin, fetcher = fetch }) {
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 3, connectionTimeoutMillis: 5000 });
   await pool.query(await readFile(new URL('schema.sql', import.meta.url), 'utf8'));
+  const training = new TrainingStore(process.env.TRAINING_SQLITE);
   const service = new Workspaces(pool, {
+    training,
     admins: (process.env.SPRT_TRAINING_ADMINS || 'm.demetiev@sprt-service.ru').split(','),
     collection: JSON.parse(await readFile(new URL('data/collection.json', import.meta.url), 'utf8')),
     environment: JSON.parse(await readFile(new URL('data/environment.json', import.meta.url), 'utf8')),
@@ -90,6 +94,15 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   for (const snapshot of JSON.parse(recoveryFile)) {
     await service.recover(snapshot.uid, snapshot, 'backup');
   }
+  const backupDir = join(dirname(process.env.TRAINING_SQLITE), 'backups');
+  async function saveBackup() {
+    await mkdir(backupDir, { recursive: true, mode: 0o700 });
+    await training.backup(join(backupDir, new Date().toISOString().replaceAll(':','-') + '.sqlite'));
+    const files = (await readdir(backupDir)).filter((f) => /^\d{4}-.*\.sqlite$/.test(f)).sort();
+    for (const file of files.slice(0, -14)) await unlink(join(backupDir, file));
+  }
+  await saveBackup();
+  const backupTimer = setInterval(() => saveBackup().catch((e) => console.error('SQLite backup failed:', e.code || e.name)), 24*60*60*1000);
   let running = false;
   const timer = setInterval(async () => {
     if (running) return;
@@ -103,6 +116,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   server.listen(Number(process.env.PORT || 8082), '0.0.0.0');
   for (const signal of ['SIGINT','SIGTERM']) process.on(signal, () => {
     clearInterval(timer);
-    server.close(() => pool.end().then(() => process.exit(0)));
+    clearInterval(backupTimer);
+    server.close(() => pool.end().then(() => { training.close(); process.exit(0); }));
   });
 }

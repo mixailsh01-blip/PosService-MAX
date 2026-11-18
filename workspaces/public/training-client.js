@@ -65,6 +65,7 @@
         }
         state.attempt = result.attempt; state.progress = result.progress;
         error = '';
+        return state;
       }).catch(function (e) { error = 'Прогресс не синхронизирован: ' + e.message; })
         .finally(function () { pending--; status(); });
       return queue;

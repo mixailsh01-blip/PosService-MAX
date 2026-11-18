@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { PGlite } from '@electric-sql/pglite';
+import { TrainingStore } from '../training-store.mjs';
 import { Workspaces, LIBRARY, LESSONS } from '../service.mjs';
 
 // The relevant tables use the same column names, types and required fields as
@@ -26,11 +27,13 @@ async function setup(t) {
   // Advisory locks are unnecessary in a single-session in-process test database.
   const query = (sql, values) => sql.includes('pg_advisory_xact_lock') ? Promise.resolve({ rows: [] }) : pg.query(sql, values);
   const pool = { query, connect: async () => ({ query, release() {} }) };
-  const service = new Workspaces(pool, { admins: ['m.demetiev@sprt-service.ru'],
+  const training = new TrainingStore(':memory:');
+  t.after(() => training.close());
+  const service = new Workspaces(pool, { training, admins: ['m.demetiev@sprt-service.ru'],
     collection: { name: 'iiko Cloud API (СПРТ)', folders: [{ name: 'Начало', requests: [{ name: 'Организации', method: 'POST' }] }] },
     environment: { name: 'iiko Cloud API', variables: [{ key: 'apiLogin', currentValue: '', secret: true }] } });
   t.after(() => pg.close());
-  return { pg, service };
+  return { pg, service, training };
 }
 
 test('provisions all existing users; memberships are private; library viewers; repeat is idempotent', async (t) => {
@@ -83,7 +86,7 @@ test('legacy progress is imported once, with unknown dates; unrelated settings p
   assert.equal(legacy.legacy, true); assert.equal(legacy.completed_at, null);
   await service.record('alice', { id: randomUUID(), kind: 'lesson', lesson: 'l2', passed: true, attempt: 2 });
   const settings = (await pg.query('SELECT properties FROM "UserSettings" WHERE "userUid"=$1', ['alice'])).rows[0].properties;
-  assert.equal(settings.BG_COLOR, 'light'); assert.equal(settings.SPRT_LEARN.l2, true);
+  assert.equal(settings.BG_COLOR, 'light'); assert.equal(settings.SPRT_LEARN.l2, undefined); // Legacy PostgreSQL cache stays untouched.
   await service.reconcile(); assert.equal((await service.me('alice')).progress.l2, true);
 });
 
@@ -159,4 +162,24 @@ test('diagnostics reveal only training metadata and reject another employee', as
   const debug = await service.debug('alice');
   assert.equal(debug.settingsProgress.l1, true); assert.equal(JSON.stringify(debug).includes('do-not-export'), false);
   assert.equal((await service.debug('admin', 'alice')).account.uid, 'alice');
+});
+
+test('PostgreSQL migration keeps timestamps and events, then SQLite owns progress; missing volume fails closed', async (t) => {
+  const { pg, service, training } = await setup(t);
+  await pg.query(`INSERT INTO sprt.training(user_uid,progress,attempt,started_at,updated_at,recovery_checked,recovered_from)
+    VALUES ('alice','{"l1":true}',2,'2026-11-01T10:00:00Z','2026-11-01T11:00:00Z',true,'browser')`);
+  await pg.query(`INSERT INTO sprt.event(id,user_uid,attempt,kind,created_at) VALUES ($1,'alice',2,'reset','2026-11-01T10:00:00Z')`, [randomUUID()]);
+  await service.reconcile();
+  assert.equal(training.get('alice').started_at,'2026-11-01T10:00:00.000Z');
+  assert.equal(training.get('alice').recovered_from,'browser');
+  assert.equal(training.events('alice').length,1);
+  await service.record('alice',{ id: randomUUID(),kind:'lesson',lesson:'l2',passed:true,attempt:2 });
+  await pg.query("UPDATE sprt.training SET progress='{}' WHERE user_uid='alice'");
+  await service.reconcile();
+  assert.equal((await service.me('alice')).progress.l2,true);
+  assert.equal((await service.me('alice')).storage,'sqlite');
+  service.training = new TrainingStore(':memory:');
+  t.after(() => service.training.close());
+  await assert.rejects(service.prepareTraining(),/volume missing or replaced/);
+  assert.equal(service.training.instance(),null);
 });

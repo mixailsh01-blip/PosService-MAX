@@ -26,3 +26,6 @@ CREATE TABLE IF NOT EXISTS sprt.event (
 CREATE INDEX IF NOT EXISTS sprt_event_user_date ON sprt.event(user_uid, created_at);
 ALTER TABLE sprt.training ADD COLUMN IF NOT EXISTS recovery_checked boolean NOT NULL DEFAULT false;
 ALTER TABLE sprt.training ADD COLUMN IF NOT EXISTS recovered_from text;
+
+-- Only the storage identity lives here; training and events above are legacy import sources.
+CREATE TABLE IF NOT EXISTS sprt.storage_meta (key text PRIMARY KEY, value text NOT NULL);

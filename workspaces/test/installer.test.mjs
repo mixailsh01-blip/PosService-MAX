@@ -30,9 +30,35 @@ test('installer inherits all live Compose overlays and networks, including the a
   for (const file of files) assert.ok(wrapper.includes(file));
   const compose = JSON.parse(await readFile(join(release, 'compose.json'), 'utf8'));
   assert.equal(Object.keys(compose.networks).length, 2);
+  assert.equal(compose.volumes['training-data'].name,'sprt-training-data');
+  assert.equal(compose.services.workspaces.environment.TRAINING_SQLITE,'/var/lib/sprt-training/training.sqlite');
   assert.equal(compose.services.workspaces.labels['traefik.http.routers.sprt-workspaces.tls.certresolver'], 'letsencrypt');
   assert.equal(compose.services.workspaces.ports, undefined);
   assert.ok(!JSON.stringify(compose).includes('secret'));
   const overlay = JSON.parse(await readFile(join(folder, 'learn.override.json'), 'utf8'));
   assert.equal(overlay.services.hoppscotch.volumes[0].target, '/site/selfhost-web/learn-app');
+});
+
+test('update keeps stable SQLite volume, recovery snapshot, networks and unrelated mounts', async (t) => {
+  const folder = await mkdtemp(join(tmpdir(),'sprt-update-'));
+  t.after(()=>rm(folder,{recursive:true,force:true}));
+  const old=join(folder,'old'), release=join(folder,'release');
+  await mkdir(old); await mkdir(release);
+  const previous={services:{workspaces:{build:{context:old},environment:{PUBLIC_ORIGIN:'https://example.test'},volumes:[
+    {type:'bind',source:'/old/recovery.json',target:'/app/data/recovery.json'},
+    {type:'bind',source:'/custom',target:'/custom'},
+    {type:'volume',source:'training-data',target:'/var/lib/sprt-training'}]}},networks:{main:{external:true,name:'main'}}};
+  await writeFile(join(old,'compose.json'),JSON.stringify(previous));
+  await writeFile(join(release,'service.env'),'DATABASE_URL=postgresql://user:secret@db/hoppscotch\n');
+  const script=await readFile(new URL('../../deploy/update-workspaces.sh',import.meta.url),'utf8');
+  const python=script.split("python3 <<'PY'\n")[1].split('\nPY\n')[0];
+  execFileSync('python3',['-c',python],{env:{...process.env,OLD:old,RELEASE:release,STAMP:'test'}});
+  const updated=JSON.parse(await readFile(join(release,'compose.json'),'utf8'));
+  assert.equal(updated.volumes['training-data'].name,'sprt-training-data');
+  const mounts=updated.services.workspaces.volumes;
+  assert.equal(mounts.filter((v)=>v.target==='/var/lib/sprt-training').length,1);
+  assert.equal(mounts.find((v)=>v.target==='/app/data/recovery.json').source,join(release,'recovery.json'));
+  assert.ok(mounts.some((v)=>v.target==='/custom'));
+  assert.deepEqual(updated.networks,previous.networks);
+  assert.equal(updated.services.workspaces.environment.TRAINING_SQLITE,'/var/lib/sprt-training/training.sqlite');
 });

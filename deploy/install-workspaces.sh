@@ -54,7 +54,9 @@ service={
  'image':'sprt-workspaces:'+os.environ['STAMP'], 'container_name':'sprt-workspaces', 'restart':'unless-stopped',
  'env_file':[{'path':str(release/'service.env'),'format':'raw'}],
  'environment':{'PUBLIC_ORIGIN':origin,'SPRT_TRAINING_ADMINS':os.environ['SPRT_TRAINING_ADMINS'],
+   'TRAINING_SQLITE':'/var/lib/sprt-training/training.sqlite',
    'HOPPSCOTCH_GQL':'http://'+os.environ['APP']+':80/backend/graphql'},
+ 'volumes':[{'type':'volume','source':'training-data','target':'/var/lib/sprt-training'}],
  'networks':list(network_defs),
  'labels':{'traefik.enable':'true','traefik.docker.network':route_network,
    'traefik.http.routers.sprt-workspaces.rule':'Host(`'+domain+'`) && PathPrefix(`/sprt/`)',
@@ -64,7 +66,7 @@ service={
    'traefik.http.routers.sprt-workspaces.priority':'100',
    'traefik.http.services.sprt-workspaces.loadbalancer.server.port':'8082'}}
 (release/'service.env').write_text('DATABASE_URL='+database+'\n')
-(release/'compose.json').write_text(json.dumps({'name':'sprt-workspaces','services':{'workspaces':service},'networks':network_defs},indent=2))
+(release/'compose.json').write_text(json.dumps({'name':'sprt-workspaces','services':{'workspaces':service},'networks':network_defs,'volumes':{'training-data':{'name':'sprt-training-data'}}},indent=2))
 overlay=base/'learn.override.json'
 overlay.write_text(json.dumps({'services':{'hoppscotch':{'volumes':[{'type':'bind','source':str(release/'learn-app'),'target':'/site/selfhost-web/learn-app','read_only':True}]}}},indent=2))
 command=['docker','compose','--project-directory',directory,'-p',project]

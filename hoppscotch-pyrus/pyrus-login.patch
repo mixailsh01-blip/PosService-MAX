@@ -22537,10 +22537,10 @@ A^Z)<=
 
 diff --git a/packages/hoppscotch-common/public/learn-app/app.js b/packages/hoppscotch-common/public/learn-app/app.js
 new file mode 100644
-index 00000000..e37ffbe5
+index 00000000..dc8bf70e
 --- /dev/null
 +++ b/packages/hoppscotch-common/public/learn-app/app.js
-@@ -0,0 +1,186 @@
+@@ -0,0 +1,187 @@
 +(function () {
 +  var app = document.getElementById("app"), T = [];
 +
@@ -22558,6 +22558,7 @@ index 00000000..e37ffbe5
 +    // Cache for the existing frontend access gate. SQLite remains authoritative.
 +    // Do not call the old bridge setter: it writes training into PostgreSQL.
 +    try { localStorage.setItem(LS + ':' + server.uid, JSON.stringify(local)); } catch (_) {}
++    if (bridge && bridge.acceptServerProgress) bridge.acceptServerProgress(server.uid, local);
 +  }
 +  async function save(kind, lesson, passed) {
 +    if (!serverState || !window.SPRTTraining) return null;
@@ -29258,6 +29259,30 @@ index 6bfd22e0..32a97147 100644
  import { getKernelMode } from "@hoppscotch/kernel"
  
  import { useI18n } from "@composables/i18n"
+diff --git a/packages/hoppscotch-common/src/components/app/KernelInterceptor.vue b/packages/hoppscotch-common/src/components/app/KernelInterceptor.vue
+index a0342c9a..4848189f 100644
+--- a/packages/hoppscotch-common/src/components/app/KernelInterceptor.vue
++++ b/packages/hoppscotch-common/src/components/app/KernelInterceptor.vue
+@@ -1,5 +1,9 @@
+ <template>
+-  <div class="flex flex-col space-y-2">
++  <div v-if="proxyOnly" class="flex flex-col space-y-2">
++    <span class="font-semibold text-secondaryDark">Proxy</span>
++    <p class="text-secondaryLight">Запросы отправляются через прокси. Режим задан для всех сотрудников.</p>
++  </div>
++  <div v-else class="flex flex-col space-y-2">
+     <div v-if="isTooltipComponent" class="flex flex-col px-4 pt-2">
+       <h2 class="inline-flex pb-1 font-semibold text-secondaryDark">
+         {{ t("settings.kernel_interceptor") }}
+@@ -64,6 +68,8 @@
+ import { useI18n } from "@composables/i18n"
+ import { useService } from "dioc/vue"
+ import { computed } from "vue"
++import { platform } from "~/platform"
++const proxyOnly = platform.kernelInterceptors.proxyOnly === true
+ import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
+ 
+ const t = useI18n()
 diff --git a/packages/hoppscotch-common/src/components/app/Logo.vue b/packages/hoppscotch-common/src/components/app/Logo.vue
 index 9bcd0747..a9d4c5e8 100644
 --- a/packages/hoppscotch-common/src/components/app/Logo.vue
@@ -29925,60 +29950,78 @@ index 00000000..4e1af4ed
 +</style>
 diff --git a/packages/hoppscotch-common/src/helpers/sprt-learn.ts b/packages/hoppscotch-common/src/helpers/sprt-learn.ts
 new file mode 100644
-index 00000000..1c1cf5d2
+index 00000000..8102fb87
 --- /dev/null
 +++ b/packages/hoppscotch-common/src/helpers/sprt-learn.ts
-@@ -0,0 +1,51 @@
+@@ -0,0 +1,69 @@
 +import { computed, ref } from "vue"
 +import { useReadonlyStream } from "@composables/stream"
 +import { platform } from "~/platform"
-+import { applySetting } from "~/newstore/settings"
 +
-+// Должен совпадать с id уроков в public/learn-app/lessons.js
 +export const SPRT_LESSON_IDS = ["l1", "l2", "l3", "l4", "l5", "l6"]
-+
 +type Progress = Record<string, boolean>
 +const progressByUser = ref<Record<string, Progress>>({})
 +const storageKey = (uid: string) => "sprt_learn_progress:" + uid
++const onlyProgress = (value: Progress = {}) => Object.fromEntries(
++  Object.entries(value).filter(([id, done]) => /^(l[1-6]|r\d+)$/.test(id) && typeof done === "boolean")
++)
 +
-+function readProgress(uid: string): Progress | undefined {
-+  if (progressByUser.value[uid]) return progressByUser.value[uid]
++export function acceptLearnServerProgress(uid: string, value: Progress) {
++  if (platform.auth.getCurrentUser()?.uid !== uid) return
++  const progress = onlyProgress(value)
++  progressByUser.value[uid] = progress
++  try { localStorage.setItem(storageKey(uid), JSON.stringify(progress)) } catch {}
++}
++
++export async function loadLearnProgress(uid: string, legacy: Progress = {}) {
++  let cached = legacy || {}
++  try { cached = JSON.parse(localStorage.getItem(storageKey(uid)) || "null") || cached } catch {}
 +  try {
-+    const saved = localStorage.getItem(storageKey(uid))
-+    return saved ? JSON.parse(saved) : undefined
++    const response = await fetch("/sprt/me", {
++      credentials: "same-origin", cache: "no-store",
++      headers: { "X-SPRT-Request": "1" }, signal: AbortSignal.timeout(10000),
++    })
++    if (!response.ok) throw new Error("Training state unavailable")
++    const state = await response.json()
++    if (state.uid !== uid) return
++    // Keep the original cache before the one-time recovery check.
++    const snapshot = { progress: onlyProgress(cached), attempt: Object.keys(cached).filter((key) => /^r\d+$/.test(key) && cached[key] === true).length + 1 }
++    try {
++      if (!localStorage.getItem("sprt_learn_backup:" + uid)) localStorage.setItem("sprt_learn_backup:" + uid, JSON.stringify(snapshot))
++    } catch {}
++    const recovered = await fetch("/sprt/recover", {
++      method: "POST", credentials: "same-origin", cache: "no-store",
++      headers: { "X-SPRT-Request": "1", "Content-Type": "application/json" },
++      body: JSON.stringify(snapshot), signal: AbortSignal.timeout(10000),
++    })
++    if (recovered.ok) {
++      const result = await recovered.json()
++      state.progress = result.progress
++      state.attempt = result.attempt
++    }
++    const progress: Progress = { ...state.progress }
++    for (let r = 1; r < state.attempt; r++) progress["r" + r] = true
++    acceptLearnServerProgress(uid, progress)
 +  } catch {
-+    return undefined
++    // Never grant access from an obsolete browser/PostgreSQL cache.
++    // The training page remains available and can retry its own API connection.
++    if (platform.auth.getCurrentUser()?.uid === uid) progressByUser.value[uid] = {}
 +  }
 +}
 +
-+export function loadLearnProgress(uid: string, serverProgress: Progress = {}) {
-+  progressByUser.value[uid] = readProgress(uid) ?? serverProgress
-+}
-+
 +export function useLearnProgress() {
-+  const user = useReadonlyStream(
-+    platform.auth.getCurrentUserStream(),
-+    platform.auth.getCurrentUser()
-+  )
-+  const progress = computed(() => user.value ? readProgress(user.value.uid) : undefined)
++  const user = useReadonlyStream(platform.auth.getCurrentUserStream(), platform.auth.getCurrentUser())
++  const progress = computed(() => user.value ? progressByUser.value[user.value.uid] : undefined)
 +  function setProgress(id: string, done: boolean) {
 +    const uid = user.value?.uid
-+    if (!uid) return
-+    const next = { ...readProgress(uid), [id]: done }
-+    progressByUser.value[uid] = next
-+    try {
-+      localStorage.setItem(storageKey(uid), JSON.stringify(next))
-+    } catch {
-+      // Server settings are still available if browser storage is disabled.
-+    }
-+    applySetting("SPRT_LEARN", next)
++    if (uid) acceptLearnServerProgress(uid, { ...progress.value, [id]: done })
 +  }
 +  return { progress, setProgress, user }
 +}
 +
 +export function useLearnPassed() {
 +  const { progress } = useLearnProgress()
-+  return computed(() => SPRT_LESSON_IDS.every((id) => !!progress.value?.[id]))
++  return computed(() => SPRT_LESSON_IDS.every((id) => progress.value?.[id] === true))
 +}
 diff --git a/packages/hoppscotch-common/src/helpers/sprt-seed.ts b/packages/hoppscotch-common/src/helpers/sprt-seed.ts
 new file mode 100644
@@ -30252,6 +30295,33 @@ index eb72032e..a85264b0 100644
        },
      })
    },
+diff --git a/packages/hoppscotch-common/src/modules/kernel-interceptors.ts b/packages/hoppscotch-common/src/modules/kernel-interceptors.ts
+index 636b7c81..a625872b 100644
+--- a/packages/hoppscotch-common/src/modules/kernel-interceptors.ts
++++ b/packages/hoppscotch-common/src/modules/kernel-interceptors.ts
+@@ -16,6 +16,7 @@ export default <HoppModule>{
+ function initKernelInterceptorService(): KernelInterceptorService {
+   const service = getService(KernelInterceptorService)
+ 
++  if (platform.kernelInterceptors.proxyOnly) service.enforceProxyOnly()
+   registerInterceptors(service)
+   initializeDefaultInterceptor(service)
+ 
+@@ -60,8 +61,13 @@ function syncSettingsToService(service: KernelInterceptorService): void {
+   watch(
+     setting,
+     () => {
+-      const fallback = setting.value ?? platform.kernelInterceptors.default
++      const fallback = platform.kernelInterceptors.proxyOnly
++        ? "proxy"
++        : setting.value ?? platform.kernelInterceptors.default
+       service.setActive(fallback)
++      if (platform.kernelInterceptors.proxyOnly && setting.value !== "proxy") {
++        applySetting("CURRENT_KERNEL_INTERCEPTOR_ID", "proxy")
++      }
+     },
+     { immediate: true }
+   )
 diff --git a/packages/hoppscotch-common/src/modules/theming.ts b/packages/hoppscotch-common/src/modules/theming.ts
 index 64d8fa42..08bed0dd 100644
 --- a/packages/hoppscotch-common/src/modules/theming.ts
@@ -30353,10 +30423,10 @@ index c00b2539..6b298c64 100644
  
 diff --git a/packages/hoppscotch-common/src/pages/learn.vue b/packages/hoppscotch-common/src/pages/learn.vue
 new file mode 100644
-index 00000000..818032cd
+index 00000000..315887c4
 --- /dev/null
 +++ b/packages/hoppscotch-common/src/pages/learn.vue
-@@ -0,0 +1,59 @@
+@@ -0,0 +1,60 @@
 +<template>
 +  <div class="flex min-h-0 w-full flex-1">
 +    <iframe
@@ -30372,7 +30442,7 @@ index 00000000..818032cd
 +import { usePageHead } from "@composables/head"
 +import { onBeforeUnmount, ref } from "vue"
 +import { useRouter } from "vue-router"
-+import { useLearnProgress } from "~/helpers/sprt-learn"
++import { useLearnProgress, acceptLearnServerProgress } from "~/helpers/sprt-learn"
 +import { getAggregateEnvsWithCurrentValue } from "~/newstore/environments"
 +
 +const router = useRouter()
@@ -30385,6 +30455,7 @@ index 00000000..818032cd
 +const sprtLearnBridge = {
 +  getProgress: () => ({ ...progress.value }),
 +  setProgress,
++  acceptServerProgress: acceptLearnServerProgress,
 +  getUser: () => ({
 +    email: user.value?.email,
 +    name: user.value?.displayName,
@@ -30484,18 +30555,73 @@ index 00000000..6afc288e
 +
 +usePageHead({ title: ref("Яндекс Еда") })
 +</script>
+diff --git a/packages/hoppscotch-common/src/platform/kernel-interceptors.ts b/packages/hoppscotch-common/src/platform/kernel-interceptors.ts
+index 1ec8abeb..9cfa49e0 100644
+--- a/packages/hoppscotch-common/src/platform/kernel-interceptors.ts
++++ b/packages/hoppscotch-common/src/platform/kernel-interceptors.ts
+@@ -14,6 +14,7 @@ export type KernelInterceptorDef =
+     }
+ 
+ export type KernelInterceptorsPlatformDef = {
++  proxyOnly?: boolean
+   default: string
+   interceptors: KernelInterceptorDef[]
+ }
 diff --git a/packages/hoppscotch-common/src/services/kernel-interceptor.service.ts b/packages/hoppscotch-common/src/services/kernel-interceptor.service.ts
-index 4da8a7ba..f8350b09 100644
+index 4da8a7ba..750be4d7 100644
 --- a/packages/hoppscotch-common/src/services/kernel-interceptor.service.ts
 +++ b/packages/hoppscotch-common/src/services/kernel-interceptor.service.ts
-@@ -154,10 +154,47 @@ export class KernelInterceptorService extends Service {
+@@ -71,6 +71,19 @@ export type KernelInterceptor<
+ export class KernelInterceptorService extends Service {
+   public static readonly ID = "KERNEL_INTERCEPTOR_SERVICE"
+ 
++  private proxyOnly = false
++  // Private transport for the fixed same-origin iiko gateway, never a selectable mode.
++  private sprtGateway: KernelInterceptor | undefined
++
++  public enforceProxyOnly(): void {
++    this.proxyOnly = true
++    this.sprtGateway = this.state.interceptors.get("browser")
++    for (const key of this.state.interceptors.keys()) {
++      if (key !== "proxy") this.state.interceptors.delete(key)
++    }
++    this.state.currentId = this.state.interceptors.has("proxy") ? "proxy" : null
++  }
++
+   private readonly state = reactive({
+     interceptors: new Map<string, KernelInterceptor>(),
+     currentId: null as string | null,
+@@ -127,6 +140,10 @@ export class KernelInterceptorService extends Service {
+   }
+ 
+   public register(interceptor: KernelInterceptor): void {
++    if (this.proxyOnly && interceptor.id !== "proxy") {
++      if (interceptor.id === "browser") this.sprtGateway = markRaw(interceptor)
++      return
++    }
+     this.state.interceptors.set(interceptor.id, markRaw(interceptor))
+ 
+     if (!this.state.currentId) {
+@@ -135,6 +152,10 @@ export class KernelInterceptorService extends Service {
+   }
+ 
+   public setActive(id: string | null): void {
++    if (this.proxyOnly) {
++      this.state.currentId = this.state.interceptors.has("proxy") ? "proxy" : null
++      return
++    }
+     if (!id) {
+       this.handleNullIdActivation()
+       return
+@@ -154,11 +175,54 @@ export class KernelInterceptorService extends Service {
    }
  
    public execute(req: RelayRequest): ExecutionResult {
 +    const sprtRequest = this.routeSprtIikoRequest(req)
 +    if (sprtRequest) {
-+      const browser = this.state.interceptors.get("browser")
-+      if (browser) return browser.execute(sprtRequest)
++      const gateway = this.proxyOnly ? this.sprtGateway : this.state.interceptors.get("browser")
++      if (!gateway) throw new Error("SPRT gateway transport is unavailable")
++      return gateway.execute(sprtRequest)
 +    }
      const interceptor = this.validateAndGetActiveInterceptor()
      return interceptor.execute(req)
@@ -30534,8 +30660,14 @@ index 4da8a7ba..f8350b09 100644
 +  }
 +
    private validateAndGetActiveInterceptor(): KernelInterceptor {
++    if (this.proxyOnly) {
++      const proxy = this.state.interceptors.get("proxy")
++      if (!proxy) throw new Error("Proxy interceptor is unavailable")
++      return proxy
++    }
      if (!this.state.currentId) {
        throw new Error("No active interceptor")
+     }
 diff --git a/packages/hoppscotch-selfhost-web/index.html b/packages/hoppscotch-selfhost-web/index.html
 index 6d4ee078..3a48de3d 100644
 --- a/packages/hoppscotch-selfhost-web/index.html
@@ -30587,6 +30719,40 @@ index f7c58dd3..92ed4306 100644
    },
    social: {
      twitter: "@hoppscotch_io",
+diff --git a/packages/hoppscotch-selfhost-web/src/main.ts b/packages/hoppscotch-selfhost-web/src/main.ts
+index 27f3b437..9e3df115 100644
+--- a/packages/hoppscotch-selfhost-web/src/main.ts
++++ b/packages/hoppscotch-selfhost-web/src/main.ts
+@@ -28,9 +28,7 @@ import { useDesktopZoomEffect } from "@hoppscotch/common/composables/desktop-zoo
+ 
+ // Std interceptors
+ import { NativeKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/native"
+-import { AgentKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/agent"
+ import { ProxyKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/proxy"
+-import { ExtensionKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/extension"
+ import { BrowserKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/browser"
+ 
+ const PLATFORM_CONFIG = {
+@@ -40,10 +38,8 @@ const PLATFORM_CONFIG = {
+     interceptors: [
+       BrowserKernelInterceptorService,
+       ProxyKernelInterceptorService,
+-      AgentKernelInterceptorService,
+-      ExtensionKernelInterceptorService,
+     ],
+-    defaultInterceptor: "browser",
++    defaultInterceptor: "proxy",
+     menuItems: stdFooterItems,
+     supportItems: stdSupportOptionItems,
+     cookiesEnabled: false,
+@@ -171,6 +167,7 @@ async function initApp() {
+     },
+ 
+     kernelInterceptors: {
++      proxyOnly: platform === "web",
+       default: config.defaultInterceptor,
+       interceptors: config.interceptors.map((service) => ({
+         type: "service" as const,
 diff --git a/packages/hoppscotch-selfhost-web/src/platform/auth/web/index.ts b/packages/hoppscotch-selfhost-web/src/platform/auth/web/index.ts
 index a65d75df..272d52ba 100644
 --- a/packages/hoppscotch-selfhost-web/src/platform/auth/web/index.ts

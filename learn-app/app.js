@@ -15,6 +15,7 @@
     // Cache for the existing frontend access gate. SQLite remains authoritative.
     // Do not call the old bridge setter: it writes training into PostgreSQL.
     try { localStorage.setItem(LS + ':' + server.uid, JSON.stringify(local)); } catch (_) {}
+    if (bridge && bridge.acceptServerProgress) bridge.acceptServerProgress(server.uid, local);
   }
   async function save(kind, lesson, passed) {
     if (!serverState || !window.SPRTTraining) return null;

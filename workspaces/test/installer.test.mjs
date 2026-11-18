@@ -62,3 +62,26 @@ test('update keeps stable SQLite volume, recovery snapshot, networks and unrelat
   assert.deepEqual(updated.networks,previous.networks);
   assert.equal(updated.services.workspaces.environment.TRAINING_SQLITE,'/var/lib/sprt-training/training.sqlite');
 });
+
+
+test('client updater retains auth/domain/training overlays and pins rollback to the previous local image', async (t) => {
+  const folder=await mkdtemp(join(tmpdir(),'sprt-client-update-'));
+  t.after(()=>rm(folder,{recursive:true,force:true}));
+  const save=join(folder,'save'); await mkdir(save);
+  const files=['compose.yml','auth-patch.yml','domain.yml','learn.override.json'].map(f=>join(folder,f));
+  for(const f of files)await writeFile(f,'services: {}');
+  await writeFile(join(save,'labels.json'),JSON.stringify({
+    'com.docker.compose.project.config_files':files.join(','),
+    'com.docker.compose.project.working_dir':folder,
+    'com.docker.compose.project':'hoppscotch',
+  }));
+  await writeFile(join(save,'previous-image'),'sha256:previous-image');
+  const script=await readFile(new URL('../../deploy/update-client.sh',import.meta.url),'utf8');
+  const python=script.split("python3 <<'PY'\n")[1].split('\nPY\n')[0];
+  execFileSync('python3',['-c',python],{env:{...process.env,BASE:folder,SAVE:save,IMAGE:'ghcr.io/mixailsh01-blip/hoppscotch-pyrus:test'}});
+  const wrapper=await readFile(join(folder,'app-compose.sh'),'utf8');
+  for(const f of files)assert.ok(wrapper.includes(f));
+  assert.ok(wrapper.includes('client-image.override.json'));
+  assert.equal(JSON.parse(await readFile(join(save,'rollback-image.override.json'),'utf8')).services.hoppscotch.image,'sha256:previous-image');
+  assert.ok((await readFile(join(save,'rollback.sh'),'utf8')).includes('--pull never'));
+});

@@ -42,3 +42,18 @@ Policy checks against the patched upstream tree:
 ```bash
 HOPPSCOTCH_SOURCE=/path/to/patched/upstream node --test hoppscotch-pyrus/policy.test.mjs
 ```
+
+## iiko reporting routes
+
+Both client and gateway accept GET/POST for the full `/api/` prefix on the fixed
+iiko upstream, including `/api/reporting/v1/olap/columns/get` and `/api/v2/…`.
+The gateway preserves query strings, JSON bodies and the Authorization header.
+Other hosts never enter this private gateway route. The upstream's HTTP status
+and response body are returned as received; endpoint availability and token
+permissions still depend on iiko.
+
+Update the existing `sprt-iiko-auth` gateway from the same checkout with
+`sudo bash deploy/update-iiko-gateway.sh`, then install the corresponding SHA client
+image with `deploy/update-client.sh`. The gateway installer retains existing
+secret environment variables in a root-only file, Traefik labels, networks and
+ports, and prepares a rollback image/config before replacing the container.

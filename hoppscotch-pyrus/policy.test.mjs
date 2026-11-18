@@ -28,6 +28,11 @@ test('proxy-only ignores stale selections, removes alternate modes, routes publi
  }
  assert.equal(service.execute({url:'https://api-ru.iiko.services/api/1/organizations',method:'POST'}),'browser');
  assert.equal(calls.at(-1).req.url,'https://sprtapi.sprt-service.ru/iiko-api/api/1/organizations');
+ for(const path of ['/api/reporting/v1/olap/columns/get','/api/v2/access_token','/api/1/organizations?includeDisabled=true']) {
+  assert.equal(service.execute({url:'https://api-ru.iiko.services'+path,method:'POST'}),'browser');
+  assert.equal(calls.at(-1).req.url,'https://sprtapi.sprt-service.ru/iiko-api'+path);
+  assert.equal(service.execute({url:'https://sprtapi.sprt-service.ru/iiko-api'+path,method:'POST'}),'browser');
+ }
  assert.equal(service.execute({url:'https://sprtapi.sprt-service.ru/backend/graphql',method:'POST'}),'proxy');
  assert.equal(service.execute({url:'https://api-ru.iiko.services.evil.test/api/1/organizations',method:'POST'}),'proxy');
  const missing=new Service();missing.enforceProxyOnly();

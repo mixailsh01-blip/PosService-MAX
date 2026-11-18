@@ -30568,7 +30568,7 @@ index 1ec8abeb..9cfa49e0 100644
    interceptors: KernelInterceptorDef[]
  }
 diff --git a/packages/hoppscotch-common/src/services/kernel-interceptor.service.ts b/packages/hoppscotch-common/src/services/kernel-interceptor.service.ts
-index 4da8a7ba..750be4d7 100644
+index 4da8a7ba..f555e8ba 100644
 --- a/packages/hoppscotch-common/src/services/kernel-interceptor.service.ts
 +++ b/packages/hoppscotch-common/src/services/kernel-interceptor.service.ts
 @@ -71,6 +71,19 @@ export type KernelInterceptor<
@@ -30643,14 +30643,14 @@ index 4da8a7ba..750be4d7 100644
 +    if (target.origin === window.location.origin) {
 +      if (
 +        target.pathname === "/iiko-auth/token" ||
-+        /^\/iiko-api\/api\/\d+\//.test(target.pathname)
++        /^\/iiko-api\/api\//.test(target.pathname)
 +      ) return { ...req, url: target.href }
 +      return
 +    }
 +
 +    if (
 +      target.origin !== "https://api-ru.iiko.services" ||
-+      !/^\/api\/\d+\//.test(target.pathname)
++      !/^\/api\//.test(target.pathname)
 +    ) return
 +
 +    return {

@@ -85,3 +85,23 @@ test('client updater retains auth/domain/training overlays and pins rollback to 
   assert.equal(JSON.parse(await readFile(join(save,'rollback-image.override.json'),'utf8')).services.hoppscotch.image,'sha256:previous-image');
   assert.ok((await readFile(join(save,'rollback.sh'),'utf8')).includes('--pull never'));
 });
+
+test('gateway updater preserves secrets, Traefik routing and networks while preparing a pinned rollback',async(t)=>{
+ const release=await mkdtemp(join(tmpdir(),'sprt-gateway-'));
+ t.after(()=>rm(release,{recursive:true,force:true}));
+ await writeFile(join(release,'inspect.json'),JSON.stringify([{
+  Config:{Env:['IIKO_CLIENT_SECRET=private-test-secret','IIKO_APP_ID=app'],Labels:{'traefik.http.routers.iiko.rule':'Host(`sprtapi.sprt-service.ru`)','traefik.http.routers.iiko.tls.certresolver':'existing'},Cmd:['node','server.js']},
+  Image:'sha256:previous',HostConfig:{RestartPolicy:{Name:'unless-stopped'},PortBindings:{}},
+  NetworkSettings:{Networks:{n8n_default:{}}},Mounts:[],
+ }]));
+ const source=await readFile(new URL('../../deploy/update-iiko-gateway.sh',import.meta.url),'utf8');
+ const python=source.split("python3 <<'PY'\n")[1].split('\nPY\n')[0];
+ execFileSync('python3',['-c',python],{env:{...process.env,RELEASE:release,APP:'sprt-iiko-auth',STAMP:'test'}});
+ const config=JSON.parse(await readFile(join(release,'compose.json'),'utf8'));
+ assert.equal(config.services.gateway.image,'sprt-iiko-auth:test');
+ assert.equal(config.services.gateway.labels['traefik.http.routers.iiko.tls.certresolver'],'existing');
+ assert.equal(config.networks.net0.name,'n8n_default');
+ assert.ok(!JSON.stringify(config).includes('private-test-secret'));
+ assert.ok((await readFile(join(release,'gateway.env'),'utf8')).includes('IIKO_CLIENT_SECRET=private-test-secret'));
+ assert.equal(JSON.parse(await readFile(join(release,'rollback.json'),'utf8')).services.gateway.image,'sha256:previous');
+});

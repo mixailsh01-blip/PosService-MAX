@@ -5,11 +5,12 @@ process.env.IIKO_CLIENT_SECRET = "server-secret"
 process.env.ALLOWED_ORIGINS = "https://sprtapi.sprt-service.ru"
 
 const calls = []
+let upstreamStatus = 200
 const nativeFetch = globalThis.fetch
 globalThis.fetch = async (url, options) => {
   calls.push({ url, options })
   return new Response(JSON.stringify({ token: "ok", url }), {
-    status: 200,
+    status: upstreamStatus,
     headers: { "Content-Type": "application/json" },
   })
 }
@@ -43,7 +44,31 @@ try {
   assert.equal(apiResponse.status, 200)
   assert.equal(calls[1].url, "https://api-ru.iiko.services/api/1/organizations")
   assert.equal(calls[1].options.headers.Authorization, "Bearer employee-token")
-  console.log("OK: токен и API идут через серверный прокси")
+  for (const path of [
+    "/api/reporting/v1/olap/columns/get",
+    "/api/v2/access_token",
+    "/api/1/terminal_groups?includeDisabled=true",
+  ]) {
+    const response = await nativeFetch(base + "/iiko-api" + path, {
+      method: "POST", headers: { "Content-Type": "application/json", Authorization: "Bearer employee-token" },
+      body: JSON.stringify({ reportType: "SALES" }),
+    })
+    assert.equal(response.status, 200)
+    assert.equal(calls.at(-1).url, "https://api-ru.iiko.services" + path)
+    assert.equal(calls.at(-1).options.headers.Authorization, "Bearer employee-token")
+    assert.equal(calls.at(-1).options.body, '{"reportType":"SALES"}')
+  }
+  for (const status of [401,403,404]) {
+    upstreamStatus = status
+    const response = await nativeFetch(base + "/iiko-api/api/reporting/v1/olap/columns/get", { method: "POST", body: '{}' })
+    assert.equal(response.status,status)
+  }
+  upstreamStatus = 200
+  const before = calls.length
+  const invalid = await nativeFetch(base + "/iiko-api/admin/settings", { method: "POST", body: "{}" })
+  assert.equal(invalid.status,404)
+  assert.equal(calls.length,before)
+  console.log("OK: token, numbered API, reporting API and query strings use the fixed iiko upstream")
 } finally {
   server.close()
 }

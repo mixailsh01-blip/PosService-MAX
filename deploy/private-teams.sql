@@ -1,3 +1,10 @@
+-- Legacy: do not run after installing the new workspace service.
+DO $$ BEGIN
+  IF to_regclass('sprt.workspace') IS NOT NULL THEN
+    RAISE EXCEPTION 'Workspace service installed: use /opt/sprt-workspaces/app-compose.sh; legacy provisioning is disabled';
+  END IF;
+END $$;
+
 -- Два рабочих пространства (команды) на каждого сотрудника, включая администраторов:
 -- «SPRT-Service · имя» — личное рабочее пространство сотрудника с коллекцией iiko.
 -- «Обучение · имя» доступно только администратору обучения.

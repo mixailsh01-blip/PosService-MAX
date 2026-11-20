@@ -1,0 +1,10 @@
+workspaces/node_modules/
+**/__pycache__/
+*.pyc
+.env
+*.env
+
+# Training data and WAL files are runtime-only.
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm

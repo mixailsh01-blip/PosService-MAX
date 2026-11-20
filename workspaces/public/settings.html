@@ -1,0 +1,8 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Настройки и диагностика · СПРТ</title>
+<style>:root{font:15px/1.5 system-ui;color-scheme:light dark}body{max-width:900px;margin:40px auto;padding:0 24px}a{color:#df5656}section{border:1px solid #7775;border-radius:12px;padding:20px;margin:20px 0}button{font:inherit;padding:8px 14px;margin:8px 8px 8px 0;cursor:pointer}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px}label{display:flex;gap:10px;align-items:center}.error{color:#d44}</style></head><body>
+<a href="/learn">← К обучению</a><h1>Настройки и диагностика</h1>
+<section><h2>Журнал отладки</h2><p>В журнал попадают версия, состояние обучения, коды ответов и время запросов. Пароли, API-ключи, заголовки и тела запросов не записываются.</p>
+<label><input id="enabled" type="checkbox">Записывать диагностику в этом браузере</label>
+<button id="refresh">Проверить состояние</button><button id="download">Скачать журнал JSON</button><button id="clear">Очистить журнал браузера</button>
+<p id="status" role="status"></p><pre id="report"></pre></section>
+<script src="/sprt/debug.js"></script></body></html>

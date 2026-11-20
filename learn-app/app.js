@@ -6,10 +6,22 @@
   try { if (parent !== window && parent.__sprtLearn) bridge = parent.__sprtLearn; } catch (e) {}
   var LS = "sprt_learn_progress";
   var local = (function () { try { return JSON.parse(localStorage.getItem(LS) || "{}"); } catch (e) { return {}; } })();
-  function progress() { return bridge ? (bridge.getProgress() || {}) : local; }
-  function setDone(id, v) {
-    if (bridge) bridge.setProgress(id, v);
-    else { local[id] = v; try { localStorage.setItem(LS, JSON.stringify(local)); } catch (e) {} }
+  var serverState = null, busy = false;
+  function progress() { return serverState ? local : (bridge ? (bridge.getProgress() || {}) : local); }
+  function adopt(server) {
+    serverState = server;
+    local = Object.assign({}, server.progress);
+    for (var r = 1; r < server.attempt; r++) local['r' + r] = true;
+    // Cache for the existing frontend access gate. SQLite remains authoritative.
+    // Do not call the old bridge setter: it writes training into PostgreSQL.
+    try { localStorage.setItem(LS + ':' + server.uid, JSON.stringify(local)); } catch (_) {}
+    if (bridge && bridge.acceptServerProgress) bridge.acceptServerProgress(server.uid, local);
+  }
+  async function save(kind, lesson, passed) {
+    if (!serverState || !window.SPRTTraining) return null;
+    var result = await window.SPRTTraining.record(kind, lesson, passed);
+    if (result) adopt(result);
+    return result;
   }
   function go(path) { if (bridge && bridge.go) bridge.go(path); }
 
@@ -34,6 +46,7 @@
   var METHODS = ["POST", "GET", "PUT", "DELETE", "PATCH"];
   var ADMINS = ["m.dementiev@sprt-service.ru", "m.demetiev@sprt-service.ru"]; // только у этих адресов есть кнопка «Показать пример»
   var EX = null;
+  var isTrainingAdmin = false;
   var cur = 0, mem = {}, who = "", confirmReset = false, baseSeed = "", baseLabel = "";
   // номер попытки хранится в прогрессе как ключи r1, r2…: после сброса задания генерируются заново
   function attempt() { var p = progress(), n = 0; Object.keys(p).forEach(function (k) { if (/^r\d+$/.test(k) && p[k]) n++; }); return n; }
@@ -51,14 +64,14 @@
 
   function render() {
     var p = progress(), n = count(), t = T[cur], s = st(t), done = !!p[t.id];
-    var h = '<h1 class="ttl">Тренажёр: запросы iiko Cloud API</h1>' +
+    var h = '<p><a href="/sprt/settings?learn-app=1" target="_top">Настройки и диагностика</a>' + (isTrainingAdmin ? ' · <a href="/sprt/training?learn-app=1" target="_top">Обучение сотрудников →</a>' : '') + '</p>' + '<h1 class="ttl">Тренажёр: запросы iiko Cloud API</h1>' +
       '<p class="sub">Составьте запрос сами: метод, адрес, заголовки и JSON. Сервер учебный, данные вымышленные, ничего настоящего вы не заденете. Когда пройдёте все задания, откроются остальные разделы.</p>' +
       '<p class="who">Задания персональные: ключи, организация, меню и условия заказа свои у каждого сотрудника. После сброса задания генерируются заново. Вы: <b>' + esc(who) + '</b></p>' +
       '<div class="prog"><div class="bar"><i style="width:' + Math.round(n / T.length * 100) + '%"></i></div><span>Выполнено ' + n + ' из ' + T.length + '</span>' +
       '<button class="small' + (confirmReset ? " warnbtn" : "") + '" data-resetall="1">' + (confirmReset ? "Точно? Нажмите ещё раз" : "Сбросить: пройти заново") + '</button></div>';
     if (n === T.length) {
       h += '<div class="pass"><b>Все задания выполнены, доступ открыт</b>Теперь вам доступны «Яндекс Еда» и остальные функции SPRT API.' +
-        '<div class="row"><button class="' + (confirmReset ? "warnbtn" : "") + '" data-resetall="1">' + (confirmReset ? "Точно? Нажмите ещё раз" : "Пройти заново с новыми заданиями") + '</button></div></div>';
+        '<div class="row"><a href="/" target="_top">Открыть API-клиент</a><button class="' + (confirmReset ? "warnbtn" : "") + '" data-resetall="1">' + (confirmReset ? "Точно? Нажмите ещё раз" : "Пройти заново с новыми заданиями") + '</button></div></div>';
     }
     h += '<div class="layout"><div class="steps">';
     T.forEach(function (x, i) {
@@ -88,7 +101,8 @@
     }
     if (done && cur < T.length - 1) h += '<div class="nav"><button class="primary" data-next="1">Следующее задание</button></div>';
     h += '</div></div>';
-    app.innerHTML = h;
+    app.innerHTML = h + '<p id="sprt-training-status" class="sub" role="status"></p>';
+    if (window.SPRTTraining) window.SPRTTraining.renderStatus();
   }
 
   function readForm() {
@@ -98,8 +112,8 @@
     return s;
   }
 
-  app.addEventListener("click", function (e) {
-    var b = e.target.closest("button"); if (!b || b.disabled) return;
+  app.addEventListener("click", async function (e) {
+    var b = e.target.closest("button"); if (!b || b.disabled || busy) return;
     var t = T[cur];
     if (!b.dataset.resetall) confirmReset = false;
     if (b.dataset.go) { go(b.dataset.go); return; }
@@ -110,8 +124,11 @@
     if (b.dataset.resetall) {
       if (!confirmReset) { confirmReset = true; render(); return; }
       confirmReset = false;
-      T.forEach(function (x) { setDone(x.id, false); });
-      SIM.reset(); setDone("r" + (attempt() + 1), true);
+      busy = true;
+      var reset = await save('reset');
+      busy = false;
+      if (!reset) return;
+      SIM.reset();
       mem = {}; start(); render(); window.scrollTo(0, 0); return;
     }
     if (b.dataset.send) {
@@ -121,8 +138,12 @@
         render(); return;
       }
       var r = SIM.send(s); s.resp = r;
+      busy = true;
+      var saved = await save('attempt', t.id, r.status === 200 && r.task === t.id);
+      if (saved && r.status === 200 && r.task === t.id) saved = await save('lesson', t.id, true);
+      busy = false;
+      if (!saved) { render(); return; }
       if (r.status === 200 && r.task === t.id) {
-        setDone(t.id, true);
         s.verdict = { kind: "ok", title: "Задание выполнено", text: cur < T.length - 1 ? "Сохраните нужные значения из ответа: они понадобятся дальше." : "Это было последнее задание." };
       } else if (r.status === 200 && r.task) {
         var idx = T.map(function (x) { return x.id; }).indexOf(r.task);
@@ -137,7 +158,19 @@
   });
 
   app.innerHTML = '<p class="sub">Загружаю ваши задания…</p>';
-  whoAmI(function (u) {
+  whoAmI(async function (u) {
+    if (u && window.SPRTTraining) {
+      var server = await window.SPRTTraining.init({ progress: Object.assign({}, progress()), attempt: attempt() + 1 });
+      if (server) {
+        isTrainingAdmin = server.admin === true;
+        adopt(server);
+      }
+    }
+    if (!serverState) {
+      app.innerHTML = '<p>Не удалось загрузить прогресс. Войдите в SPRT API и обновите страницу.</p><p id="sprt-training-status" role="alert"></p>';
+      if (window.SPRTTraining) window.SPRTTraining.renderStatus();
+      return;
+    }
     var seed, label;
     if (u) { seed = u.email; label = u.name ? u.name + " (" + u.email + ")" : u.email; }
     else { seed = guestSeed(); label = "гость (вход в SPRT API не выполнен)"; }

@@ -49,8 +49,8 @@ export const server = http.createServer(async (req, res) => {
   if (rawPath.startsWith("/iiko-api/")) {
     if (req.method !== "POST" && req.method !== "GET")
       return send(405, { error: "METHOD_NOT_ALLOWED", errorDescription: "Method not allowed" })
-    const upstreamPath = rawPath.slice("/iiko-api".length)
-    if (!/^\/api\/\d+\//.test(upstreamPath))
+    const upstreamPath = (req.url || "/").slice("/iiko-api".length)
+    if (!/^\/api\//.test(upstreamPath))
       return send(404, { error: "NOT_FOUND", errorDescription: "Not found" })
     let body
     try { body = req.method === "GET" ? undefined : await readBody(req) }

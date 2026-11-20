@@ -7,7 +7,7 @@ on:
         description: Apply Pyrus patch (false = plain upstream, no push)
         default: 'true'
   push:
-    branches: [main]
+    branches: [main, feat/shared-library-training]
     paths:
       - hoppscotch-pyrus/**
       - .github/workflows/build-hoppscotch.yml
@@ -24,6 +24,9 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
 
       - name: Free disk space
         run: |
@@ -40,6 +43,12 @@ jobs:
             git apply ../hoppscotch-pyrus/pyrus-login.patch
           fi
 
+      - name: Test SPRT transport policy and SQLite access gate
+        if: github.event.inputs.apply_patch != 'false'
+        env:
+          HOPPSCOTCH_SOURCE: ${{ github.workspace }}/upstream
+        run: node --test hoppscotch-pyrus/policy.test.mjs
+
       - name: Create .env (needed by the frontend build)
         run: cp upstream/.env.example upstream/.env
 
@@ -54,6 +63,14 @@ jobs:
       - name: Lowercase owner
         run: echo "OWNER=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_ENV"
 
+      - name: Image tags
+        id: image
+        run: |
+          echo "immutable=ghcr.io/${OWNER}/hoppscotch-pyrus:${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
+            echo "latest=ghcr.io/${OWNER}/hoppscotch-pyrus:latest" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: docker/build-push-action@v6
         with:
           context: upstream
@@ -61,7 +78,7 @@ jobs:
           target: aio
           push: ${{ github.event.inputs.apply_patch != 'false' }}
           tags: |
-            ghcr.io/${{ env.OWNER }}/hoppscotch-pyrus:latest
-            ghcr.io/${{ env.OWNER }}/hoppscotch-pyrus:${{ github.sha }}
+            ${{ steps.image.outputs.immutable }}
+            ${{ steps.image.outputs.latest }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

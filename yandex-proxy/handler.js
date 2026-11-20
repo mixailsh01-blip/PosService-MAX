@@ -13,7 +13,7 @@ import net from "node:net"
 
 // Настройки читаются при каждом вызове, чтобы их можно было менять без перезапуска тестов.
 const cfg = () => ({
-  allowedHosts: (process.env.ALLOWED_HOSTS || "*.iikoweb.ru").split(",").map((s) => s.trim()).filter(Boolean),
+  allowedHosts: (process.env.ALLOWED_HOSTS || "*.iikoweb.ru,api-ru.iiko.services").split(",").map((s) => s.trim()).filter(Boolean),
   timeoutMs: Number(process.env.UPSTREAM_TIMEOUT_MS || 30000),
   // только для тестов: разрешить http и локальные адреса
   insecure: process.env.ALLOW_INSECURE_TARGETS === "1",

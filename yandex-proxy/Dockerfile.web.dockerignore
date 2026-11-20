@@ -1,0 +1,7 @@
+**
+!yandex-proxy/
+!yandex-proxy/package.json
+!yandex-proxy/handler.js
+!yandex-proxy/server.js
+!yandex-app/
+!yandex-app/**

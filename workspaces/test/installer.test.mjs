@@ -105,3 +105,28 @@ test('gateway updater preserves secrets, Traefik routing and networks while prep
  assert.ok((await readFile(join(release,'gateway.env'),'utf8')).includes('IIKO_CLIENT_SECRET=private-test-secret'));
  assert.equal(JSON.parse(await readFile(join(release,'rollback.json'),'utf8')).services.gateway.image,'sha256:previous');
 });
+
+test('Yandex updater derives existing TLS/network and publishes both app and API without replacing Hoppscotch',async(t)=>{
+ const folder=await mkdtemp(join(tmpdir(),'sprt-yandex-'));
+ t.after(()=>rm(folder,{recursive:true,force:true}));
+ const release=join(folder,'release');await mkdir(release);
+ await writeFile(join(release,'labels.json'),JSON.stringify({
+  'traefik.docker.network':'n8n_default',
+  'traefik.http.routers.sprtapi.rule':'Host(`sprtapi.sprt-service.ru`)',
+  'traefik.http.routers.sprtapi.entrypoints':'existing-https',
+  'traefik.http.routers.sprtapi.tls.certresolver':'existing-cert',
+ }));
+ await writeFile(join(release,'networks.json'),JSON.stringify({n8n_default:{}}));
+ const source=await readFile(new URL('../../deploy/update-yandex.sh',import.meta.url),'utf8');
+ const python=source.split("python3 <<'PY'\n")[1].split('\nPY\n')[0];
+ execFileSync('python3',['-c',python],{env:{...process.env,RELEASE:release,BASE:folder,ORIGIN:'https://sprtapi.sprt-service.ru',YANDEX_HOSTS:'*.iikoweb.ru,api-ru.iiko.services',STAMP:'test',OLD:''}});
+ const config=JSON.parse(await readFile(join(release,'compose.json'),'utf8'));
+ assert.deepEqual(Object.keys(config.services),['proxy']);
+ assert.equal(config.networks.edge.name,'n8n_default');
+ assert.equal(config.services.proxy.labels['traefik.http.routers.sprt-yandex.entrypoints'],'existing-https');
+ assert.equal(config.services.proxy.labels['traefik.http.routers.sprt-yandex.tls.certresolver'],'existing-cert');
+ assert.equal(config.services.proxy.labels['traefik.http.routers.sprt-yandex.priority'],'300');
+ assert.match(config.services.proxy.labels['traefik.http.routers.sprt-yandex.rule'],/yandex\/devOps.*yandex-app/);
+ assert.equal(config.services.proxy.ports,undefined);
+ assert.equal(config.services.proxy.volumes,undefined);
+});

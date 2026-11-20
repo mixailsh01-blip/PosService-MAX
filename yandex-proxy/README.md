@@ -34,3 +34,29 @@
 ## Клиент
 
 В `client/n8nClient.js` — обновлённый файл для приложения. Нужно только подставить адрес сервиса в `PROXY_URL`.
+
+## Обновление раздела и прокси на SPRT API
+
+Из checkout с актуальной веткой:
+
+```bash
+sudo bash deploy/update-yandex.sh
+```
+
+Собирается небольшой образ `Dockerfile.web`: API и актуальные файлы `yandex-app`.
+Сеть, TLS entrypoint и resolver берутся из меток работающего Hoppscotch. Router
+с приоритетом 300 обслуживает только `/yandex/devOps` и `/yandex-app/`.
+Пересборка/перезапуск Hoppscotch и сервиса обучения не требуются; существующий
+`yandex-proxy`, если есть, не удаляется. Новый контейнер — `sprt-yandex-proxy`.
+Встроенная копия интерфейса в образе Hoppscotch после установки не используется.
+
+Проверяются публичный `/yandex/devOps/health` (версия `2026.11.20.1`) и POST без
+секретов: он должен вернуть HTTP 400 с JSON `BAD_REQUEST`, а не пустой 405.
+Команда отката печатается в конце установки.
+
+Base URL берите из **Host / WebHook URL** именно вашей интеграции Яндекс Еды
+в iikoWeb, а Client ID/Secret — из той же интеграции. Клиент проверяет URL до
+запроса, объясняет пустые/non-JSON ответы и сохраняет вход только после получения
+`access_token`. Актуальный клиент — `yandex-app/src/core/n8nClient.js`.
+По умолчанию разрешены `*.iikoweb.ru` и `api-ru.iiko.services`;
+для других доверенных хостов задайте `SPRT_YANDEX_ALLOWED_HOSTS` установщику.

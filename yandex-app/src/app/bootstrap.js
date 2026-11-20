@@ -1,4 +1,4 @@
-import '../core/n8nClient.js';
+import '../core/n8nClient.js?v=20261120.1';
 import {
   loadAuth,
   saveAuth,
@@ -384,6 +384,7 @@ function authScreen() {
         </div>
         <div class="list">
           <label class="fld"><span>Base URL</span><input id="baseUrl" placeholder="https://компания.iikoweb.ru/api/integrations/yandex-food" /></label>
+          <div class="muted">Base URL — значение Host / WebHook URL из настроек вашей интеграции Яндекс Еды в iikoWeb.</div>
           <label class="fld"><span>Client ID</span><input id="clientId" autocomplete="off" /></label>
           <label class="fld"><span>Client Secret</span><input id="clientSecret" type="password" autocomplete="off" /></label>
           <button id="go" class="primary">Войти</button>
@@ -408,12 +409,18 @@ function authScreen() {
     const err = document.getElementById('err');
     err.textContent = '';
 
+    const button = document.getElementById('go');
+    button.disabled = true;
+    button.textContent = 'Подключаюсь…';
     try {
       await window.n8nAuth({ baseUrl, clientId, clientSecret });
       window.appState.auth = loadAuth();
       setScreen('restaurants', { pushHistory: false });
     } catch (e) {
-      err.textContent = e?.error?.message || e?.message || JSON.stringify(e);
+      err.textContent = e?.error?.message || e?.message || 'Не удалось войти. Проверьте подключение и настройки интеграции.';
+    } finally {
+      button.disabled = false;
+      button.textContent = 'Войти';
     }
   };
 }

@@ -1,45 +1,63 @@
-// Клиент к прокси. Раньше адрес вёл на n8n-вебхук, теперь — на свой сервис (yandex-proxy).
-// Контракт тот же, меняется только PROXY_URL и добавлена проверка, что токен реально получен.
-// Адрес прокси yandex-proxy. На домене (https) — тот же адрес, что у SPRT API, путь /yandex/devOps
-// (его направляет на прокси Traefik). По IP без https — порт 8080 того же сервера.
-// Можно переопределить: window.SPRT_YANDEX_PROXY = 'https://.../yandex/devOps'
+// Same-origin gateway; override only for a separately configured deployment.
 const PROXY_URL = window.SPRT_YANDEX_PROXY || (location.protocol === 'https:'
   ? `${location.origin}/yandex/devOps`
   : `http://${location.hostname}:8080/yandex/devOps`);
-import {saveAuth,loadAuth,clearAuth} from './storage.js';
+import {saveAuth,loadAuth} from './storage.js';
 
-export async function n8nAuth({baseUrl,clientId,clientSecret}){
- const r=await fetch(PROXY_URL,{method:'POST',headers:{'Content-Type':'application/json'},
- body:JSON.stringify({type:'auth',baseUrl,client_id:clientId,client_secret:clientSecret})});
- const j=await r.json();
- if(!j.access_token) throw j; // {ok:false,error:{type,status,message}} — покажется на экране входа
- saveAuth({baseUrl,clientId,clientSecret,accessToken:j.access_token});
- return j.access_token;
+export function normalizeBaseUrl(value) {
+  let url;
+  try { url = new URL(String(value || '').trim()); }
+  catch { throw new Error('В Base URL укажите полный адрес Host из настроек интеграции Яндекс Еды в iikoWeb.'); }
+  if (!['https:', 'http:'].includes(url.protocol) || (location.protocol === 'https:' && url.protocol !== 'https:'))
+    throw new Error('Base URL должен начинаться с https://.');
+  if (url.username || url.password || url.search || url.hash)
+    throw new Error('Base URL должен содержать только адрес Host, без логина, пароля и параметров URL.');
+  return url.href.replace(/\/+$/, '');
 }
 
-async function devFetch(payload){
- const r=await fetch(PROXY_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
- return r.json();
+async function proxyRequest(payload) {
+  let response;
+  try {
+    response = await fetch(PROXY_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+  } catch {
+    throw new Error('Не удалось связаться с прокси Яндекс Еды. Проверьте подключение и доступность сервера SPRT API.');
+  }
+  const text = await response.text();
+  let result;
+  try { result = JSON.parse(text); }
+  catch {
+    throw new Error(`Прокси Яндекс Еды вернул HTTP ${response.status} ${text.trim() ? 'вместо JSON' : 'с пустым ответом'}. Требуется проверить подключение /yandex/devOps на сервере SPRT API.`);
+  }
+  if (!result || typeof result !== 'object') throw new Error('Прокси Яндекс Еды вернул ответ неизвестного формата.');
+  if (!response.ok && !result.error) throw new Error(`Прокси Яндекс Еды: HTTP ${response.status}.`);
+  return result;
 }
 
-export async function n8nDevRequest({method,url,headers={},body}){
- let auth=loadAuth();
- if(!auth.accessToken){await n8nAuth(auth);auth=loadAuth();}
-
- let res=await devFetch({type:'dev',method,url,headers:{...headers,Authorization:`Bearer ${auth.accessToken}`},body});
-
- if(res?.ok===false && res?.error?.type==='AUTH_EXPIRED'){
-   clearAuth();
-   await n8nAuth(auth);
-   const fresh=loadAuth();
-   res=await devFetch({type:'dev',method,url,headers:{...headers,Authorization:`Bearer ${fresh.accessToken}`},body});
- }
-
- if(res?.ok===false) throw res;
- return res;
+export async function n8nAuth({baseUrl,clientId,clientSecret}) {
+  baseUrl = normalizeBaseUrl(baseUrl);
+  if (!String(clientId || '').trim() || !String(clientSecret || '').trim()) throw new Error('Заполните Client ID и Client Secret интеграции.');
+  const result = await proxyRequest({type:'auth',baseUrl,client_id:clientId,client_secret:clientSecret});
+  if (typeof result.access_token !== 'string' || !result.access_token.trim()) {
+    if (result.error) throw result;
+    throw new Error('Прокси не вернул access_token. Проверьте Host и данные подключения в настройках интеграции iikoWeb.');
+  }
+  saveAuth({baseUrl,clientId,clientSecret,accessToken:result.access_token});
+  return result.access_token;
 }
 
-// expose for non-module callers (idempotent)
+export async function n8nDevRequest({method,url,headers={},body}) {
+  let auth=loadAuth();
+  if (!auth.accessToken) { await n8nAuth(auth); auth=loadAuth(); }
+  let result=await proxyRequest({type:'dev',method,url,headers:{...headers,Authorization:`Bearer ${auth.accessToken}`},body});
+  if (result?.ok===false && result?.error?.type==='AUTH_EXPIRED') {
+    await n8nAuth(auth);
+    const fresh=loadAuth();
+    result=await proxyRequest({type:'dev',method,url,headers:{...headers,Authorization:`Bearer ${fresh.accessToken}`},body});
+  }
+  if (result?.ok===false) throw result;
+  return result;
+}
+
 try {
   window.n8nAuth ||= n8nAuth;
   window.n8nDevRequest ||= n8nDevRequest;

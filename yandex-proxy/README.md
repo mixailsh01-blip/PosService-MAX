@@ -50,12 +50,12 @@ sudo bash deploy/update-yandex.sh
 `yandex-proxy`, если есть, не удаляется. Новый контейнер — `sprt-yandex-proxy`.
 Встроенная копия интерфейса в образе Hoppscotch после установки не используется.
 
-Проверяются публичный `/yandex/devOps/health` (версия `2026.11.20.1`) и POST без
+Проверяются публичный `/yandex/devOps/health` (версия `2026.11.20.2`) и POST без
 секретов: он должен вернуть HTTP 400 с JSON `BAD_REQUEST`, а не пустой 405.
 Команда отката печатается в конце установки.
 
-Base URL берите из **Host / WebHook URL** именно вашей интеграции Яндекс Еды
-в iikoWeb, а Client ID/Secret — из той же интеграции. Клиент проверяет URL до
+Base URL в форме всегда предзаполнен значением `https://api-ru.iiko.services/integrations/ya`;
+старое сохранённое значение его не заменяет. Client Secret отображается открытым текстом. Клиент проверяет URL до
 запроса, объясняет пустые/non-JSON ответы и сохраняет вход только после получения
 `access_token`. Актуальный клиент — `yandex-app/src/core/n8nClient.js`.
 По умолчанию разрешены `*.iikoweb.ru` и `api-ru.iiko.services`;

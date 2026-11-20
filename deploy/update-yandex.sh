@@ -58,7 +58,7 @@ if ! docker compose -f "$RELEASE/compose.json" up -d --pull never --wait --wait-
 fi
 echo 'Проверяю маршрутизацию через HTTPS…'
 for attempt in $(seq 1 15); do
- if curl -fsS --max-time 5 "$ORIGIN/yandex/devOps/health" > "$RELEASE/health.json" && python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); sys.exit(0 if d.get("version")=="2026.11.20.1" else 1)' "$RELEASE/health.json" 2>/dev/null; then break; fi
+ if curl -fsS --max-time 5 "$ORIGIN/yandex/devOps/health" > "$RELEASE/health.json" && python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); sys.exit(0 if d.get("version")=="2026.11.20.2" else 1)' "$RELEASE/health.json" 2>/dev/null; then break; fi
  if [[ $attempt -eq 15 ]]; then echo "Не подключился HTTPS-router. Откат: sudo bash $RELEASE/rollback.sh"; exit 1; fi
  sleep 1
 done

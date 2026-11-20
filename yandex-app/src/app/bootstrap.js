@@ -1,4 +1,4 @@
-import '../core/n8nClient.js?v=20261120.1';
+import '../core/n8nClient.js?v=20261120.2';
 import {
   loadAuth,
   saveAuth,
@@ -383,10 +383,9 @@ function authScreen() {
           </div>
         </div>
         <div class="list">
-          <label class="fld"><span>Base URL</span><input id="baseUrl" placeholder="https://компания.iikoweb.ru/api/integrations/yandex-food" /></label>
-          <div class="muted">Base URL — значение Host / WebHook URL из настроек вашей интеграции Яндекс Еды в iikoWeb.</div>
+          <label class="fld"><span>Base URL</span><input id="baseUrl" value="https://api-ru.iiko.services/integrations/ya" /></label>
           <label class="fld"><span>Client ID</span><input id="clientId" autocomplete="off" /></label>
-          <label class="fld"><span>Client Secret</span><input id="clientSecret" type="password" autocomplete="off" /></label>
+          <label class="fld"><span>Client Secret</span><input id="clientSecret" type="text" autocomplete="off" /></label>
           <button id="go" class="primary">Войти</button>
           <div id="err"></div>
         </div>
@@ -397,7 +396,6 @@ function authScreen() {
   wireBackButton();
 
   const stored = loadAuth();
-  if (stored?.baseUrl) document.getElementById('baseUrl').value = stored.baseUrl;
   if (stored?.clientId) document.getElementById('clientId').value = stored.clientId;
   if (stored?.clientSecret) document.getElementById('clientSecret').value = stored.clientSecret;
 

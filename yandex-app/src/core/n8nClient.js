@@ -4,9 +4,12 @@ const PROXY_URL = window.SPRT_YANDEX_PROXY || (location.protocol === 'https:'
   : `http://${location.hostname}:8080/yandex/devOps`);
 import {saveAuth,loadAuth} from './storage.js';
 
+// Integration identifiers and URLs never contain formatting whitespace.
+export const cleanLoginValue = (value) => String(value ?? '').replace(/[\s\u200B-\u200D\u2060\uFEFF]+/g, '');
+
 export function normalizeBaseUrl(value) {
   let url;
-  try { url = new URL(String(value || '').trim()); }
+  try { url = new URL(cleanLoginValue(value)); }
   catch { throw new Error('В Base URL укажите полный адрес Host из настроек интеграции Яндекс Еды в iikoWeb.'); }
   if (!['https:', 'http:'].includes(url.protocol) || (location.protocol === 'https:' && url.protocol !== 'https:'))
     throw new Error('Base URL должен начинаться с https://.');
@@ -35,6 +38,8 @@ async function proxyRequest(payload) {
 
 export async function n8nAuth({baseUrl,clientId,clientSecret}) {
   baseUrl = normalizeBaseUrl(baseUrl);
+  clientId = cleanLoginValue(clientId);
+  clientSecret = cleanLoginValue(clientSecret);
   if (!String(clientId || '').trim() || !String(clientSecret || '').trim()) throw new Error('Заполните Client ID и Client Secret интеграции.');
   const result = await proxyRequest({type:'auth',baseUrl,client_id:clientId,client_secret:clientSecret});
   if (typeof result.access_token !== 'string' || !result.access_token.trim()) {

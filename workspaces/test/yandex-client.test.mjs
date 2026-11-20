@@ -6,7 +6,7 @@ const source=(await readFile(new URL('../../yandex-app/src/core/n8nClient.js',im
  .replace(/^import .*from .*;$/gm,'').replace(/^export /gm,'');
 function setup(replies,initial={}) {
  const calls=[];let saved=initial;
- const api=vm.runInNewContext(`(()=>{${source};return {n8nAuth,n8nDevRequest,normalizeBaseUrl};})()`,{
+ const api=vm.runInNewContext(`(()=>{${source};return {n8nAuth,n8nDevRequest,normalizeBaseUrl,cleanLoginValue};})()`,{
   URL,window:{},location:{protocol:'https:',origin:'https://sprtapi.sprt-service.ru'},
   loadAuth:()=>saved,saveAuth:(value)=>{saved=value;},
   fetch:async(url,options)=>{
@@ -51,4 +51,37 @@ test('Yandex refresh failure keeps existing credentials available for retry',asy
  const {api,saved}=setup([{status:200,text:'{"ok":false,"error":{"type":"AUTH_EXPIRED"}}'},{status:503,text:'unavailable'}],old);
  await assert.rejects(api.n8nDevRequest({method:'GET',url:'https://example.test/restaurants'}),/HTTP 503/);
  assert.equal(saved(),old);
+});
+
+test('Yandex auth removes pasted whitespace and invisible formatting before sending or saving credentials',async()=>{
+ const {api,calls,saved}=setup([{status:200,text:'{"access_token":"token"}'}]);
+ await api.n8nAuth({baseUrl:' \thttps://api-ru.iiko.\nservices/integrations/ya\u00a0',clientId:' test-\r\nid\u200b ',clientSecret:'\ufeff test-\tsecret\u2060\n'});
+ assert.equal(calls[0].body.baseUrl,'https://api-ru.iiko.services/integrations/ya');
+ assert.equal(calls[0].body.client_id,'test-id');
+ assert.equal(calls[0].body.client_secret,'test-secret');
+ assert.equal(saved().clientId,'test-id');
+ assert.equal(saved().clientSecret,'test-secret');
+});
+
+test('Yandex form cleans cached values, typing and paste immediately and sends the cleaned values',async()=>{
+ const bootstrap=await readFile(new URL('../../yandex-app/src/app/bootstrap.js',import.meta.url),'utf8');
+ const authScreen=bootstrap.slice(bootstrap.indexOf('function authScreen()'),bootstrap.indexOf('async function restaurantsScreen()'));
+ const fields=Object.fromEntries(['baseUrl','clientId','clientSecret','go','err'].map(id=>[id,{
+  value:id==='baseUrl'?'https://api-ru.iiko.services/integrations/ya':'',selectionStart:0,selectionEnd:0,events:{},
+  addEventListener(name,fn){this.events[name]=fn;},setSelectionRange(a,b){this.selectionStart=a;this.selectionEnd=b;},
+ }]));
+ const {api}=setup([]);let sent;
+ vm.runInNewContext(`${authScreen};authScreen();`,{document:{getElementById:id=>fields[id]},render(){},wireBackButton(){},
+  loadAuth:()=>({clientId:' cached \n id ',clientSecret:' old\tsecret '}),cleanLoginValue:api.cleanLoginValue,
+  window:{appState:{},n8nAuth:async(value)=>{sent=value;}},setScreen(){},
+ });
+ assert.equal(fields.clientSecret.value,'oldsecret');
+ const secret=fields.clientSecret;secret.value='ABCD';secret.setSelectionRange(1,3);
+ let prevented=false;
+ secret.events.paste({preventDefault(){prevented=true;},clipboardData:{getData:()=> ' \r\n xy\t z\u200b '}});
+ assert.equal(prevented,true);assert.equal(secret.value,'AxyzD');assert.equal(secret.selectionStart,4);
+ fields.clientId.value=' new \n id ';fields.clientId.events.input();
+ assert.equal(fields.clientId.value,'newid');
+ await fields.go.onclick();
+ assert.equal(sent.clientId,'newid');assert.equal(sent.clientSecret,'AxyzD');
 });

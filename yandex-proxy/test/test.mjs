@@ -108,11 +108,11 @@ h = await fetch(sbase + "/other", { method: "POST", body: "{}" })
 ok(h.status === 404, "HTTP: чужой путь -> 404")
 
 h = await fetch(sbase + "/yandex/devOps/health")
-ok((await h.json()).version === "2026.11.20.2", "HTTP: health доступен через опубликованный prefix")
+ok((await h.json()).version === "2026.11.20.3", "HTTP: health доступен через опубликованный prefix")
 h = await fetch(sbase + "/yandex/devOps", { method: "POST", headers: { "Content-Type": "application/json" }, body: '{"type":"auth"}' })
 ok(h.status === 400 && (await h.json()).error.type === "BAD_REQUEST", "HTTP: проверка router без секретов возвращает JSON, не пустой 405")
 if (process.env.REQUIRE_STATIC_ASSETS === "1") {
-  for (const [path, marker] of [["index.html", "20261120.2"], ["src/core/n8nClient.js", "normalizeBaseUrl"], ["src/app/bootstrap.js", "Base URL"]]) {
+  for (const [path, marker] of [["index.html", "20261120.3"], ["src/core/n8nClient.js", "normalizeBaseUrl"], ["src/app/bootstrap.js", "Base URL"]]) {
     h = await fetch(sbase + "/yandex-app/" + path)
     ok(h.status === 200 && h.headers.get("cache-control") === "no-store" && (await h.text()).includes(marker), "HTTP: обновлённый static " + path)
   }

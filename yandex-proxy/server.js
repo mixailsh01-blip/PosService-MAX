@@ -54,7 +54,7 @@ export const server = http.createServer(async (req, res) => {
     }
   }
   if (req.method === "OPTIONS") { res.writeHead(204, cors); return res.end() }
-  if (req.method === "GET" && ["/health", "/yandex/devOps/health"].includes(path)) return send(200, { ok: true, version: "2026.11.20.2" })
+  if (req.method === "GET" && ["/health", "/yandex/devOps/health"].includes(path)) return send(200, { ok: true, version: "2026.11.20.3" })
   if (req.method !== "POST" || !["/", "/yandex/devOps"].includes(path)) return send(404, { ok: false, error: { type: "NOT_FOUND", message: "Not found" } })
 
   let body

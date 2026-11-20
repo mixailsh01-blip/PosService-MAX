@@ -75,3 +75,51 @@ test('trainer waits for server acknowledgement and never uses the PostgreSQL bri
     assert.equal(JSON.parse(cache.get('sprt_learn_progress:alice')).l1,accepted);
   }
 });
+
+test('examples unlock from server completion, fill the selected lesson and disappear after reset', async () => {
+  const source = await readFile(new URL('../../learn-app/app.js', import.meta.url), 'utf8');
+  for (const mode of ['complete', 'partial', 'stale-cache', 'admin', 'finish']) {
+    const tasks = Array.from({length:6}, (_,i) => ({id:'l'+(i+1),title:'Task '+i,text:''}));
+    const progress = Object.fromEntries(tasks.map((t,i) => [t.id, mode === 'complete' || mode === 'finish' && i < 5]));
+    let click, scripts = [];
+    const app = {innerHTML:'',addEventListener:(_,fn)=>{click=fn;}};
+    const example = {method:'POST',url:'https://example.test/status',headers:'Content-Type: application/json',body:'{"example":true}'};
+    const window = {buildTasks:()=>tasks,buildExamples:()=>Object.fromEntries(tasks.map(t=>[t.id,example])),scrollTo(){}};
+    const state = {uid:'alice',admin:mode==='admin',progress,attempt:1};
+    window.SPRTTraining = {init:async()=>state,renderStatus(){},record:async(kind)=>{
+      if (kind==='lesson') state.progress.l6=true;
+      if (kind==='reset') {state.progress={};state.attempt++;}
+      return state;
+    }};
+    const fields = {'f-method':{value:'POST'},'f-url':{value:'https://example.test'},'f-headers':{value:''},'f-body':{value:'{}'}};
+    const bridge = {getUser:()=>({email:'alice@example.test'}),getProgress:()=>mode==='stale-cache'?Object.fromEntries(tasks.map(t=>[t.id,true])):{}};
+    vm.runInNewContext(source, {window,parent:{__sprtLearn:bridge},document:{
+      getElementById:id=>id==='app'?app:fields[id],createElement:()=>({}),head:{appendChild:sc=>scripts.push(sc)},
+    },localStorage:{getItem:()=>null,setItem(){}},SIM:{init(){},reset(){},send:()=>({status:200,task:'l6',body:{}})},setTimeout,clearTimeout});
+    await new Promise(resolve=>setImmediate(resolve));
+    const clickButton=dataset=>click({target:{closest:()=>({dataset})}});
+    if (mode==='finish') {assert.equal(scripts.length,0);await clickButton({send:'1'});}
+    const allowed=['complete','admin','finish'].includes(mode);
+    assert.equal(scripts.length,allowed?1:0,mode);
+    if (!allowed) {
+      await clickButton({example:'1'});
+      assert.doesNotMatch(app.innerHTML,/data-example/);
+      continue;
+    }
+    scripts[0].onload();
+    assert.match(app.innerHTML,/data-example/);
+    for (let i=0;i<6;i++) {
+      await clickButton({i:String(i)});
+      await clickButton({example:'1'});
+      assert.match(app.innerHTML,/https:\/\/example.test\/status/);
+      assert.match(app.innerHTML,/&quot;example&quot;:true/);
+    }
+    await clickButton({resetall:'1'});await clickButton({resetall:'1'});
+    if (mode==='admin') assert.match(app.innerHTML,/data-example/);
+    else {
+      assert.doesNotMatch(app.innerHTML,/data-example/);
+      await clickButton({example:'1'});
+      assert.doesNotMatch(app.innerHTML,/https:\/\/example.test\/status/);
+    }
+  }
+});

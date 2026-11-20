@@ -44,8 +44,7 @@
 
   var STATUS = { 200: "OK", 400: "Bad Request", 401: "Unauthorized", 403: "Forbidden", 404: "Not Found", 405: "Method Not Allowed", 415: "Unsupported Media Type" };
   var METHODS = ["POST", "GET", "PUT", "DELETE", "PATCH"];
-  var ADMINS = ["m.dementiev@sprt-service.ru", "m.demetiev@sprt-service.ru"]; // только у этих адресов есть кнопка «Показать пример»
-  var EX = null;
+  var EX = null, examplesLoading = false;
   var isTrainingAdmin = false;
   var cur = 0, mem = {}, who = "", confirmReset = false, baseSeed = "", baseLabel = "";
   // номер попытки хранится в прогрессе как ключи r1, r2…: после сброса задания генерируются заново
@@ -62,7 +61,20 @@
   function unlocked(i) { return i === 0 || !!progress()[T[i - 1].id] || !!progress()[T[i].id]; }
   function count() { var p = progress(); return T.filter(function (t) { return p[t.id]; }).length; }
 
+  function canShowExamples() {
+    return !!serverState && (isTrainingAdmin || (T.length > 0 && T.every(function (t) { return serverState.progress[t.id] === true; })));
+  }
+  function loadExamples() {
+    if (!canShowExamples() || EX || examplesLoading) return;
+    examplesLoading = true;
+    var sc = document.createElement("script"); sc.src = "examples.js?t=" + Date.now();
+    sc.onload = function () { EX = window.buildExamples; examplesLoading = false; render(); };
+    sc.onerror = function () { examplesLoading = false; };
+    document.head.appendChild(sc);
+  }
+
   function render() {
+    loadExamples();
     var p = progress(), n = count(), t = T[cur], s = st(t), done = !!p[t.id];
     var h = '<p><a href="/sprt/settings?learn-app=1" target="_top">Настройки и диагностика</a>' + (isTrainingAdmin ? ' · <a href="/sprt/training?learn-app=1" target="_top">Обучение сотрудников →</a>' : '') + '</p>' + '<h1 class="ttl">Тренажёр: запросы iiko Cloud API</h1>' +
       '<p class="sub">Составьте запрос сами: метод, адрес, заголовки и JSON. Сервер учебный, данные вымышленные, ничего настоящего вы не заденете. Когда пройдёте все задания, откроются остальные разделы.</p>' +
@@ -90,7 +102,7 @@
       '<div><label class="lbl">URL</label><input id="f-url" placeholder="Адрес запроса" value="' + esc(s.url) + '" spellcheck="false"></div></div>' +
       '<div><label class="lbl">Заголовки (по одному в строке: Имя: значение)</label><textarea id="f-headers" rows="3" spellcheck="false">' + esc(s.headers) + '</textarea></div>' +
       '<div><label class="lbl">Тело запроса (JSON)</label><textarea id="f-body" rows="8" spellcheck="false">' + esc(s.body) + '</textarea></div>' +
-      '<div class="actions"><button class="primary" data-send="1">Отправить</button><button data-reset="1">Очистить форму</button>' + (EX ? '<button data-example="1">Показать пример</button>' : '') + '</div></div>';
+      '<div class="actions"><button class="primary" data-send="1">Отправить</button><button data-reset="1">Очистить форму</button>' + (EX && canShowExamples() ? '<button data-example="1">Показать пример</button>' : '') + '</div></div>';
     if (s.resp) {
       var r = s.resp, cls = r.status < 300 ? "s2" : "s4";
       h += '<div class="resp"><span class="badge ' + cls + '">' + r.status + ' ' + (STATUS[r.status] || "") + '</span><span class="sub">Ответ сервера</span><pre>' + esc(JSON.stringify(r.body, null, 2)) + '</pre>';
@@ -119,7 +131,7 @@
     if (b.dataset.go) { go(b.dataset.go); return; }
     if (b.dataset.i !== undefined) { readForm(); cur = +b.dataset.i; render(); return; }
     if (b.dataset.next) { readForm(); cur = Math.min(T.length - 1, cur + 1); render(); window.scrollTo(0, 0); return; }
-    if (b.dataset.example && EX) { var s0 = st(t), ex = EX()[t.id]; s0.method = ex.method; s0.url = ex.url; s0.headers = ex.headers; s0.body = ex.body; render(); return; }
+    if (b.dataset.example && EX && canShowExamples()) { var s0 = st(t), ex = EX()[t.id]; s0.method = ex.method; s0.url = ex.url; s0.headers = ex.headers; s0.body = ex.body; render(); return; }
     if (b.dataset.reset) { delete mem[t.id]; render(); return; }
     if (b.dataset.resetall) {
       if (!confirmReset) { confirmReset = true; render(); return; }
@@ -176,12 +188,6 @@
     else { seed = guestSeed(); label = "гость (вход в SPRT API не выполнен)"; }
     who = label; baseSeed = seed; baseLabel = label;
     start();
-    if (u && ADMINS.indexOf(String(u.email).toLowerCase()) >= 0) {
-      var sc = document.createElement("script"); sc.src = "examples.js?t=" + Date.now();
-      sc.onload = function () { EX = window.buildExamples; render(); };
-      sc.onerror = function () { render(); };
-      document.head.appendChild(sc);
-    }
     render();
   });
 })();

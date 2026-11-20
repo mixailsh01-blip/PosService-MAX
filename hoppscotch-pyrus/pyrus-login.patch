@@ -4787,8 +4787,8 @@ index 00000000..5c91cef1
 +  "variables": [
 +    {
 +      "key": "baseUrl",
-+      "initialValue": "https://sprtapi.sprt-service.ru/iiko-api",
-+      "currentValue": "https://sprtapi.sprt-service.ru/iiko-api",
++      "initialValue": "https://api-ru.iiko.services",
++      "currentValue": "https://api-ru.iiko.services",
 +      "secret": false
 +    },
 +    {

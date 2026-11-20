@@ -183,3 +183,32 @@ test('PostgreSQL migration keeps timestamps and events, then SQLite owns progres
   await assert.rejects(service.prepareTraining(),/volume missing or replaced/);
   assert.equal(service.training.instance(),null);
 });
+
+
+test('repairs saved gateway baseUrl in personal and managed team environments while preserving credentials and custom hosts', async (t) => {
+  const { pg, service } = await setup(t);
+  await service.reconcile();
+  const { work_team } = await service.me('alice');
+  const variables = [
+    { key: 'baseUrl', initialValue: 'https://sprtapi.sprt-service.ru/iiko-api', currentValue: '' },
+    { key: 'baseUrl', initialValue: 'https://custom.example', currentValue: 'https://sprtapi.sprt-service.ru/iiko-api/' },
+    { key: 'apiLogin', currentValue: 'private-key', secret: true },
+    { key: 'token', currentValue: 'private-token', secret: true },
+  ];
+  await pg.query('UPDATE "UserEnvironment" SET variables=$1 WHERE "userUid"=$2', [JSON.stringify(variables), 'alice']);
+  await pg.query('INSERT INTO "TeamEnvironment" VALUES ($1,$2,$3,$4)', ['old-env', work_team, 'iiko Cloud API', JSON.stringify(variables)]);
+  await service.reconcile();
+  const expected = structuredClone(variables);
+  expected[0].initialValue = expected[1].currentValue = 'https://api-ru.iiko.services';
+  for (const table of ['UserEnvironment', 'TeamEnvironment']) {
+    const result = await pg.query(`SELECT variables FROM "${table}" WHERE variables @> '[{"key":"apiLogin","currentValue":"private-key"}]'::jsonb`);
+    assert.equal(result.rows.length, 1);
+    assert.deepEqual(result.rows[0].variables, expected);
+  }
+  await service.reconcile();
+  assert.deepEqual((await pg.query('SELECT variables FROM "TeamEnvironment" WHERE id=$1', ['old-env'])).rows[0].variables, expected);
+  const template = JSON.parse(await readFile(new URL('../../iiko/iiko-cloud-api.environment.json', import.meta.url), 'utf8'));
+  const base = template.variables.find(v => v.key === 'baseUrl');
+  assert.equal(base.initialValue, 'https://api-ru.iiko.services');
+  assert.equal(base.currentValue, 'https://api-ru.iiko.services');
+});

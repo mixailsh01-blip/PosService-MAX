@@ -92,6 +92,29 @@ export class Workspaces {
             [randomUUID(), user.uid, this.environment.name, JSON.stringify(old[0]?.variables || this.environment.variables)]);
         }
 
+        // Repair the old visible gateway URL without changing employee credentials
+        // or intentionally selected custom/regional API hosts.
+        for (const [table, scope, values] of [
+          ['UserEnvironment', '"userUid"=$1', [user.uid]],
+          ['TeamEnvironment', '"teamID"=ANY($1::text[])', [[mapping.work_team, mapping.training_team]]],
+        ]) {
+          const { rows: environments } = await db.query(`SELECT id,variables FROM "${table}" WHERE ${scope} AND name=$2`, [...values, this.environment.name]);
+          for (const env of environments) {
+            const variables = typeof env.variables === 'string' ? JSON.parse(env.variables) : env.variables;
+            if (!Array.isArray(variables)) continue;
+            let changed = false;
+            for (const variable of variables) {
+              if (variable.key !== 'baseUrl') continue;
+              for (const field of ['initialValue', 'currentValue', 'value']) {
+                if (typeof variable[field] === 'string' && /^https:\/\/sprtapi\.sprt-service\.ru\/iiko-api\/?$/.test(variable[field])) {
+                  variable[field] = 'https://api-ru.iiko.services';
+                  changed = true;
+                }
+              }
+            }
+            if (changed) await db.query(`UPDATE "${table}" SET variables=$1 WHERE id=$2`, [JSON.stringify(variables), env.id]);
+          }
+        }
       }
       await db.query('DELETE FROM "TeamMember" WHERE "teamID"=$1 AND "userUid" NOT IN (SELECT uid FROM "User" WHERE email IS NOT NULL)', [LIBRARY]);
       return users;

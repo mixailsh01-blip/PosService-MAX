@@ -1,0 +1,37 @@
+name: Test SPRT workspaces
+on:
+  pull_request:
+    paths: ['workspaces/**', 'yandex-app/**', 'yandex-proxy/**', 'iiko-auth/**', 'learn-app/**', 'hoppscotch-pyrus/**', 'deploy/*.sh', '.github/workflows/test-workspaces.yml']
+  push:
+    branches: [main, feat/shared-library-training]
+    paths: ['workspaces/**', 'yandex-app/**', 'yandex-proxy/**', 'iiko-auth/**', 'learn-app/**', 'hoppscotch-pyrus/**', 'deploy/*.sh', '.github/workflows/test-workspaces.yml']
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: workspaces/package-lock.json
+      - run: npm ci --prefix workspaces
+      - run: npm test --prefix workspaces
+      - run: bash -n deploy/install-workspaces.sh deploy/update-workspaces.sh deploy/update-client.sh deploy/update-iiko-gateway.sh deploy/update-yandex.sh
+      - run: node --check learn-app/app.js
+      - run: node --check yandex-app/src/app/bootstrap.js
+      - run: node yandex-proxy/test/test.mjs
+      - run: docker build -f yandex-proxy/Dockerfile.web -t sprt-yandex:test .
+      - run: docker run --rm -e REQUIRE_STATIC_ASSETS=1 -v "$PWD/yandex-proxy/test:/app/test:ro" --entrypoint node sprt-yandex:test test/test.mjs
+      - run: node iiko-auth/test.mjs
+      - run: docker build -t sprt-iiko-gateway:test iiko-auth
+      - run: docker run --rm -v "$PWD/iiko-auth/test.mjs:/app/test.mjs:ro" --entrypoint node sprt-iiko-gateway:test test.mjs
+      - run: docker build -f workspaces/Dockerfile -t sprt-workspaces:test .
+      - name: Verify SQLite image permissions and durable volume
+        run: |
+          docker volume create sprt-training-test
+          docker run --rm -v sprt-training-test:/var/lib/sprt-training --entrypoint node sprt-workspaces:test --input-type=module -e "import {TrainingStore} from './training-store.mjs'; const s=new TrainingStore('/var/lib/sprt-training/training.sqlite'); s.importLegacy([],[],[{uid:'test'}]); s.close();"
+          docker run --rm -v sprt-training-test:/var/lib/sprt-training --entrypoint node sprt-workspaces:test --input-type=module -e "import {TrainingStore} from './training-store.mjs'; const s=new TrainingStore('/var/lib/sprt-training/training.sqlite'); if(!s.get('test'))process.exit(1); await s.backup('/var/lib/sprt-training/backup.sqlite'); s.close();"
+          docker volume rm sprt-training-test

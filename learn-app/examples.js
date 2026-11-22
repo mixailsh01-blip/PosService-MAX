@@ -1,5 +1,4 @@
-// Готовые решения заданий. Подгружается только для автора тренажёра (см. ADMIN в app.js),
-// остальным сотрудникам кнопка «Показать пример» не показывается.
+// Примеры доступны администраторам и сотрудникам, завершившим все задания текущей попытки.
 window.buildExamples = function () {
   var E = SIM.env, B = SIM.BASE;
   var CT = "Content-Type: application/json", AUTH = CT + "\nAuthorization: Bearer " + E.token;

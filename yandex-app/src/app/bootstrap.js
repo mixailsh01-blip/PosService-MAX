@@ -1,4 +1,4 @@
-import '../core/n8nClient.js';
+import { cleanLoginValue } from '../core/n8nClient.js?v=20261120.3';
 import {
   loadAuth,
   saveAuth,
@@ -383,9 +383,9 @@ function authScreen() {
           </div>
         </div>
         <div class="list">
-          <label class="fld"><span>Base URL</span><input id="baseUrl" placeholder="https://компания.iikoweb.ru/api/integrations/yandex-food" /></label>
+          <label class="fld"><span>Base URL</span><input id="baseUrl" value="https://api-ru.iiko.services/integrations/ya" /></label>
           <label class="fld"><span>Client ID</span><input id="clientId" autocomplete="off" /></label>
-          <label class="fld"><span>Client Secret</span><input id="clientSecret" type="password" autocomplete="off" /></label>
+          <label class="fld"><span>Client Secret</span><input id="clientSecret" type="text" autocomplete="off" /></label>
           <button id="go" class="primary">Войти</button>
           <div id="err"></div>
         </div>
@@ -396,24 +396,57 @@ function authScreen() {
   wireBackButton();
 
   const stored = loadAuth();
-  if (stored?.baseUrl) document.getElementById('baseUrl').value = stored.baseUrl;
   if (stored?.clientId) document.getElementById('clientId').value = stored.clientId;
   if (stored?.clientSecret) document.getElementById('clientSecret').value = stored.clientSecret;
 
+  const fields = ['baseUrl', 'clientId', 'clientSecret'].map(id => document.getElementById(id));
+  const cleanField = (field) => {
+    const value = field.value;
+    const position = field.selectionStart;
+    const clean = cleanLoginValue(value);
+    if (clean !== value) {
+      field.value = clean;
+      if (position !== null) {
+        const next = cleanLoginValue(value.slice(0, position)).length;
+        field.setSelectionRange(next, next);
+      }
+    }
+    return clean;
+  };
+  fields.forEach(field => {
+    cleanField(field);
+    field.addEventListener('input', () => cleanField(field));
+    field.addEventListener('blur', () => cleanField(field));
+    field.addEventListener('paste', event => {
+      if (!event.clipboardData) return;
+      event.preventDefault();
+      const start = field.selectionStart ?? field.value.length;
+      const end = field.selectionEnd ?? start;
+      const pasted = cleanLoginValue(event.clipboardData.getData('text'));
+      field.value = field.value.slice(0, start) + pasted + field.value.slice(end);
+      field.setSelectionRange(start + pasted.length, start + pasted.length);
+      cleanField(field);
+    });
+  });
+
   document.getElementById('go').onclick = async () => {
-    const baseUrl = document.getElementById('baseUrl').value.trim();
-    const clientId = document.getElementById('clientId').value.trim();
-    const clientSecret = document.getElementById('clientSecret').value;
+    const [baseUrl, clientId, clientSecret] = fields.map(cleanField);
 
     const err = document.getElementById('err');
     err.textContent = '';
 
+    const button = document.getElementById('go');
+    button.disabled = true;
+    button.textContent = 'Подключаюсь…';
     try {
       await window.n8nAuth({ baseUrl, clientId, clientSecret });
       window.appState.auth = loadAuth();
       setScreen('restaurants', { pushHistory: false });
     } catch (e) {
-      err.textContent = e?.error?.message || e?.message || JSON.stringify(e);
+      err.textContent = e?.error?.message || e?.message || 'Не удалось войти. Проверьте подключение и настройки интеграции.';
+    } finally {
+      button.disabled = false;
+      button.textContent = 'Войти';
     }
   };
 }

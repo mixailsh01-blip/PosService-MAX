@@ -148,10 +148,10 @@ index 58a904b1..ccc5a768 100644
        user.refreshToken,
 diff --git a/packages/hoppscotch-backend/src/auth/pyrus-allowlist.service.ts b/packages/hoppscotch-backend/src/auth/pyrus-allowlist.service.ts
 new file mode 100644
-index 00000000..46a13ac9
+index 00000000..3597f004
 --- /dev/null
 +++ b/packages/hoppscotch-backend/src/auth/pyrus-allowlist.service.ts
-@@ -0,0 +1,157 @@
+@@ -0,0 +1,182 @@
 +import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 +import * as https from 'https';
 +
@@ -274,6 +274,30 @@ index 00000000..46a13ac9
 +   * assigned to them (they get a normal Pyrus notification).
 +   * Returns false when the task could not be created.
 +   */
++  private async loginTypeChoiceId(): Promise<number> {
++    if (!this.cached) throw new Error('Pyrus token is missing');
++    const form = await this.request(`${this.cached.apiUrl}forms/2472006`, {
++      headers: { Authorization: `Bearer ${this.cached.token}` },
++    });
++    const findField = (fields: any[]): any => {
++      for (const field of fields) {
++        if (field.id === 8) return field;
++        const found = findField([
++          ...(field.info?.fields ?? []), ...(field.info?.columns ?? []),
++          ...(field.info?.options ?? []).flatMap((o: any) => o.fields ?? []),
++        ]);
++        if (found) return found;
++      }
++    };
++    const field = findField(form.fields ?? []);
++    const choices = field?.type === 'multiple_choice'
++      ? (field.info?.options ?? []).filter((o: any) => !o.deleted && o.choice_value === 'Авторизация на API портал')
++      : [];
++    if (choices.length !== 1 || !Number.isInteger(choices[0].choice_id) || choices[0].choice_id <= 0)
++      throw new Error('Authorization type missing or ambiguous in Pyrus field 8');
++    return choices[0].choice_id;
++  }
++
 +  async notifyLogin(email: string, link: string): Promise<boolean> {
 +    if (!this.enabled) return false;
 +    try {
@@ -286,6 +310,7 @@ index 00000000..46a13ac9
 +      if (!this.cached) return false;
 +      const pin = new URL(link).searchParams.get('token');
 +      if (!pin) throw new Error('Magic-link token is missing');
++      const loginTypeChoiceId = await this.loginTypeChoiceId();
 +      await this.request(`${this.cached.apiUrl}tasks`, {
 +        method: 'POST',
 +        headers: {
@@ -295,7 +320,7 @@ index 00000000..46a13ac9
 +        body: JSON.stringify({
 +          form_id: 2472006,
 +          fields: [
-+            { id: 8, value: { choice_ids: [3] } },
++            { id: 8, value: { choice_ids: [loginTypeChoiceId] } },
 +            { id: 3, value: { id } },
 +            { id: 6, value: email },
 +            { id: 10, value: pin },
@@ -4762,8 +4787,8 @@ index 00000000..5c91cef1
 +  "variables": [
 +    {
 +      "key": "baseUrl",
-+      "initialValue": "https://sprtapi.sprt-service.ru/iiko-api",
-+      "currentValue": "https://sprtapi.sprt-service.ru/iiko-api",
++      "initialValue": "https://api-ru.iiko.services",
++      "currentValue": "https://api-ru.iiko.services",
 +      "secret": false
 +    },
 +    {
@@ -22512,109 +22537,231 @@ A^Z)<=
 
 diff --git a/packages/hoppscotch-common/public/learn-app/app.js b/packages/hoppscotch-common/public/learn-app/app.js
 new file mode 100644
-index 00000000..673516a1
+index 00000000..8b6567f1
 --- /dev/null
 +++ b/packages/hoppscotch-common/public/learn-app/app.js
-@@ -0,0 +1,93 @@
+@@ -0,0 +1,193 @@
 +(function () {
-+  var L = window.LESSONS;
-+  var app = document.getElementById("app");
++  var app = document.getElementById("app"), T = [];
 +
 +  // Связь с SPRT API (родительское окно). Если страницу открыли отдельно, прогресс хранится локально.
 +  var bridge = null;
 +  try { if (parent !== window && parent.__sprtLearn) bridge = parent.__sprtLearn; } catch (e) {}
 +  var LS = "sprt_learn_progress";
 +  var local = (function () { try { return JSON.parse(localStorage.getItem(LS) || "{}"); } catch (e) { return {}; } })();
-+  function getProgress() { return bridge ? (bridge.getProgress() || {}) : local; }
-+  function setDone(id, v) {
-+    if (bridge) bridge.setProgress(id, v);
-+    else { local[id] = v; try { localStorage.setItem(LS, JSON.stringify(local)); } catch (e) {} }
++  var serverState = null, busy = false;
++  function progress() { return serverState ? local : (bridge ? (bridge.getProgress() || {}) : local); }
++  function adopt(server) {
++    serverState = server;
++    local = Object.assign({}, server.progress);
++    for (var r = 1; r < server.attempt; r++) local['r' + r] = true;
++    // Cache for the existing frontend access gate. SQLite remains authoritative.
++    // Do not call the old bridge setter: it writes training into PostgreSQL.
++    try { localStorage.setItem(LS + ':' + server.uid, JSON.stringify(local)); } catch (_) {}
++    if (bridge && bridge.acceptServerProgress) bridge.acceptServerProgress(server.uid, local);
 +  }
-+  function getEnv() { return bridge && bridge.getEnv ? (bridge.getEnv() || {}) : {}; }
++  async function save(kind, lesson, passed) {
++    if (!serverState || !window.SPRTTraining) return null;
++    var result = await window.SPRTTraining.record(kind, lesson, passed);
++    if (result) adopt(result);
++    return result;
++  }
 +  function go(path) { if (bridge && bridge.go) bridge.go(path); }
 +
-+  var cur = 0;
-+  var mem = {}; // промежуточное состояние урока: {envOk, quizPick}
-+  (function pickFirst() { var p = getProgress(); for (var i = 0; i < L.length; i++) if (!p[L[i].id]) { cur = i; return; } cur = L.length - 1; })();
++  // Кто работает: берём почту из входа в SPRT API, от неё зависят все персональные данные.
++  function whoAmI(cb) {
++    var done = false;
++    function fin(u) { if (!done) { done = true; cb(u); } }
++    try { if (bridge && bridge.getUser) { var bu = bridge.getUser(); if (bu && bu.email) return fin(bu); } } catch (e) {}
++    var timer = setTimeout(function () { fin(null); }, 4000);
++    try {
++      fetch("/backend/graphql", { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ query: "query{me{uid email displayName}}" }) })
++        .then(function (r) { return r.json(); })
++        .then(function (j) { clearTimeout(timer); var m = j && j.data && j.data.me; fin(m && m.email ? { email: m.email, name: m.displayName || "" } : null); })
++        .catch(function () { clearTimeout(timer); fin(null); });
++    } catch (e) { clearTimeout(timer); fin(null); }
++  }
++  function guestSeed() {
++    try { var g = localStorage.getItem("sprt_learn_guest"); if (!g) { g = "guest-" + Math.random().toString(36).slice(2, 10); localStorage.setItem("sprt_learn_guest", g); } return g; } catch (e) { return "guest-0"; }
++  }
++
++  var STATUS = { 200: "OK", 400: "Bad Request", 401: "Unauthorized", 403: "Forbidden", 404: "Not Found", 405: "Method Not Allowed", 415: "Unsupported Media Type" };
++  var METHODS = ["POST", "GET", "PUT", "DELETE", "PATCH"];
++  var EX = null, examplesLoading = false;
++  var isTrainingAdmin = false;
++  var cur = 0, mem = {}, who = "", confirmReset = false, baseSeed = "", baseLabel = "";
++  // номер попытки хранится в прогрессе как ключи r1, r2…: после сброса задания генерируются заново
++  function attempt() { var p = progress(), n = 0; Object.keys(p).forEach(function (k) { if (/^r\d+$/.test(k) && p[k]) n++; }); return n; }
++  function start() {
++    var a = attempt();
++    SIM.init(a ? baseSeed + "|" + a : baseSeed, baseLabel);
++    T = window.buildTasks();
++    cur = 0; var p = progress(); for (var i = 0; i < T.length; i++) if (!p[T[i].id]) { cur = i; return; } cur = T.length - 1;
++  }
 +
 +  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]; }); }
-+  function doneCount() { var p = getProgress(); return L.filter(function (l) { return p[l.id]; }).length; }
-+  function state(l) { return mem[l.id] || (mem[l.id] = { envOk: false, pick: null, envMsg: "" }); }
++  function st(t) { return mem[t.id] || (mem[t.id] = { method: "", url: "", headers: "", body: "", resp: null, verdict: null }); }
++  function unlocked(i) { return i === 0 || !!progress()[T[i - 1].id] || !!progress()[T[i].id]; }
++  function count() { var p = progress(); return T.filter(function (t) { return p[t.id]; }).length; }
 +
-+  function lessonReady(l) {
-+    var s = state(l), p = getProgress();
-+    if (p[l.id]) return true;
-+    var envOk = !l.check || s.envOk;
-+    var quizOk = !l.quiz || s.pick === l.quiz.correct;
-+    return envOk && quizOk;
++  function canShowExamples() {
++    return !!serverState && (isTrainingAdmin || (T.length > 0 && T.every(function (t) { return serverState.progress[t.id] === true; })));
 +  }
-+  function maybeFinish(l) {
-+    if (!getProgress()[l.id] && lessonReady(l)) setDone(l.id, true);
++  function loadExamples() {
++    if (!canShowExamples() || EX || examplesLoading) return;
++    examplesLoading = true;
++    var sc = document.createElement("script"); sc.src = "examples.js?t=" + Date.now();
++    sc.onload = function () { EX = window.buildExamples; examplesLoading = false; render(); };
++    sc.onerror = function () { examplesLoading = false; };
++    document.head.appendChild(sc);
 +  }
 +
 +  function render() {
-+    var p = getProgress(), n = doneCount(), l = L[cur], s = state(l), isDone = !!p[l.id];
-+    var h = '<div class="topbar"><h1 class="ttl">Обучение: iiko Cloud API</h1></div>' +
-+      '<p class="sub">Пройдите все шесть уроков, и откроются остальные разделы SPRT API.</p>' +
-+      '<div class="prog"><div class="bar"><i style="width:' + Math.round(n / L.length * 100) + '%"></i></div><span>Пройдено ' + n + ' из ' + L.length + '</span></div>';
-+    if (n === L.length) {
-+      h += '<div class="pass"><b>Обучение пройдено, доступ открыт</b>Теперь вам доступны «Яндекс Еда» и остальные функции SPRT API.' +
-+        '<div class="row"><button class="primary" data-go="/yandex">Открыть «Яндекс Еду»</button><button data-go="/">Открыть REST-клиент</button></div></div>';
++    loadExamples();
++    var p = progress(), n = count(), t = T[cur], s = st(t), done = !!p[t.id];
++    var h = '<p><a href="/sprt/settings?learn-app=1" target="_top">Настройки и диагностика</a>' + (isTrainingAdmin ? ' · <a href="/sprt/training?learn-app=1" target="_top">Обучение сотрудников →</a>' : '') + '</p>' + '<h1 class="ttl">Тренажёр: запросы iiko Cloud API</h1>' +
++      '<p class="sub">Составьте запрос сами: метод, адрес, заголовки и JSON. Сервер учебный, данные вымышленные, ничего настоящего вы не заденете. Когда пройдёте все задания, откроются остальные разделы.</p>' +
++      '<p class="who">Задания персональные: ключи, организация, меню и условия заказа свои у каждого сотрудника. После сброса задания генерируются заново. Вы: <b>' + esc(who) + '</b></p>' +
++      '<div class="prog"><div class="bar"><i style="width:' + Math.round(n / T.length * 100) + '%"></i></div><span>Выполнено ' + n + ' из ' + T.length + '</span>' +
++      '<button class="small' + (confirmReset ? " warnbtn" : "") + '" data-resetall="1">' + (confirmReset ? "Точно? Нажмите ещё раз" : "Сбросить: пройти заново") + '</button></div>';
++    if (n === T.length) {
++      h += '<div class="pass"><b>Все задания выполнены, доступ открыт</b>Теперь вам доступны «Яндекс Еда» и остальные функции SPRT API.' +
++        '<div class="row"><a href="/" target="_top">Открыть API-клиент</a><button class="' + (confirmReset ? "warnbtn" : "") + '" data-resetall="1">' + (confirmReset ? "Точно? Нажмите ещё раз" : "Пройти заново с новыми заданиями") + '</button></div></div>';
 +    }
 +    h += '<div class="layout"><div class="steps">';
-+    L.forEach(function (x, i) {
-+      h += '<button class="step' + (i === cur ? " cur" : "") + (p[x.id] ? " done" : "") + '" data-i="' + i + '"><span class="n"><span>' + (i + 1) + '</span></span><span>' + esc(x.title) + '</span></button>';
++    T.forEach(function (x, i) {
++      h += '<button class="step' + (i === cur ? " cur" : "") + (p[x.id] ? " done" : "") + (unlocked(i) ? "" : " lock") + '" data-i="' + i + '"' + (unlocked(i) ? "" : " disabled") +
++        '><span class="n"><span>' + (i + 1) + '</span></span><span>' + esc(x.title) + '</span></button>';
 +    });
-+    h += '</div><div class="card"><h2>' + (cur + 1) + '. ' + esc(l.title) + '</h2><p class="goal">' + esc(l.goal) + '</p>' + l.html;
-+    if (l.task) h += '<div class="task"><b>Практика</b>' + l.task + '</div>';
-+    if (l.check) {
-+      h += '<div class="check"><button data-check="1"' + (isDone ? " disabled" : "") + '>Проверить</button><span class="res ' + ((s.envOk || isDone) ? "ok" : (s.envMsg ? "bad" : "")) + '">' +
-+        (s.envOk || isDone ? "Готово: " + esc(l.check.label) : esc(s.envMsg)) + '</span></div>';
++    h += '</div><div class="card"><h2>' + (cur + 1) + '. ' + esc(t.title) + '</h2><p>' + t.text + '</p>';
++    h += '<div class="info">Адрес учебного сервера: <code>' + SIM.BASE + '</code>';
++    if (t.data) {
++      h += '<table>' + t.data.map(function (d) { return '<tr><td>' + esc(d[0]) + '</td><td><code>' + esc(d[1]) + '</code></td></tr>'; }).join("") + '</table>';
 +    }
-+    if (l.quiz) {
-+      var q = l.quiz, answered = s.pick !== null || isDone;
-+      h += '<h3>Контрольный вопрос</h3><div class="quiz"><p class="q">' + esc(q.q) + '</p>';
-+      q.options.forEach(function (o, i) {
-+        var cls = "opt";
-+        if (isDone && i === q.correct) cls += " ok";
-+        else if (s.pick === i) cls += i === q.correct ? " ok" : " bad";
-+        h += '<button class="' + cls + '" data-opt="' + i + '"' + ((isDone || s.pick === q.correct) ? " disabled" : "") + '>' + esc(o) + '</button>';
-+      });
-+      if (s.pick !== null) h += '<p class="expl">' + (s.pick === q.correct ? "Верно. " + esc(q.explain) : "Не совсем. Подумайте ещё и выберите другой вариант.") + '</p>';
++    h += '</div>';
++    h += '<div class="form">' +
++      '<div class="reqline"><div><label class="lbl">Метод</label><select id="f-method"><option value=""' + (s.method === "" ? " selected" : "") + '>Выберите…</option>' +
++      METHODS.map(function (m) { return '<option' + (s.method === m ? " selected" : "") + '>' + m + '</option>'; }).join("") + '</select></div>' +
++      '<div><label class="lbl">URL</label><input id="f-url" placeholder="Адрес запроса" value="' + esc(s.url) + '" spellcheck="false"></div></div>' +
++      '<div><label class="lbl">Заголовки (по одному в строке: Имя: значение)</label><textarea id="f-headers" rows="3" spellcheck="false">' + esc(s.headers) + '</textarea></div>' +
++      '<div><label class="lbl">Тело запроса (JSON)</label><textarea id="f-body" rows="8" spellcheck="false">' + esc(s.body) + '</textarea></div>' +
++      '<div class="actions"><button class="primary" data-send="1">Отправить</button><button data-reset="1">Очистить форму</button>' + (EX && canShowExamples() ? '<button data-example="1">Показать пример</button>' : '') + '</div></div>';
++    if (s.resp) {
++      var r = s.resp, cls = r.status < 300 ? "s2" : "s4";
++      h += '<div class="resp"><span class="badge ' + cls + '">' + r.status + ' ' + (STATUS[r.status] || "") + '</span><span class="sub">Ответ сервера</span><pre>' + esc(JSON.stringify(r.body, null, 2)) + '</pre>';
++      if (s.verdict) h += '<div class="verdict ' + s.verdict.kind + '"><b>' + esc(s.verdict.title) + '</b>' + esc(s.verdict.text) + '</div>';
 +      h += '</div>';
++    } else if (s.verdict) {
++      h += '<div class="resp"><div class="verdict ' + s.verdict.kind + '"><b>' + esc(s.verdict.title) + '</b>' + esc(s.verdict.text) + '</div></div>';
 +    }
-+    h += '<div class="nav"><button data-prev="1"' + (cur === 0 ? " disabled" : "") + '>Назад</button>' +
-+      '<button class="primary" data-next="1"' + (cur === L.length - 1 || !(isDone || lessonReady(l)) ? " disabled" : "") + '>Дальше</button></div>';
++    if (done && cur < T.length - 1) h += '<div class="nav"><button class="primary" data-next="1">Следующее задание</button></div>';
 +    h += '</div></div>';
-+    app.innerHTML = h;
++    app.innerHTML = h + '<p id="sprt-training-status" class="sub" role="status"></p>';
++    if (window.SPRTTraining) window.SPRTTraining.renderStatus();
 +  }
 +
-+  app.addEventListener("click", function (e) {
-+    var t = e.target.closest("button"); if (!t) return;
-+    var l = L[cur], s = state(l);
-+    if (t.dataset.i !== undefined) { cur = +t.dataset.i; }
-+    else if (t.dataset.go) { go(t.dataset.go); return; }
-+    else if (t.dataset.prev) { cur = Math.max(0, cur - 1); }
-+    else if (t.dataset.next) { cur = Math.min(L.length - 1, cur + 1); }
-+    else if (t.dataset.check) {
-+      var v = String(getEnv()[l.check.env] || "").trim();
-+      s.envOk = !!v;
-+      s.envMsg = s.envOk ? "" : "Пока не вижу: заполните окружение «iiko Cloud API», выполните запрос и проверьте снова.";
-+      maybeFinish(l);
-+    } else if (t.dataset.opt !== undefined) {
-+      s.pick = +t.dataset.opt;
-+      maybeFinish(l);
++  function readForm() {
++    var t = T[cur], s = st(t), g = function (id) { var e = document.getElementById(id); return e ? e.value : null; };
++    var m = g("f-method"); if (m !== null) s.method = m;
++    var u = g("f-url"); if (u !== null) { s.url = u; s.headers = g("f-headers"); s.body = g("f-body"); }
++    return s;
++  }
++
++  app.addEventListener("click", async function (e) {
++    var b = e.target.closest("button"); if (!b || b.disabled || busy) return;
++    var t = T[cur];
++    if (!b.dataset.resetall) confirmReset = false;
++    if (b.dataset.go) { go(b.dataset.go); return; }
++    if (b.dataset.i !== undefined) { readForm(); cur = +b.dataset.i; render(); return; }
++    if (b.dataset.next) { readForm(); cur = Math.min(T.length - 1, cur + 1); render(); window.scrollTo(0, 0); return; }
++    if (b.dataset.example && EX && canShowExamples()) { var s0 = st(t), ex = EX()[t.id]; s0.method = ex.method; s0.url = ex.url; s0.headers = ex.headers; s0.body = ex.body; render(); return; }
++    if (b.dataset.reset) { delete mem[t.id]; render(); return; }
++    if (b.dataset.resetall) {
++      if (!confirmReset) { confirmReset = true; render(); return; }
++      confirmReset = false;
++      busy = true;
++      var reset = await save('reset');
++      busy = false;
++      if (!reset) return;
++      SIM.reset();
++      mem = {}; start(); render(); window.scrollTo(0, 0); return;
 +    }
++    if (b.dataset.send) {
++      var s = readForm();
++      if (!s.method) {
++        s.resp = null; s.verdict = { kind: "warn", title: "Не выбран метод", text: "Выберите HTTP-метод в списке слева от адреса." };
++        render(); return;
++      }
++      var r = SIM.send(s); s.resp = r;
++      busy = true;
++      var saved = await save('attempt', t.id, r.status === 200 && r.task === t.id);
++      if (saved && r.status === 200 && r.task === t.id) saved = await save('lesson', t.id, true);
++      busy = false;
++      if (!saved) { render(); return; }
++      if (r.status === 200 && r.task === t.id) {
++        s.verdict = { kind: "ok", title: "Задание выполнено", text: cur < T.length - 1 ? "Сохраните нужные значения из ответа: они понадобятся дальше." : "Это было последнее задание." };
++      } else if (r.status === 200 && r.task) {
++        var idx = T.map(function (x) { return x.id; }).indexOf(r.task);
++        s.verdict = { kind: "warn", title: "Запрос верный, но это другое задание", text: "Вы вызвали метод из задания " + (idx + 1) + ". Здесь нужен метод из описания выше." };
++      } else if (r.status === 200) {
++        s.verdict = { kind: "warn", title: "Пока не готово", text: r.hint || "" };
++      } else {
++        s.verdict = { kind: "warn", title: "Запрос не прошёл", text: r.hint || "Сервер вернул ошибку, прочитайте её в ответе." };
++      }
++      render();
++    }
++  });
++
++  app.innerHTML = '<p class="sub">Загружаю ваши задания…</p>';
++  whoAmI(async function (u) {
++    if (u && window.SPRTTraining) {
++      var server = await window.SPRTTraining.init({ progress: Object.assign({}, progress()), attempt: attempt() + 1 });
++      if (server) {
++        isTrainingAdmin = server.admin === true;
++        adopt(server);
++      }
++    }
++    if (!serverState) {
++      app.innerHTML = '<p>Не удалось загрузить прогресс. Войдите в SPRT API и обновите страницу.</p><p id="sprt-training-status" role="alert"></p>';
++      if (window.SPRTTraining) window.SPRTTraining.renderStatus();
++      return;
++    }
++    var seed, label;
++    if (u) { seed = u.email; label = u.name ? u.name + " (" + u.email + ")" : u.email; }
++    else { seed = guestSeed(); label = "гость (вход в SPRT API не выполнен)"; }
++    who = label; baseSeed = seed; baseLabel = label;
++    start();
 +    render();
 +  });
-+  render();
 +})();
+diff --git a/packages/hoppscotch-common/public/learn-app/examples.js b/packages/hoppscotch-common/public/learn-app/examples.js
+new file mode 100644
+index 00000000..bc068db1
+--- /dev/null
++++ b/packages/hoppscotch-common/public/learn-app/examples.js
+@@ -0,0 +1,16 @@
++// Примеры доступны администраторам и сотрудникам, завершившим все задания текущей попытки.
++window.buildExamples = function () {
++  var E = SIM.env, B = SIM.BASE;
++  var CT = "Content-Type: application/json", AUTH = CT + "\nAuthorization: Bearer " + E.token;
++  var j = function (o) { return JSON.stringify(o, null, 2); };
++  var order = { phone: E.phone, items: E.need.map(function (n) { return { type: "Product", productId: n.product.id, amount: n.amount }; }) };
++  if (E.extraKind === "comment") order.comment = E.extraValue; else order.customer = { name: E.extraValue };
++  return {
++    l1: { method: "POST", url: B + "/api/v2/access_token", headers: CT, body: j({ apiKey: E.apiKey, appId: E.appId, clientSecret: E.clientSecret }) },
++    l2: { method: "POST", url: B + "/api/1/organizations", headers: AUTH, body: "{}" },
++    l3: { method: "POST", url: B + "/api/1/terminal_groups", headers: AUTH, body: j({ organizationIds: [E.org.id] }) },
++    l4: { method: "POST", url: B + "/api/1/nomenclature", headers: AUTH, body: j({ organizationId: E.org.id }) },
++    l5: { method: "POST", url: B + "/api/1/deliveries/create", headers: AUTH, body: j({ organizationId: E.org.id, terminalGroupId: E.tg.id, order: order }) },
++    l6: { method: "POST", url: B + "/api/1/commands/status", headers: AUTH, body: j({ organizationId: E.org.id, correlationId: SIM.lastCorrelationId() || "сначала выполните задание 5" }) }
++  };
++};
 diff --git a/packages/hoppscotch-common/public/learn-app/index.html b/packages/hoppscotch-common/public/learn-app/index.html
 new file mode 100644
-index 00000000..03f8c21e
+index 00000000..20a83a3e
 --- /dev/null
 +++ b/packages/hoppscotch-common/public/learn-app/index.html
-@@ -0,0 +1,105 @@
+@@ -0,0 +1,121 @@
 +<!DOCTYPE html>
 +<html lang="ru">
 +<head>
@@ -22654,70 +22801,86 @@ index 00000000..03f8c21e
 +</script>
 +<style>
 +  :root{--bg:#0f0f0f;--bg-1:#171717;--bg-2:#1f1f1f;--fg:#fafafa;--fg-1:#a3a3a3;--fg-2:#737373;--line:#262626;--line-2:#3a3a3a;
-+    --accent:#ef4444;--accent-2:#dc2626;--accent-fg:#fff;--ok:#22c55e;--err:#f87171;
++    --accent:#ef4444;--accent-2:#dc2626;--accent-fg:#fff;--ok:#22c55e;--err:#f87171;--warn:#f59e0b;
 +    --font:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color-scheme:light}
 +  html.dark{color-scheme:dark}
-+  html:not(.dark){--err:#dc2626;--ok:#16a34a}
++  html:not(.dark){--err:#dc2626;--ok:#16a34a;--warn:#b45309}
 +  *{box-sizing:border-box}
 +  body{margin:0;font-family:var(--font)!important;font-size:13px;line-height:1.55;background:var(--bg);color:var(--fg);-webkit-font-smoothing:antialiased}
-+  #app{max-width:1040px;margin:0 auto;padding:20px 28px 56px}
++  #app{max-width:1100px;margin:0 auto;padding:20px 28px 56px}
 +  code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;background:var(--bg-2);border:1px solid var(--line);border-radius:5px;padding:1px 5px}
-+  pre{margin:10px 0;padding:12px 14px;background:var(--bg);border:1px solid var(--line);border-radius:8px;overflow:auto;font-size:12px;line-height:1.5}
-+  pre code{background:none;border:0;padding:0}
 +  button{font:inherit;font-weight:600;font-size:13px;padding:8px 14px;border:1px solid var(--line-2);border-radius:8px;background:var(--bg-1);color:var(--fg);cursor:pointer;transition:border-color .12s,background .12s,color .12s}
 +  button:hover:not([disabled]){border-color:var(--accent);color:var(--accent)}
 +  button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
 +  button.primary:hover:not([disabled]){background:var(--accent-2);border-color:var(--accent-2);color:var(--accent-fg)}
 +  button[disabled]{opacity:.4;cursor:not-allowed}
-+  button:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent)}
++  button:focus-visible,input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)}
++  input,select,textarea{font:inherit;width:100%;padding:9px 11px;border:1px solid var(--line-2);border-radius:8px;background:var(--bg);color:var(--fg)}
++  textarea{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;resize:vertical}
 +
-+  .topbar{display:flex;align-items:center;gap:14px;margin:0 0 6px}
-+  .ttl{margin:0;font-size:20px;font-weight:700;letter-spacing:-.01em}
-+  .sub{color:var(--fg-1);margin:0 0 18px}
-+  .prog{display:flex;align-items:center;gap:12px;margin:0 0 20px}
++  .ttl{margin:0 0 4px;font-size:20px;font-weight:700;letter-spacing:-.01em}
++  .sub{color:var(--fg-1);margin:0 0 16px}
++  .prog{display:flex;align-items:center;gap:12px;margin:0 0 18px}
 +  .bar{flex:1;height:8px;border-radius:999px;background:var(--bg-2);overflow:hidden}
 +  .bar>i{display:block;height:100%;background:var(--accent);border-radius:999px;transition:width .3s}
 +  .prog span{color:var(--fg-1);font-size:12px;white-space:nowrap}
++  .pass{border:1px solid var(--ok);background:color-mix(in srgb,var(--ok) 10%,transparent);border-radius:12px;padding:14px 18px;margin:0 0 18px}
++  .pass b{display:block;font-size:15px;margin-bottom:2px}
++  .pass .row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
 +
-+  .layout{display:grid;grid-template-columns:270px 1fr;gap:18px;align-items:start}
-+  @media(max-width:760px){.layout{grid-template-columns:1fr}}
++  .layout{display:grid;grid-template-columns:250px 1fr;gap:18px;align-items:start}
++  @media(max-width:820px){.layout{grid-template-columns:1fr}}
 +  .steps{display:flex;flex-direction:column;gap:6px;position:sticky;top:12px}
 +  .step{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:center;text-align:left;padding:10px 12px;border-radius:10px;background:var(--bg-1);border:1px solid var(--line);color:var(--fg);font-weight:600}
-+  .step small{display:block;font-weight:400;color:var(--fg-2);font-size:11px}
 +  .step .n{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--bg-2);color:var(--fg-1);font-size:12px}
 +  .step.cur{border-color:var(--accent)}
 +  .step.done .n{background:var(--ok);color:#fff}
 +  .step.done .n:before{content:"✓"}
 +  .step.done .n span{display:none}
++  .step.lock{opacity:.45}
 +
 +  .card{background:var(--bg-1);border:1px solid var(--line);border-radius:12px;padding:22px}
-+  .card h2{margin:0 0 4px;font-size:18px;letter-spacing:-.01em}
-+  .goal{margin:0 0 16px;color:var(--fg-1)}
-+  .card h3{margin:20px 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--fg-1)}
++  .card h2{margin:0 0 8px;font-size:18px;letter-spacing:-.01em}
 +  .card p{margin:8px 0}
-+  .card ul,.card ol{margin:8px 0;padding-left:20px}
-+  .card li{margin:4px 0}
-+  .task{border:1px solid color-mix(in srgb,var(--accent) 45%,var(--line));background:color-mix(in srgb,var(--accent) 7%,transparent);border-radius:10px;padding:12px 14px;margin:14px 0}
-+  .task>b:first-child{display:block;margin-bottom:4px}
-+  .quiz .q{font-weight:650;margin:0 0 10px}
-+  .opt{display:block;width:100%;text-align:left;margin:6px 0;font-weight:500}
-+  .opt[disabled]{opacity:.8}
-+  .opt.ok{border-color:var(--ok);color:var(--ok)}
-+  .opt.bad{border-color:var(--err);color:var(--err)}
-+  .expl{margin:10px 0 0;color:var(--fg-1)}
-+  .check{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-+  .res{font-size:12px}
-+  .res.ok{color:var(--ok)}.res.bad{color:var(--err)}
-+  .nav{display:flex;justify-content:space-between;gap:10px;margin-top:22px}
-+  .pass{border:1px solid var(--ok);background:color-mix(in srgb,var(--ok) 10%,transparent);border-radius:12px;padding:16px 18px;margin:0 0 18px}
-+  .pass b{display:block;font-size:15px;margin-bottom:2px}
-+  .pass .row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
++  .info{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 14px;margin:12px 0;color:var(--fg-1)}
++  .info table{border-collapse:collapse;margin-top:4px}
++  .info td{padding:2px 14px 2px 0}
++  .form{margin-top:16px;display:grid;gap:12px}
++  .reqline{display:grid;grid-template-columns:110px 1fr;gap:10px}
++  .lbl{display:block;font-size:12px;font-weight:600;color:var(--fg-1);margin-bottom:4px}
++  .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
++  .resp{margin-top:18px}
++  .badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:700;margin-right:8px}
++  .badge.s2{background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok)}
++  .badge.s4{background:color-mix(in srgb,var(--err) 18%,transparent);color:var(--err)}
++  pre{margin:8px 0;padding:12px 14px;background:var(--bg);border:1px solid var(--line);border-radius:8px;overflow:auto;font-size:12px;line-height:1.5;max-height:340px}
++  .verdict{margin-top:10px;padding:10px 14px;border-radius:10px;border:1px solid var(--line)}
++  .verdict.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 10%,transparent)}
++  .verdict.warn{border-color:var(--warn);background:color-mix(in srgb,var(--warn) 10%,transparent)}
++  .verdict b{display:block;margin-bottom:2px}
++  .nav{display:flex;justify-content:flex-end;margin-top:16px}
++  .who{margin:-8px 0 14px;color:var(--fg-1);font-size:12px}
++  .who b{color:var(--fg);font-weight:600}
++  button.small{padding:5px 10px;font-size:12px;font-weight:500;white-space:nowrap}
++  button.warnbtn{border-color:var(--err);color:var(--err)}
 +</style>
 +</head>
 +<body>
 +<div id="app"></div>
-+<script src="lessons.js"></script>
-+<script src="app.js"></script>
++<script src="/sprt/training-client.js"></script>
++<script>
++// без кэша: после правки файлов достаточно обновить страницу
++(function () {
++  var v = Date.now(), list = ["sim.js", "tasks.js", "app.js"], i = 0;
++  (function next() {
++    if (i >= list.length) return;
++    var el = document.createElement("script");
++    el.src = list[i++] + "?v=" + v;
++    el.onload = next;
++    document.body.appendChild(el);
++  })();
++})();
++</script>
 +</body>
 +</html>
 diff --git a/packages/hoppscotch-common/public/learn-app/lessons.js b/packages/hoppscotch-common/public/learn-app/lessons.js
@@ -22883,6 +23046,291 @@ index 00000000..409f4cca
 +    }
 +  }
 +];
+diff --git a/packages/hoppscotch-common/public/learn-app/sim.js b/packages/hoppscotch-common/public/learn-app/sim.js
+new file mode 100644
+index 00000000..3c9c7202
+--- /dev/null
++++ b/packages/hoppscotch-common/public/learn-app/sim.js
+@@ -0,0 +1,229 @@
++// Учебный «сервер iiko»: отвечает так же, как iiko Cloud API, но данные вымышленные.
++// Данные персональные: всё (ключи, организации, меню, условия заказа) строится из seed сотрудника,
++// поэтому у каждого свои значения, а у одного и того же человека они всегда одинаковые.
++(function () {
++  var BASE = "https://api-ru.iiko.services";
++
++  // ---------- детерминированный генератор по seed ----------
++  function hashSeed(str) {
++    var h1 = 1779033703, h2 = 3144134277, h3 = 1013904242, h4 = 2773480762;
++    for (var i = 0, k; i < str.length; i++) {
++      k = str.charCodeAt(i);
++      h1 = h2 ^ Math.imul(h1 ^ k, 597399067); h2 = h3 ^ Math.imul(h2 ^ k, 2869860233);
++      h3 = h4 ^ Math.imul(h3 ^ k, 951274213); h4 = h1 ^ Math.imul(h4 ^ k, 2716044179);
++    }
++    h1 = Math.imul(h3 ^ (h1 >>> 18), 597399067); h2 = Math.imul(h4 ^ (h2 >>> 22), 2869860233);
++    h3 = Math.imul(h1 ^ (h3 >>> 17), 951274213); h4 = Math.imul(h2 ^ (h4 >>> 19), 2716044179);
++    return [(h1 ^ h2 ^ h3 ^ h4) >>> 0, (h2 ^ h1) >>> 0, (h3 ^ h1) >>> 0, (h4 ^ h1) >>> 0];
++  }
++  function rng(seed) {
++    var a = hashSeed(seed);
++    return function () {
++      a[0] >>>= 0; a[1] >>>= 0; a[2] >>>= 0; a[3] >>>= 0;
++      var t = (a[0] + a[1]) | 0; a[0] = a[1] ^ (a[1] >>> 9); a[1] = (a[2] + (a[2] << 3)) | 0;
++      a[2] = (a[2] << 21) | (a[2] >>> 11); a[3] = (a[3] + 1) | 0; t = (t + a[3]) | 0; a[2] = (a[2] + t) | 0;
++      return (t >>> 0) / 4294967296;
++    };
++  }
++
++  var ORG_NAMES = ["Burger Lab", "Pizza Roma", "Суши Волна", "Кофейня «Утро»", "Шаурма Хаус", "Гриль & Пиво", "Хинкальная «Тбилиси»", "Блинная «Масленица»", "Рамен-бар «Токио»"];
++  var TG_NAMES = ["Касса Центр", "Касса Север", "Касса Юг", "Касса Восток", "Касса Запад"];
++  var STREETS = ["ул. Ленинградская", "ул. Молодогвардейская", "пр. Ленина", "ул. Победы", "ул. Советской Армии", "ул. Гагарина", "пр. Кирова"];
++  var PRODUCT_POOL = [
++    ["Бургер Классик", 350], ["Чизбургер", 390], ["Картофель фри", 150], ["Наггетсы 6 шт.", 220], ["Лимонад Лайм", 120],
++    ["Кола 0,5", 110], ["Салат Цезарь", 290], ["Пицца Маргарита", 450], ["Ролл Филадельфия", 480], ["Суп дня", 260],
++    ["Капучино", 180], ["Чизкейк", 240], ["Шаурма классическая", 320], ["Морс клюквенный", 130], ["Паста Карбонара", 410]
++  ];
++
++  function build(seedStr, label) {
++    var R = rng("sprt-learn|" + seedStr);
++    var ri = function (n) { return Math.floor(R() * n); };
++    var hex = function (n) { var s = ""; while (s.length < n) s += ri(16).toString(16); return s; };
++    var uuid = function () { return hex(8) + "-" + hex(4) + "-4" + hex(3) + "-8" + hex(3) + "-" + hex(12); };
++    var shuffle = function (arr) { arr = arr.slice(); for (var i = arr.length - 1; i > 0; i--) { var j = ri(i + 1), t = arr[i]; arr[i] = arr[j]; arr[j] = t; } return arr; };
++    var b36 = function (n) { var s = "", c = "abcdefghijklmnopqrstuvwxyz0123456789"; while (s.length < n) s += c[ri(c.length)]; return s; };
++
++    var E = { label: label || "" };
++    E.apiKey = hex(8) + hex(8) + hex(8);
++    E.appId = "sprt-" + b36(12);
++    E.clientSecret = b36(32);
++    E.token = "eyJhbGciOiJIUzI1NiJ9." + b36(36) + "." + b36(10);
++
++    // организации: одна «ваша» + две чужие, порядок в ответе перемешан
++    var names = shuffle(ORG_NAMES).slice(0, 3);
++    var orgs = names.map(function (n, i) { return { id: uuid(), name: n, code: "ORG-" + (100 + ri(900)), mine: i === 0 }; });
++    E.org = orgs[0];
++    E.orgs = shuffle(orgs);
++
++    // терминальные группы: у каждой организации по две, у вашей нужна конкретная
++    var tgNames = shuffle(TG_NAMES);
++    E.groups = {};
++    orgs.forEach(function (o, k) {
++      E.groups[o.id] = [0, 1].map(function (j) {
++        return { id: uuid(), organizationId: o.id, name: tgNames[(k * 2 + j) % tgNames.length], address: "г. Самара, " + STREETS[ri(STREETS.length)] + ", " + (1 + ri(150)) };
++      });
++    });
++    E.tg = E.groups[E.org.id][ri(2)];
++
++    // меню вашей организации
++    E.products = shuffle(PRODUCT_POOL).slice(0, 7).map(function (p, i) {
++      return { id: uuid(), name: p[0], code: "P-" + (100 + i * 7 + ri(6)), price: p[1] };
++    });
++    var req = shuffle(E.products).slice(0, 2);
++    E.need = [
++      { product: req[0], amount: 1 + ri(3) },
++      { product: req[1], amount: 1 + ri(3) }
++    ];
++    E.phone = "+79" + (100000000 + ri(899999999)).toString().slice(0, 9);
++    E.code = String(1000 + ri(9000));
++    E.extraKind = ri(2) === 0 ? "comment" : "customer";
++    E.extraValue = E.extraKind === "comment" ? "Обучение SPRT " + E.code : "Тест " + E.code;
++    E.polls = 2 + ri(2); // сколько раз нужно спросить статус, пока придёт Success
++    return E;
++  }
++
++  var E = null, SK = "sprt_learn_sim";
++  function load() { try { return JSON.parse(localStorage.getItem(SK) || "{}"); } catch (e) { return {}; } }
++  function save(s) { try { localStorage.setItem(SK, JSON.stringify(s)); } catch (e) {} }
++  function uid() { return "xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx".replace(/x/g, function () { return (Math.random() * 16 | 0).toString(16); }); }
++
++  function err(status, error, description, hint) {
++    return { status: status, hint: hint || "", body: { correlationId: uid(), errorDescription: description, error: error } };
++  }
++  function ok(task, body) { body = body || {}; body.correlationId = body.correlationId || uid(); return { status: 200, body: body, task: task }; }
++
++  function digits(s) { return String(s || "").replace(/\D/g, ""); }
++
++  // req: {method, url, headers: "Имя: значение" по строкам, body: строка}
++  function send(req) {
++    var method = String(req.method || "").toUpperCase();
++    var url = String(req.url || "").trim();
++    if (!url) return err(400, "BadRequest", "URL не указан", "Впишите адрес запроса: адрес сервера плюс путь метода.");
++    if (url.indexOf(BASE) !== 0)
++      return err(400, "BadRequest", "Неверный адрес сервера", "Адрес должен начинаться с " + BASE + ". Дальше идёт путь метода, например /api/1/organizations.");
++    var path = url.slice(BASE.length).split("?")[0].replace(/\/+$/, "");
++
++    var headers = {};
++    String(req.headers || "").split(/\r?\n/).forEach(function (l) {
++      var i = l.indexOf(":"); if (i > 0) headers[l.slice(0, i).trim().toLowerCase()] = l.slice(i + 1).trim();
++    });
++    var raw = String(req.body || "").trim(), body = {}, badJson = null;
++    if (raw) { try { body = JSON.parse(raw); } catch (e) { badJson = e.message; } }
++    if (body === null || typeof body !== "object" || Array.isArray(body)) { if (badJson === null) badJson = "ожидался объект { … }"; body = {}; }
++
++    var known = ["/api/v2/access_token", "/api/1/access_token", "/api/1/organizations", "/api/1/terminal_groups", "/api/1/nomenclature", "/api/1/deliveries/create", "/api/1/commands/status"];
++    if (known.indexOf(path) < 0)
++      return err(404, "NotFound", "Метод не найден: " + path, "Проверьте путь метода. Он указан в описании задания.");
++    if (method !== "POST")
++      return err(405, "MethodNotAllowed", "Метод HTTP " + method + " не поддерживается", "Все методы iiko Cloud API в этих заданиях вызываются как POST.");
++    if (!/application\/json/i.test(headers["content-type"] || ""))
++      return err(415, "UnsupportedMediaType", "Не указан Content-Type: application/json", "Добавьте заголовок Content-Type: application/json: так сервер понимает, что тело это JSON.");
++    if (badJson !== null)
++      return err(400, "BadRequest", "Тело запроса не является корректным JSON: " + badJson, "Проверьте скобки, запятые и двойные кавычки (одинарные кавычки в JSON недопустимы).");
++
++    if (path === "/api/1/access_token")
++      return err(403, "Forbidden", "Please use /api/v2/access_token", "Старый метод /api/1/access_token (с apiLogin) больше не работает. Нужен /api/v2/access_token с ключом и Client Secret.");
++
++    if (path === "/api/v2/access_token") {
++      if (body.apiKey !== E.apiKey || body.appId !== E.appId || body.clientSecret !== E.clientSecret)
++        return err(401, "AuthorizationError", "Неверный apiKey, appId или clientSecret", "В теле нужны три поля: apiKey, appId и clientSecret. Ваши значения указаны в задании, копируйте их без пробелов.");
++      return ok("l1", { token: E.token });
++    }
++
++    // дальше нужен токен
++    if (headers["authorization"] !== "Bearer " + E.token)
++      return err(401, "AuthorizationError", "Authorization is has been denied for this request.", "Добавьте заголовок Authorization: Bearer <токен> (слово Bearer, пробел и ваш токен из задания 1).");
++
++    var isMine = function (id) { return id === E.org.id; };
++    var orgById = function (id) { return E.orgs.filter(function (o) { return o.id === id; })[0]; };
++
++    if (path === "/api/1/organizations")
++      return ok("l2", { organizations: E.orgs.map(function (o) { return { responseType: "Simple", id: o.id, name: o.name, code: o.code, country: "Russia" }; }) });
++
++    if (path === "/api/1/terminal_groups") {
++      var ids = body.organizationIds;
++      if (!Array.isArray(ids) || !ids.length)
++        return err(400, "BadRequest", "Поле organizationIds обязательно", 'В теле нужен массив: {"organizationIds": ["id организации"]}.');
++      var unknown = ids.filter(function (x) { return !orgById(x); });
++      if (unknown.length) return err(400, "BadRequest", "Организация не найдена: " + unknown[0], "Скопируйте id организации из ответа на запрос организаций точно, без лишних пробелов.");
++      var groups = ids.map(function (id) { return { organizationId: id, items: E.groups[id] }; });
++      var r3 = ok(ids.indexOf(E.org.id) >= 0 ? "l3" : null, { terminalGroups: groups, terminalGroupsInSleep: [] });
++      if (ids.indexOf(E.org.id) < 0) r3.hint = "Запрос выполнен, но не для вашей организации «" + E.org.name + "». Нужен её id.";
++      return r3;
++    }
++
++    if (path === "/api/1/nomenclature") {
++      if (!body.organizationId) return err(400, "BadRequest", "Поле organizationId обязательно", 'Тело: {"organizationId": "id организации"}.');
++      if (!orgById(body.organizationId)) return err(400, "BadRequest", "Организация не найдена", "Скопируйте id организации из ответа на запрос организаций.");
++      if (!isMine(body.organizationId)) { var rn = ok(null, { groups: [], productCategories: [], products: [], sizes: [], revision: 1 }); rn.hint = "У этой организации пустое меню. Вам нужна «" + E.org.name + "»."; return rn; }
++      return ok("l4", { groups: [{ id: uid(), name: "Основное меню" }], productCategories: [{ id: uid(), name: "Блюда" }],
++        products: E.products.map(function (p) { return { id: p.id, name: p.name, code: p.code, type: "Dish", sizePrices: [{ sizeId: null, price: { currentPrice: p.price, isIncludedInMenu: true } }] }; }), sizes: [], revision: 12345 });
++    }
++
++    if (path === "/api/1/deliveries/create") {
++      if (!orgById(body.organizationId)) return err(400, "BadRequest", "organizationId не указан или неверен", "Нужен id вашей организации (задание 2).");
++      if (!isMine(body.organizationId)) return err(400, "BadRequest", "Нет доступа к организации", "Заказ создаётся в вашей организации «" + E.org.name + "».");
++      var tgAll = E.groups[E.org.id].filter(function (g) { return g.id === body.terminalGroupId; })[0];
++      if (!tgAll) return err(400, "BadRequest", "terminalGroupId не указан или неверен", "Нужен id терминальной группы из задания 3.");
++      var o = body.order;
++      if (!o || typeof o !== "object") return err(400, "BadRequest", "Не передан объект order", "Нужен объект order с телефоном и позициями.");
++      if (!o.phone || !/^\+?\d{10,15}$/.test(String(o.phone).replace(/[\s()-]/g, ""))) return err(400, "BadRequest", "Телефон указан неверно", "В order.phone нужен номер из цифр.");
++      if (!Array.isArray(o.items) || !o.items.length) return err(400, "BadRequest", "В заказе нет позиций", "order.items должен быть массивом позиций.");
++      var got = {};
++      for (var i = 0; i < o.items.length; i++) {
++        var it = o.items[i] || {};
++        var prod = E.products.filter(function (p) { return p.id === it.productId; })[0];
++        if (!prod) return err(400, "BadRequest", "Товар не найден: " + it.productId, "productId берите из ответа «Номенклатура» (задание 4).");
++        if (!(Number(it.amount) > 0)) return err(400, "BadRequest", "Количество должно быть больше нуля", "У позиции нужно поле amount больше нуля.");
++        if (it.type !== "Product") return err(400, "BadRequest", 'Не указан type "Product"', 'У каждой позиции нужно поле "type" со значением "Product".');
++        got[prod.id] = (got[prod.id] || 0) + Number(it.amount);
++      }
++      // заказ технически верный; сверяем с условиями вашего задания
++      var problems = [];
++      if (tgAll.id !== E.tg.id) problems.push("касса");
++      if (digits(o.phone) !== digits(E.phone)) problems.push("телефон");
++      var itemsOk = Object.keys(got).length === E.need.length && E.need.every(function (n) { return got[n.product.id] === n.amount; });
++      if (!itemsOk) problems.push("состав заказа (товары и количество)");
++      var extraOk = E.extraKind === "comment" ? o.comment === E.extraValue : !!(o.customer && o.customer.name === E.extraValue);
++      if (!extraOk) problems.push(E.extraKind === "comment" ? "комментарий" : "имя клиента");
++      var sum = Object.keys(got).reduce(function (a, id) { return a + got[id] * E.products.filter(function (p) { return p.id === id; })[0].price; }, 0);
++      var corr = uid();
++      var resp = { correlationId: corr, orderInfo: { id: uid(), organizationId: E.org.id, timestamp: Date.now(), creationStatus: "InProgress", isDeleted: false } };
++      if (problems.length) {
++        var r5 = ok(null, resp);
++        r5.hint = "Сервер принял заказ, но он не совпадает с заданием. Сверьте: " + problems.join(", ") + ".";
++        return r5;
++      }
++      var st = load(); st.correlationId = corr; st.polls = 0; st.sum = sum; save(st);
++      return ok("l5", resp);
++    }
++
++    if (path === "/api/1/commands/status") {
++      var s = load();
++      if (!isMine(body.organizationId)) return err(400, "BadRequest", "organizationId не указан или неверен", "Нужен id вашей организации.");
++      if (typeof body.correlationId === "string" && /[<>]/.test(body.correlationId))
++        return err(400, "BadRequest", "Команда с таким correlationId не найдена", "В значении остались угловые скобки < >. Оставьте внутри кавычек только сам id.");
++      if (!s.correlationId)
++        return err(400, "BadRequest", "Команда с таким correlationId не найдена", "Сначала выполните задание 5 (создайте заказ), в ответе придёт correlationId.");
++      if (!body.correlationId || body.correlationId !== s.correlationId)
++        return err(400, "BadRequest", "Команда с таким correlationId не найдена", "Возьмите correlationId из ответа на создание заказа (задание 5), последнего созданного.");
++      s.polls = (s.polls || 0) + 1; save(s);
++      if (s.polls < E.polls) {
++        var r = ok(null, { state: "InProgress", exception: null });
++        r.hint = "Команда ещё выполняется. Так и должно быть: повторите запрос через пару секунд.";
++        return r;
++      }
++      return ok("l6", { state: "Success", exception: null });
++    }
++    return err(404, "NotFound", "Метод не найден", "");
++  }
++
++  window.SIM = {
++    BASE: BASE,
++    send: send,
++    get env() { return E; },
++    init: function (seed, label) { E = build(String(seed).toLowerCase(), label); SK = "sprt_learn_sim:" + String(seed).toLowerCase(); return E; },
++    lastCorrelationId: function () { return load().correlationId || ""; },
++    reset: function () { try { localStorage.removeItem(SK); } catch (e) {} }
++  };
++})();
+diff --git a/packages/hoppscotch-common/public/learn-app/tasks.js b/packages/hoppscotch-common/public/learn-app/tasks.js
+new file mode 100644
+index 00000000..068e377f
+--- /dev/null
++++ b/packages/hoppscotch-common/public/learn-app/tasks.js
+@@ -0,0 +1,44 @@
++// Задания тренажёра. Тексты собираются из персональных данных сотрудника (SIM.env), поэтому у каждого свои.
++// Правятся здесь; на сервере подхватываются командой sprt-update.
++window.buildTasks = function () {
++  var E = SIM.env;
++  var org = "<b>«" + E.org.name + "»</b>", tg = "<b>«" + E.tg.name + "»</b>";
++  var names = E.need.map(function (n) { return n.product.name; });
++  var items = E.need.map(function (n) { return "«" + n.product.name + "» × " + n.amount; }).join(", ");
++  var extraRow = E.extraKind === "comment" ? ["Комментарий к заказу (order.comment)", E.extraValue] : ["Имя клиента (order.customer.name)", E.extraValue];
++
++  return [
++    {
++      id: "l1",
++      title: "Получить токен",
++      text: "Любая работа с iiko Cloud API начинается с токена. Отправьте <b>POST</b>-запрос на <code>/api/v2/access_token</code>: в теле JSON с вашим ключом, идентификатором приложения и секретом. В ответе придёт <code>token</code>: он понадобится во всех следующих заданиях. Ваши персональные данные для входа:",
++      data: [["apiKey", E.apiKey], ["appId", E.appId], ["clientSecret", E.clientSecret]]
++    },
++    {
++      id: "l2",
++      title: "Список организаций",
++      text: "Запросите организации: <b>POST</b> <code>/api/1/organizations</code>. Токен передаётся заголовком <code>Authorization</code> со словом <code>Bearer</code> и токеном. В списке несколько организаций. Найдите " + org + " и запомните её <code>id</code>."
++    },
++    {
++      id: "l3",
++      title: "Терминальные группы",
++      text: "Найдите кассу ресторана: <b>POST</b> <code>/api/1/terminal_groups</code>. В теле передайте массив <code>organizationIds</code> с id организации " + org + ". У организации несколько касс: найдите id кассы " + tg + "."
++    },
++    {
++      id: "l4",
++      title: "Меню (номенклатура)",
++      text: "Получите меню организации " + org + ": <b>POST</b> <code>/api/1/nomenclature</code>, в теле поле <code>organizationId</code>. В <code>products</code> найдите <code>id</code> товаров: " + names.map(function (n) { return "«" + n + "»"; }).join(" и ") + ". Они понадобятся для заказа."
++    },
++    {
++      id: "l5",
++      title: "Создать заказ доставки",
++      text: "Создайте заказ: <b>POST</b> <code>/api/1/deliveries/create</code>. В теле: <code>organizationId</code>, <code>terminalGroupId</code> (касса " + tg + ") и объект <code>order</code> с телефоном, позициями и полем из таблицы. Позиция: <code>type</code> = <code>Product</code>, <code>productId</code>, <code>amount</code>. Создание асинхронное: в ответе придёт <code>correlationId</code>, сохраните его.",
++      data: [["Телефон (order.phone)", E.phone], ["Позиции (order.items)", items], extraRow]
++    },
++    {
++      id: "l6",
++      title: "Проверить статус заказа",
++      text: "Заказ создаётся не мгновенно. Спросите статус команды: <b>POST</b> <code>/api/1/commands/status</code> с <code>organizationId</code> и <code>correlationId</code> из задания 5. Пока команда выполняется, придёт <code>InProgress</code>: подождите пару секунд и повторяйте запрос до <code>Success</code>."
++    }
++  ];
++};
 diff --git a/packages/hoppscotch-common/public/logo.png b/packages/hoppscotch-common/public/logo.png
 index 787c4b6dd58dc43e9dbf4ef1a0dd7c70fa0de756..6451ed6eeff5817a3a10ee41457987bae8d80bfb 100644
 GIT binary patch
@@ -28816,6 +29264,30 @@ index 6bfd22e0..32a97147 100644
  import { getKernelMode } from "@hoppscotch/kernel"
  
  import { useI18n } from "@composables/i18n"
+diff --git a/packages/hoppscotch-common/src/components/app/KernelInterceptor.vue b/packages/hoppscotch-common/src/components/app/KernelInterceptor.vue
+index a0342c9a..4848189f 100644
+--- a/packages/hoppscotch-common/src/components/app/KernelInterceptor.vue
++++ b/packages/hoppscotch-common/src/components/app/KernelInterceptor.vue
+@@ -1,5 +1,9 @@
+ <template>
+-  <div class="flex flex-col space-y-2">
++  <div v-if="proxyOnly" class="flex flex-col space-y-2">
++    <span class="font-semibold text-secondaryDark">Proxy</span>
++    <p class="text-secondaryLight">Запросы отправляются через прокси. Режим задан для всех сотрудников.</p>
++  </div>
++  <div v-else class="flex flex-col space-y-2">
+     <div v-if="isTooltipComponent" class="flex flex-col px-4 pt-2">
+       <h2 class="inline-flex pb-1 font-semibold text-secondaryDark">
+         {{ t("settings.kernel_interceptor") }}
+@@ -64,6 +68,8 @@
+ import { useI18n } from "@composables/i18n"
+ import { useService } from "dioc/vue"
+ import { computed } from "vue"
++import { platform } from "~/platform"
++const proxyOnly = platform.kernelInterceptors.proxyOnly === true
+ import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
+ 
+ const t = useI18n()
 diff --git a/packages/hoppscotch-common/src/components/app/Logo.vue b/packages/hoppscotch-common/src/components/app/Logo.vue
 index 9bcd0747..a9d4c5e8 100644
 --- a/packages/hoppscotch-common/src/components/app/Logo.vue
@@ -29483,60 +29955,78 @@ index 00000000..4e1af4ed
 +</style>
 diff --git a/packages/hoppscotch-common/src/helpers/sprt-learn.ts b/packages/hoppscotch-common/src/helpers/sprt-learn.ts
 new file mode 100644
-index 00000000..1c1cf5d2
+index 00000000..8102fb87
 --- /dev/null
 +++ b/packages/hoppscotch-common/src/helpers/sprt-learn.ts
-@@ -0,0 +1,51 @@
+@@ -0,0 +1,69 @@
 +import { computed, ref } from "vue"
 +import { useReadonlyStream } from "@composables/stream"
 +import { platform } from "~/platform"
-+import { applySetting } from "~/newstore/settings"
 +
-+// Должен совпадать с id уроков в public/learn-app/lessons.js
 +export const SPRT_LESSON_IDS = ["l1", "l2", "l3", "l4", "l5", "l6"]
-+
 +type Progress = Record<string, boolean>
 +const progressByUser = ref<Record<string, Progress>>({})
 +const storageKey = (uid: string) => "sprt_learn_progress:" + uid
++const onlyProgress = (value: Progress = {}) => Object.fromEntries(
++  Object.entries(value).filter(([id, done]) => /^(l[1-6]|r\d+)$/.test(id) && typeof done === "boolean")
++)
 +
-+function readProgress(uid: string): Progress | undefined {
-+  if (progressByUser.value[uid]) return progressByUser.value[uid]
++export function acceptLearnServerProgress(uid: string, value: Progress) {
++  if (platform.auth.getCurrentUser()?.uid !== uid) return
++  const progress = onlyProgress(value)
++  progressByUser.value[uid] = progress
++  try { localStorage.setItem(storageKey(uid), JSON.stringify(progress)) } catch {}
++}
++
++export async function loadLearnProgress(uid: string, legacy: Progress = {}) {
++  let cached = legacy || {}
++  try { cached = JSON.parse(localStorage.getItem(storageKey(uid)) || "null") || cached } catch {}
 +  try {
-+    const saved = localStorage.getItem(storageKey(uid))
-+    return saved ? JSON.parse(saved) : undefined
++    const response = await fetch("/sprt/me", {
++      credentials: "same-origin", cache: "no-store",
++      headers: { "X-SPRT-Request": "1" }, signal: AbortSignal.timeout(10000),
++    })
++    if (!response.ok) throw new Error("Training state unavailable")
++    const state = await response.json()
++    if (state.uid !== uid) return
++    // Keep the original cache before the one-time recovery check.
++    const snapshot = { progress: onlyProgress(cached), attempt: Object.keys(cached).filter((key) => /^r\d+$/.test(key) && cached[key] === true).length + 1 }
++    try {
++      if (!localStorage.getItem("sprt_learn_backup:" + uid)) localStorage.setItem("sprt_learn_backup:" + uid, JSON.stringify(snapshot))
++    } catch {}
++    const recovered = await fetch("/sprt/recover", {
++      method: "POST", credentials: "same-origin", cache: "no-store",
++      headers: { "X-SPRT-Request": "1", "Content-Type": "application/json" },
++      body: JSON.stringify(snapshot), signal: AbortSignal.timeout(10000),
++    })
++    if (recovered.ok) {
++      const result = await recovered.json()
++      state.progress = result.progress
++      state.attempt = result.attempt
++    }
++    const progress: Progress = { ...state.progress }
++    for (let r = 1; r < state.attempt; r++) progress["r" + r] = true
++    acceptLearnServerProgress(uid, progress)
 +  } catch {
-+    return undefined
++    // Never grant access from an obsolete browser/PostgreSQL cache.
++    // The training page remains available and can retry its own API connection.
++    if (platform.auth.getCurrentUser()?.uid === uid) progressByUser.value[uid] = {}
 +  }
 +}
 +
-+export function loadLearnProgress(uid: string, serverProgress: Progress = {}) {
-+  progressByUser.value[uid] = readProgress(uid) ?? serverProgress
-+}
-+
 +export function useLearnProgress() {
-+  const user = useReadonlyStream(
-+    platform.auth.getCurrentUserStream(),
-+    platform.auth.getCurrentUser()
-+  )
-+  const progress = computed(() => user.value ? readProgress(user.value.uid) : undefined)
++  const user = useReadonlyStream(platform.auth.getCurrentUserStream(), platform.auth.getCurrentUser())
++  const progress = computed(() => user.value ? progressByUser.value[user.value.uid] : undefined)
 +  function setProgress(id: string, done: boolean) {
 +    const uid = user.value?.uid
-+    if (!uid) return
-+    const next = { ...readProgress(uid), [id]: done }
-+    progressByUser.value[uid] = next
-+    try {
-+      localStorage.setItem(storageKey(uid), JSON.stringify(next))
-+    } catch {
-+      // Server settings are still available if browser storage is disabled.
-+    }
-+    applySetting("SPRT_LEARN", next)
++    if (uid) acceptLearnServerProgress(uid, { ...progress.value, [id]: done })
 +  }
 +  return { progress, setProgress, user }
 +}
 +
 +export function useLearnPassed() {
 +  const { progress } = useLearnProgress()
-+  return computed(() => SPRT_LESSON_IDS.every((id) => !!progress.value?.[id]))
++  return computed(() => SPRT_LESSON_IDS.every((id) => progress.value?.[id] === true))
 +}
 diff --git a/packages/hoppscotch-common/src/helpers/sprt-seed.ts b/packages/hoppscotch-common/src/helpers/sprt-seed.ts
 new file mode 100644
@@ -29810,6 +30300,33 @@ index eb72032e..a85264b0 100644
        },
      })
    },
+diff --git a/packages/hoppscotch-common/src/modules/kernel-interceptors.ts b/packages/hoppscotch-common/src/modules/kernel-interceptors.ts
+index 636b7c81..a625872b 100644
+--- a/packages/hoppscotch-common/src/modules/kernel-interceptors.ts
++++ b/packages/hoppscotch-common/src/modules/kernel-interceptors.ts
+@@ -16,6 +16,7 @@ export default <HoppModule>{
+ function initKernelInterceptorService(): KernelInterceptorService {
+   const service = getService(KernelInterceptorService)
+ 
++  if (platform.kernelInterceptors.proxyOnly) service.enforceProxyOnly()
+   registerInterceptors(service)
+   initializeDefaultInterceptor(service)
+ 
+@@ -60,8 +61,13 @@ function syncSettingsToService(service: KernelInterceptorService): void {
+   watch(
+     setting,
+     () => {
+-      const fallback = setting.value ?? platform.kernelInterceptors.default
++      const fallback = platform.kernelInterceptors.proxyOnly
++        ? "proxy"
++        : setting.value ?? platform.kernelInterceptors.default
+       service.setActive(fallback)
++      if (platform.kernelInterceptors.proxyOnly && setting.value !== "proxy") {
++        applySetting("CURRENT_KERNEL_INTERCEPTOR_ID", "proxy")
++      }
+     },
+     { immediate: true }
+   )
 diff --git a/packages/hoppscotch-common/src/modules/theming.ts b/packages/hoppscotch-common/src/modules/theming.ts
 index 64d8fa42..08bed0dd 100644
 --- a/packages/hoppscotch-common/src/modules/theming.ts
@@ -29911,10 +30428,10 @@ index c00b2539..6b298c64 100644
  
 diff --git a/packages/hoppscotch-common/src/pages/learn.vue b/packages/hoppscotch-common/src/pages/learn.vue
 new file mode 100644
-index 00000000..818032cd
+index 00000000..315887c4
 --- /dev/null
 +++ b/packages/hoppscotch-common/src/pages/learn.vue
-@@ -0,0 +1,59 @@
+@@ -0,0 +1,60 @@
 +<template>
 +  <div class="flex min-h-0 w-full flex-1">
 +    <iframe
@@ -29930,7 +30447,7 @@ index 00000000..818032cd
 +import { usePageHead } from "@composables/head"
 +import { onBeforeUnmount, ref } from "vue"
 +import { useRouter } from "vue-router"
-+import { useLearnProgress } from "~/helpers/sprt-learn"
++import { useLearnProgress, acceptLearnServerProgress } from "~/helpers/sprt-learn"
 +import { getAggregateEnvsWithCurrentValue } from "~/newstore/environments"
 +
 +const router = useRouter()
@@ -29943,6 +30460,7 @@ index 00000000..818032cd
 +const sprtLearnBridge = {
 +  getProgress: () => ({ ...progress.value }),
 +  setProgress,
++  acceptServerProgress: acceptLearnServerProgress,
 +  getUser: () => ({
 +    email: user.value?.email,
 +    name: user.value?.displayName,
@@ -29975,10 +30493,22 @@ index 00000000..818032cd
 +usePageHead({ title: ref("Обучение") })
 +</script>
 diff --git a/packages/hoppscotch-common/src/pages/settings.vue b/packages/hoppscotch-common/src/pages/settings.vue
-index 27a43da0..fcd9b973 100644
+index 27a43da0..ca14acce 100644
 --- a/packages/hoppscotch-common/src/pages/settings.vue
 +++ b/packages/hoppscotch-common/src/pages/settings.vue
-@@ -32,7 +32,7 @@
+@@ -11,6 +11,11 @@
+           </p>
+         </div>
+         <div class="space-y-8 p-8 md:col-span-2">
++          <section>
++            <h4 class="font-semibold text-secondaryDark">Диагностика СПРТ</h4>
++            <p class="my-1 text-secondaryLight">Состояние обучения и журнал для разбора ошибок.</p>
++            <a class="link" href="/sprt/settings?learn-app=1" target="_blank" rel="noopener">Настройки и диагностика</a>
++          </section>
+           <section>
+             <h4 class="font-semibold text-secondaryDark">
+               {{ t("settings.language") }}
+@@ -32,7 +37,7 @@
              </div>
            </section>
  
@@ -29987,7 +30517,7 @@ index 27a43da0..fcd9b973 100644
              <h4 class="font-semibold text-secondaryDark">
                {{ t("settings.experiments") }}
              </h4>
-@@ -216,7 +216,7 @@
+@@ -216,7 +221,7 @@
                <SmartColorModePicker />
              </div>
            </section>
@@ -30030,18 +30560,73 @@ index 00000000..6afc288e
 +
 +usePageHead({ title: ref("Яндекс Еда") })
 +</script>
+diff --git a/packages/hoppscotch-common/src/platform/kernel-interceptors.ts b/packages/hoppscotch-common/src/platform/kernel-interceptors.ts
+index 1ec8abeb..9cfa49e0 100644
+--- a/packages/hoppscotch-common/src/platform/kernel-interceptors.ts
++++ b/packages/hoppscotch-common/src/platform/kernel-interceptors.ts
+@@ -14,6 +14,7 @@ export type KernelInterceptorDef =
+     }
+ 
+ export type KernelInterceptorsPlatformDef = {
++  proxyOnly?: boolean
+   default: string
+   interceptors: KernelInterceptorDef[]
+ }
 diff --git a/packages/hoppscotch-common/src/services/kernel-interceptor.service.ts b/packages/hoppscotch-common/src/services/kernel-interceptor.service.ts
-index 4da8a7ba..f8350b09 100644
+index 4da8a7ba..f555e8ba 100644
 --- a/packages/hoppscotch-common/src/services/kernel-interceptor.service.ts
 +++ b/packages/hoppscotch-common/src/services/kernel-interceptor.service.ts
-@@ -154,10 +154,47 @@ export class KernelInterceptorService extends Service {
+@@ -71,6 +71,19 @@ export type KernelInterceptor<
+ export class KernelInterceptorService extends Service {
+   public static readonly ID = "KERNEL_INTERCEPTOR_SERVICE"
+ 
++  private proxyOnly = false
++  // Private transport for the fixed same-origin iiko gateway, never a selectable mode.
++  private sprtGateway: KernelInterceptor | undefined
++
++  public enforceProxyOnly(): void {
++    this.proxyOnly = true
++    this.sprtGateway = this.state.interceptors.get("browser")
++    for (const key of this.state.interceptors.keys()) {
++      if (key !== "proxy") this.state.interceptors.delete(key)
++    }
++    this.state.currentId = this.state.interceptors.has("proxy") ? "proxy" : null
++  }
++
+   private readonly state = reactive({
+     interceptors: new Map<string, KernelInterceptor>(),
+     currentId: null as string | null,
+@@ -127,6 +140,10 @@ export class KernelInterceptorService extends Service {
+   }
+ 
+   public register(interceptor: KernelInterceptor): void {
++    if (this.proxyOnly && interceptor.id !== "proxy") {
++      if (interceptor.id === "browser") this.sprtGateway = markRaw(interceptor)
++      return
++    }
+     this.state.interceptors.set(interceptor.id, markRaw(interceptor))
+ 
+     if (!this.state.currentId) {
+@@ -135,6 +152,10 @@ export class KernelInterceptorService extends Service {
+   }
+ 
+   public setActive(id: string | null): void {
++    if (this.proxyOnly) {
++      this.state.currentId = this.state.interceptors.has("proxy") ? "proxy" : null
++      return
++    }
+     if (!id) {
+       this.handleNullIdActivation()
+       return
+@@ -154,11 +175,54 @@ export class KernelInterceptorService extends Service {
    }
  
    public execute(req: RelayRequest): ExecutionResult {
 +    const sprtRequest = this.routeSprtIikoRequest(req)
 +    if (sprtRequest) {
-+      const browser = this.state.interceptors.get("browser")
-+      if (browser) return browser.execute(sprtRequest)
++      const gateway = this.proxyOnly ? this.sprtGateway : this.state.interceptors.get("browser")
++      if (!gateway) throw new Error("SPRT gateway transport is unavailable")
++      return gateway.execute(sprtRequest)
 +    }
      const interceptor = this.validateAndGetActiveInterceptor()
      return interceptor.execute(req)
@@ -30063,14 +30648,14 @@ index 4da8a7ba..f8350b09 100644
 +    if (target.origin === window.location.origin) {
 +      if (
 +        target.pathname === "/iiko-auth/token" ||
-+        /^\/iiko-api\/api\/\d+\//.test(target.pathname)
++        /^\/iiko-api\/api\//.test(target.pathname)
 +      ) return { ...req, url: target.href }
 +      return
 +    }
 +
 +    if (
 +      target.origin !== "https://api-ru.iiko.services" ||
-+      !/^\/api\/\d+\//.test(target.pathname)
++      !/^\/api\//.test(target.pathname)
 +    ) return
 +
 +    return {
@@ -30080,8 +30665,14 @@ index 4da8a7ba..f8350b09 100644
 +  }
 +
    private validateAndGetActiveInterceptor(): KernelInterceptor {
++    if (this.proxyOnly) {
++      const proxy = this.state.interceptors.get("proxy")
++      if (!proxy) throw new Error("Proxy interceptor is unavailable")
++      return proxy
++    }
      if (!this.state.currentId) {
        throw new Error("No active interceptor")
+     }
 diff --git a/packages/hoppscotch-selfhost-web/index.html b/packages/hoppscotch-selfhost-web/index.html
 index 6d4ee078..3a48de3d 100644
 --- a/packages/hoppscotch-selfhost-web/index.html
@@ -30133,6 +30724,40 @@ index f7c58dd3..92ed4306 100644
    },
    social: {
      twitter: "@hoppscotch_io",
+diff --git a/packages/hoppscotch-selfhost-web/src/main.ts b/packages/hoppscotch-selfhost-web/src/main.ts
+index 27f3b437..9e3df115 100644
+--- a/packages/hoppscotch-selfhost-web/src/main.ts
++++ b/packages/hoppscotch-selfhost-web/src/main.ts
+@@ -28,9 +28,7 @@ import { useDesktopZoomEffect } from "@hoppscotch/common/composables/desktop-zoo
+ 
+ // Std interceptors
+ import { NativeKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/native"
+-import { AgentKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/agent"
+ import { ProxyKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/proxy"
+-import { ExtensionKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/extension"
+ import { BrowserKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/browser"
+ 
+ const PLATFORM_CONFIG = {
+@@ -40,10 +38,8 @@ const PLATFORM_CONFIG = {
+     interceptors: [
+       BrowserKernelInterceptorService,
+       ProxyKernelInterceptorService,
+-      AgentKernelInterceptorService,
+-      ExtensionKernelInterceptorService,
+     ],
+-    defaultInterceptor: "browser",
++    defaultInterceptor: "proxy",
+     menuItems: stdFooterItems,
+     supportItems: stdSupportOptionItems,
+     cookiesEnabled: false,
+@@ -171,6 +167,7 @@ async function initApp() {
+     },
+ 
+     kernelInterceptors: {
++      proxyOnly: platform === "web",
+       default: config.defaultInterceptor,
+       interceptors: config.interceptors.map((service) => ({
+         type: "service" as const,
 diff --git a/packages/hoppscotch-selfhost-web/src/platform/auth/web/index.ts b/packages/hoppscotch-selfhost-web/src/platform/auth/web/index.ts
 index a65d75df..272d52ba 100644
 --- a/packages/hoppscotch-selfhost-web/src/platform/auth/web/index.ts
@@ -30149,7 +30774,7 @@ index a65d75df..272d52ba 100644
      const deviceIdentifier =
        await persistenceService.getLocalConfig("deviceIdentifier")
 diff --git a/packages/hoppscotch-selfhost-web/vite.config.ts b/packages/hoppscotch-selfhost-web/vite.config.ts
-index 21df3308..6f249ef3 100644
+index 21df3308..abd968e9 100644
 --- a/packages/hoppscotch-selfhost-web/vite.config.ts
 +++ b/packages/hoppscotch-selfhost-web/vite.config.ts
 @@ -228,6 +228,8 @@ export default defineConfig({
@@ -30161,12 +30786,13 @@ index 21df3308..6f249ef3 100644
          maximumFileSizeToCacheInBytes: 15728640, // 15 MB
          navigateFallbackDenylist: [
            /robots.txt/,
-@@ -242,6 +244,8 @@ export default defineConfig({
+@@ -242,6 +244,9 @@ export default defineConfig({
            /announcements/,
            /admin/,
            /backend/,
 +          /yandex-app/,
 +          /learn-app/,
++          /^\/sprt\//,
          ],
        },
      }),
